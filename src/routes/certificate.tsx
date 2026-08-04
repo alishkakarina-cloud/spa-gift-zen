@@ -100,8 +100,8 @@ function CertificateFlow() {
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
-            width={1135}
-            height={885}
+            width={700}
+            height={560}
             className="h-12 w-auto"
           />
         </Link>

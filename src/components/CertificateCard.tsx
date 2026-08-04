@@ -73,8 +73,8 @@ export function CertificateCard({
           <img
             src={logo}
             alt="RaiThai Massage & Spa"
-            width={1135}
-            height={885}
+            width={700}
+            height={560}
             loading="lazy"
             className={compact ? "h-12 w-auto" : "h-20 w-auto"}
           />

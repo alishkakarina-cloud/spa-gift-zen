@@ -47,8 +47,8 @@ function Index() {
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
-            width={1135}
-            height={885}
+            width={700}
+            height={560}
             className="w-52 sm:w-64"
           />
           <div className="gold-rule mt-10 w-24" />
@@ -140,8 +140,8 @@ function Index() {
         <img
           src={logoLight}
           alt="RaiThai Massage & Spa"
-          width={1135}
-          height={885}
+          width={700}
+          height={560}
           loading="lazy"
           className="h-14 w-auto opacity-70"
         />
