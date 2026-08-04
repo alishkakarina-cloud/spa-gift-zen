@@ -26,7 +26,7 @@ export const Route = createFileRoute("/certificate")({
       },
     ],
   }),
-  component: CertificateFlow;
+  component: CertificateFlow,
 });
 
 type Kind = "service" | "amount";
