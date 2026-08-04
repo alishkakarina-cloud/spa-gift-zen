@@ -3,12 +3,13 @@ import type { CertificateDesign } from "@/data/catalog";
 type Props = {
   design: CertificateDesign;
   valueLabel: string;
-  recipient?: string;
-  sender?: string;
-  message?: string;
-  number?: string;
-  compact?: boolean;
+  recipient?: string | undefined;
+  sender?: string | undefined;
+  message?: string | undefined;
+  number?: string | undefined;
+  compact?: boolean | undefined;
 };
+
 
 export function CertificateCard({
   design,

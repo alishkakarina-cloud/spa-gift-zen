@@ -120,9 +120,10 @@
   font-size: 0.875rem;
   color: var(--color-foreground);
   outline: none;
+
+  &:focus {
+    border-color: var(--color-gold);
+  }
 }
 
-@utility input:focus {
-  border-color: var(--color-gold);
-}
 
