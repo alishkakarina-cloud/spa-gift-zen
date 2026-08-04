@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroImg from "@/assets/hero-spa.jpg";
-import ritualImg from "@/assets/ritual.jpg";
+import heroTexture from "@/assets/texture-green.jpg";
+import interiorImg from "@/assets/interior-candles.jpg";
+import teaImg from "@/assets/detail-tea.jpg";
+import logoLight from "@/assets/logo-light.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,35 +36,33 @@ function Index() {
     <main>
       <section className="relative min-h-[92vh] overflow-hidden">
         <img
-          src={heroImg}
-          alt="Интерьер тайского SPA-салона Rai Thai Spa"
+          src={heroTexture}
+          alt="Текстура тёмно-зелёной стены интерьера RaiThai Massage & Spa"
           width={1920}
-          height={1280}
+          height={1200}
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,oklch(0.18_0.03_155/0.75),oklch(0.18_0.03_155/0.55)_45%,oklch(0.2_0.035_155/0.95))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,22,16,0.82),rgba(10,22,16,0.6)_45%,rgba(18,36,27,0.96))]" />
         <div className="relative mx-auto flex min-h-[92vh] max-w-3xl flex-col items-center justify-center px-6 text-center">
-          <p className="font-display text-3xl tracking-[0.3em] text-gold uppercase">
-            Rai Thai
-          </p>
-          <p className="mt-1 text-[0.65rem] tracking-[0.5em] text-cream/70 uppercase">
-            Spa · Thailand
-          </p>
-          <div className="gold-rule mt-8 w-24" />
-          <h1 className="mt-8 font-display text-4xl leading-[1.1] sm:text-6xl">
+          <img
+            src={logoLight}
+            alt="RaiThai Massage & Spa"
+            width={700}
+            height={560}
+            className="w-52 sm:w-64"
+          />
+          <div className="gold-rule mt-10 w-24" />
+          <h1 className="mt-9 font-display text-4xl leading-[1.12] sm:text-6xl">
             Подарите тишину,
             <br />
             тепло и настоящий Таиланд
           </h1>
-          <p className="mt-6 max-w-xl text-sm leading-relaxed text-cream/75">
+          <p className="mt-6 max-w-xl text-sm leading-relaxed text-cream/70">
             Электронный подарочный сертификат Rai Thai Spa — на любую услугу или на
             сумму. Оформите онлайн за пару минут: сертификат придёт получателю сразу
             после оплаты.
           </p>
-          <Link
-            to="/certificate"
-            className="mt-10 inline-flex items-center gap-3 border border-gold bg-gold px-9 py-4 text-[0.7rem] tracking-[0.28em] text-primary-foreground uppercase transition-colors hover:bg-transparent hover:text-gold"
-          >
+          <Link to="/certificate" className="btn-gold mt-11">
             Выбрать сертификат
           </Link>
         </div>
@@ -85,13 +85,37 @@ function Index() {
             </div>
           </div>
           <img
-            src={ritualImg}
-            alt="Тайский ритуал с ароматическим маслом"
+            src={interiorImg}
+            alt="Тёмно-зелёные панели, свечи и терраццо в интерьере RaiThai"
             width={1280}
             height={1600}
             loading="lazy"
-            className="h-[520px] w-full rounded-sm object-cover"
+            className="h-[540px] w-full object-cover"
           />
+        </div>
+      </section>
+
+      <section className="border-t border-border">
+        <div className="mx-auto grid max-w-6xl gap-14 px-6 py-24 lg:grid-cols-[0.85fr_1fr] lg:items-center">
+          <img
+            src={teaImg}
+            alt="Чайная церемония — часть тайской философии RaiThai"
+            width={1280}
+            height={1600}
+            loading="lazy"
+            className="h-[520px] w-full object-cover"
+          />
+          <div>
+            <p className="eyebrow">Ритуал</p>
+            <h2 className="mt-5 font-display text-3xl sm:text-4xl">
+              Место, где начинается любовь к себе
+            </h2>
+            <p className="mt-5 max-w-lg text-sm leading-relaxed text-cream/70">
+              Тёплое масло, свечи, тишина и чайная церемония. Мы работаем с деталями:
+              температурой, ароматом, ритмом дыхания — чтобы время в RaiThai
+              замирало.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -106,20 +130,23 @@ function Index() {
             сертификат на сумму от 20 000 ₸, которую получатель потратит на что
             захочет.
           </p>
-          <Link
-            to="/certificate"
-            className="mt-9 inline-flex items-center border border-gold px-9 py-4 text-[0.7rem] tracking-[0.28em] text-gold uppercase transition-colors hover:bg-gold hover:text-primary-foreground"
-          >
+          <Link to="/certificate" className="btn-ghost mt-9">
             Оформить за 2 минуты
           </Link>
         </div>
       </section>
 
-      <footer className="mx-auto max-w-6xl px-6 py-14 text-xs text-cream/50">
-        <div className="flex flex-wrap justify-between gap-4">
-          <span>Rai Thai Spa · Петропавловск · Кокшетау</span>
-          <span>Ежедневно 10:00 — 22:00</span>
-        </div>
+      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6 px-6 py-14 text-xs text-cream/50">
+        <img
+          src={logoLight}
+          alt="RaiThai Massage & Spa"
+          width={700}
+          height={560}
+          loading="lazy"
+          className="h-14 w-auto opacity-70"
+        />
+        <span>Петропавловск · Кокшетау</span>
+        <span>Ежедневно 10:00 — 22:00</span>
       </footer>
     </main>
   );

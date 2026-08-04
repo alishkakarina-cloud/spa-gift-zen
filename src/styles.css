@@ -33,39 +33,45 @@
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
   --color-cream: var(--cream);
+  --color-sage: var(--sage);
+  --color-clay: var(--clay);
   --color-forest: var(--forest);
   --color-forest-deep: var(--forest-deep);
-  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-display: "Oranienbaum", "Cormorant Garamond", Georgia, serif;
   --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --radius: 0.25rem;
-  --forest-deep: oklch(0.22 0.035 155);
-  --forest: oklch(0.3 0.045 155);
-  --cream: oklch(0.96 0.017 85);
-  --gold: oklch(0.78 0.09 88);
-  --gold-soft: oklch(0.87 0.055 90);
+  --radius: 0.125rem;
 
-  --background: oklch(0.22 0.035 155);
-  --foreground: oklch(0.96 0.017 85);
-  --card: oklch(0.27 0.04 155);
-  --card-foreground: oklch(0.96 0.017 85);
-  --popover: oklch(0.27 0.04 155);
-  --popover-foreground: oklch(0.96 0.017 85);
-  --primary: oklch(0.78 0.09 88);
-  --primary-foreground: oklch(0.2 0.035 155);
-  --secondary: oklch(0.32 0.04 155);
-  --secondary-foreground: oklch(0.96 0.017 85);
-  --muted: oklch(0.3 0.038 155);
-  --muted-foreground: oklch(0.78 0.025 120);
-  --accent: oklch(0.34 0.045 155);
-  --accent-foreground: oklch(0.96 0.017 85);
-  --destructive: oklch(0.6 0.19 25);
-  --destructive-foreground: oklch(0.97 0.01 85);
-  --border: oklch(0.78 0.09 88 / 22%);
-  --input: oklch(0.78 0.09 88 / 26%);
-  --ring: oklch(0.78 0.09 88 / 60%);
+  /* Brand palette — RaiThai identity (CMYK → sRGB) */
+  --sage: #788059; /* C54 M34 Y68 K20 */
+  --gold: #bf9974; /* C22 M38 Y54 K10 */
+  --gold-soft: #d8b795;
+  --clay: #7f4925; /* C33 M68 Y85 K39 */
+  --cream: #f4efe6; /* milky white */
+  --forest-deep: #12241b;
+  --forest: #1c3226;
+
+  --background: #12241b;
+  --foreground: #f4efe6;
+  --card: #1a2d22;
+  --card-foreground: #f4efe6;
+  --popover: #1a2d22;
+  --popover-foreground: #f4efe6;
+  --primary: #bf9974;
+  --primary-foreground: #12241b;
+  --secondary: #223a2c;
+  --secondary-foreground: #f4efe6;
+  --muted: #1f3527;
+  --muted-foreground: #cbc6b8;
+  --accent: #788059;
+  --accent-foreground: #f4efe6;
+  --destructive: #b5573a;
+  --destructive-foreground: #f4efe6;
+  --border: rgba(191, 153, 116, 0.24);
+  --input: rgba(191, 153, 116, 0.28);
+  --ring: rgba(191, 153, 116, 0.6);
 }
 
 @layer base {
@@ -77,6 +83,7 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    font-weight: 300;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -85,14 +92,14 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 300;
-    letter-spacing: 0.01em;
+    font-weight: 400;
+    letter-spacing: 0.02em;
   }
 }
 
 @utility eyebrow {
-  font-size: 0.7rem;
-  letter-spacing: 0.32em;
+  font-size: 0.68rem;
+  letter-spacing: 0.34em;
   text-transform: uppercase;
   color: var(--color-gold);
 }
@@ -108,14 +115,56 @@
 }
 
 @utility surface {
-  background-color: var(--color-card);
+  background-color: color-mix(in srgb, var(--color-card) 92%, transparent);
   border: 1px solid var(--color-border);
+}
+
+@utility btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: 1px solid var(--color-gold);
+  background-color: var(--color-gold);
+  color: var(--color-primary-foreground);
+  padding: 1rem 2.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+
+  &:hover {
+    background-color: transparent;
+    color: var(--color-gold);
+  }
+}
+
+@utility btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  color: color-mix(in srgb, var(--color-cream) 78%, transparent);
+  padding: 1rem 2.25rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  transition: border-color 0.35s ease, color 0.35s ease;
+
+  &:hover {
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+  }
 }
 
 @utility input {
   width: 100%;
   border: 1px solid var(--color-input);
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.12);
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
   color: var(--color-foreground);
@@ -125,5 +174,3 @@
     border-color: var(--color-gold);
   }
 }
-
-

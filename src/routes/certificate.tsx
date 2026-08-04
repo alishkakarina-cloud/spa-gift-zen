@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { CertificateCard } from "@/components/CertificateCard";
+import logoLight from "@/assets/logo-light.png";
 import {
   MIN_AMOUNT,
   designs,
@@ -95,8 +96,14 @@ function CertificateFlow() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       <header className="flex items-center justify-between">
-        <Link to="/" className="font-display text-lg tracking-[0.28em] text-gold uppercase">
-          Rai Thai
+        <Link to="/" aria-label="RaiThai Massage & Spa — на главную">
+          <img
+            src={logoLight}
+            alt="RaiThai Massage & Spa"
+            width={700}
+            height={560}
+            className="h-12 w-auto"
+          />
         </Link>
         <span className="text-[0.65rem] tracking-[0.28em] text-cream/50 uppercase">
           Шаг {step} из 6 · {steps[step - 1]}
@@ -204,17 +211,23 @@ function CertificateFlow() {
 
           {step === 2 && (
             <div>
-              <h1 className="font-display text-3xl">Выберите оформление</h1>
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <h1 className="font-display text-3xl">Выберите дизайн сертификата</h1>
+              <p className="mt-3 max-w-lg text-sm leading-relaxed text-cream/65">
+                Каждое оформление собрано в фирменной айдентике RaiThai — плотные
+                текстуры, золотая рамка и логотип салона.
+              </p>
+              <div className="mt-8 grid gap-5 sm:grid-cols-2">
                 {designs.map((d) => (
                   <button
                     key={d.id}
                     type="button"
                     onClick={() => setDesignId(d.id)}
-                    className={`border p-1 text-left transition-colors ${designId === d.id ? "border-gold" : "border-transparent hover:border-gold/50"}`}
+                    className={`border p-1.5 text-left transition-colors ${designId === d.id ? "border-gold" : "border-border/40 hover:border-gold/60"}`}
                   >
                     <CertificateCard design={d} valueLabel={valueLabel} compact />
-                    <span className="block px-3 py-2 text-xs tracking-[0.2em] text-cream/70 uppercase">
+                    <span
+                      className={`block px-3 py-3 text-[0.68rem] tracking-[0.28em] uppercase ${designId === d.id ? "text-gold" : "text-cream/65"}`}
+                    >
                       {d.title}
                     </span>
                   </button>
@@ -364,13 +377,13 @@ function CertificateFlow() {
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="border border-gold bg-gold px-7 py-3 text-[0.7rem] tracking-[0.28em] text-primary-foreground uppercase"
+                  className="btn-gold"
                 >
                   Скачать сертификат
                 </button>
                 <Link
                   to="/"
-                  className="border border-border px-7 py-3 text-[0.7rem] tracking-[0.28em] text-cream/70 uppercase"
+                  className="btn-ghost"
                 >
                   На главную
                 </Link>
@@ -392,7 +405,7 @@ function CertificateFlow() {
                 <button
                   type="button"
                   onClick={back}
-                  className="border border-border px-6 py-3 text-[0.7rem] tracking-[0.28em] text-cream/70 uppercase transition-colors hover:border-gold/60"
+                  className="btn-ghost"
                 >
                   Назад
                 </button>
@@ -400,7 +413,7 @@ function CertificateFlow() {
               <button
                 type="button"
                 onClick={next}
-                className="border border-gold bg-gold px-8 py-3 text-[0.7rem] tracking-[0.28em] text-primary-foreground uppercase transition-colors hover:bg-transparent hover:text-gold"
+                className="btn-gold"
               >
                 {step === 4 ? "Оплатить" : step === 5 ? "Я оплатил" : "Далее"}
               </button>
