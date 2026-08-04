@@ -123,9 +123,9 @@ export function CertificateCard({
           </p>
         )}
 
-        <div className="mt-2 flex items-end justify-between text-[0.56rem] tracking-[0.24em] uppercase opacity-80">
-          <span>Петропавловск · Кокшетау</span>
-          <span>{number ? `№ ${number}` : "Действителен 12 месяцев"}</span>
+        <div className="mt-2 flex items-end justify-between text-[0.56rem] tracking-[0.24em] uppercase opacity-90">
+          <span className="whitespace-nowrap">Петропавловск · Кокшетау</span>
+          <span className="text-right">{number ? `№ ${number}` : "Действителен 12 месяцев"}</span>
         </div>
       </div>
     </div>
