@@ -93,14 +93,27 @@ export const services: Service[] = [
 export const fixedAmounts = [20000, 30000, 50000, 75000, 100000];
 export const MIN_AMOUNT = 20000;
 
+export type CertificateTexture =
+  | "emerald"
+  | "cream"
+  | "rose"
+  | "noir"
+  | "terracotta";
+
 export type CertificateDesign = {
   id: string;
   title: string;
   caption: string;
   motif: string;
-  from: string;
-  to: string;
+  texture: CertificateTexture;
+  /** Цвет вуали поверх текстуры для читаемости */
+  veil: string;
+  /** Основной цвет текста и рамки */
   ink: string;
+  /** Акцент — сумма, номинал */
+  accent: string;
+  /** Светлая или золотая версия логотипа */
+  logo: "light" | "gold";
 };
 
 export const designs: CertificateDesign[] = [
@@ -109,81 +122,99 @@ export const designs: CertificateDesign[] = [
     title: "Универсальный",
     caption: "Подарочный сертификат",
     motif: "❈",
-    from: "oklch(0.26 0.04 155)",
-    to: "oklch(0.34 0.05 158)",
-    ink: "var(--color-gold)",
+    texture: "emerald",
+    veil: "linear-gradient(150deg, rgba(10,26,18,0.82), rgba(10,26,18,0.62))",
+    ink: "#f4efe6",
+    accent: "#bf9974",
+    logo: "light",
   },
   {
     id: "birthday",
     title: "День рождения",
     caption: "С днём рождения",
     motif: "✦",
-    from: "oklch(0.28 0.05 150)",
-    to: "oklch(0.42 0.07 120)",
-    ink: "var(--color-gold-soft)",
+    texture: "cream",
+    veil: "linear-gradient(150deg, rgba(244,239,230,0.72), rgba(216,183,149,0.5))",
+    ink: "#22301f",
+    accent: "#7f4925",
+    logo: "gold",
   },
   {
     id: "for-her",
     title: "Для неё",
     caption: "Для неё",
     motif: "❀",
-    from: "oklch(0.34 0.05 30)",
-    to: "oklch(0.5 0.06 25)",
-    ink: "oklch(0.94 0.03 60)",
+    texture: "rose",
+    veil: "linear-gradient(150deg, rgba(60,26,26,0.5), rgba(120,60,52,0.42))",
+    ink: "#fdf4ee",
+    accent: "#f0d3b8",
+    logo: "light",
   },
   {
     id: "for-him",
     title: "Для него",
     caption: "Для него",
     motif: "◈",
-    from: "oklch(0.2 0.02 200)",
-    to: "oklch(0.3 0.03 190)",
-    ink: "var(--color-gold)",
+    texture: "noir",
+    veil: "linear-gradient(150deg, rgba(8,14,11,0.7), rgba(8,14,11,0.5))",
+    ink: "#f0ece2",
+    accent: "#bf9974",
+    logo: "gold",
   },
   {
     id: "for-two",
     title: "Для двоих",
     caption: "SPA для двоих",
     motif: "❋",
-    from: "oklch(0.26 0.04 165)",
-    to: "oklch(0.38 0.05 100)",
-    ink: "var(--color-gold-soft)",
+    texture: "emerald",
+    veil: "linear-gradient(150deg, rgba(18,36,27,0.62), rgba(120,128,89,0.42))",
+    ink: "#f4efe6",
+    accent: "#d8b795",
+    logo: "light",
   },
   {
     id: "romantic",
     title: "Романтический",
     caption: "С любовью",
     motif: "♥",
-    from: "oklch(0.28 0.07 20)",
-    to: "oklch(0.4 0.09 15)",
-    ink: "oklch(0.93 0.04 60)",
+    texture: "terracotta",
+    veil: "linear-gradient(150deg, rgba(52,12,10,0.62), rgba(90,26,18,0.42))",
+    ink: "#fbeee4",
+    accent: "#e2bb92",
+    logo: "light",
   },
   {
     id: "new-year",
     title: "Новый год",
     caption: "С Новым годом",
     motif: "✧",
-    from: "oklch(0.24 0.05 160)",
-    to: "oklch(0.32 0.07 145)",
-    ink: "var(--color-gold)",
+    texture: "emerald",
+    veil: "linear-gradient(150deg, rgba(8,22,15,0.86), rgba(30,52,36,0.66))",
+    ink: "#f4efe6",
+    accent: "#bf9974",
+    logo: "gold",
   },
   {
     id: "8-march",
     title: "8 марта",
     caption: "С 8 марта",
     motif: "✿",
-    from: "oklch(0.32 0.06 350)",
-    to: "oklch(0.46 0.07 340)",
-    ink: "oklch(0.95 0.03 70)",
+    texture: "rose",
+    veil: "linear-gradient(150deg, rgba(244,239,230,0.62), rgba(224,168,158,0.42))",
+    ink: "#3a2320",
+    accent: "#7f4925",
+    logo: "gold",
   },
   {
     id: "14-feb",
     title: "14 февраля",
     caption: "С Днём святого Валентина",
     motif: "❥",
-    from: "oklch(0.26 0.08 10)",
-    to: "oklch(0.36 0.1 5)",
-    ink: "oklch(0.94 0.04 60)",
+    texture: "terracotta",
+    veil: "linear-gradient(150deg, rgba(38,8,8,0.72), rgba(78,18,14,0.5))",
+    ink: "#fbeee4",
+    accent: "#d8b795",
+    logo: "light",
   },
 ];
 
