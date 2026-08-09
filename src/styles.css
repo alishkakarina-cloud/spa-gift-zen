@@ -37,35 +37,37 @@
   --color-clay: var(--clay);
   --color-forest: var(--forest);
   --color-forest-deep: var(--forest-deep);
-  --font-display: "Oranienbaum", "Cormorant Garamond", Georgia, serif;
-  --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --color-maroon: var(--maroon);
+  --font-display: "Fraunces", "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Raleway", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.125rem;
 
-  /* Brand palette — RaiThai identity (CMYK → sRGB) */
-  --sage: #788059; /* C54 M34 Y68 K20 */
-  --gold: #bf9974; /* C22 M38 Y54 K10 */
-  --gold-soft: #d8b795;
-  --clay: #7f4925; /* C33 M68 Y85 K39 */
-  --cream: #f4efe6; /* milky white */
-  --forest-deep: #12241b;
-  --forest: #1c3226;
+  /* Brand palette — RaiThai official identity (magiceight.agency brand guide) */
+  --sage: #93a07a;
+  --gold: #bf9974; /* brass/gold accent from interior photography, per TZ style brief */
+  --gold-soft: #edcea5;
+  --clay: #7f4925;
+  --cream: #f4efe6; /* milky white, per TZ "молочные цвета" */
+  --forest-deep: #253027;
+  --forest: #32513c;
+  --maroon: #4b0302; /* official accent — reserved for future decorative use */
 
-  --background: #12241b;
+  --background: #253027;
   --foreground: #f4efe6;
-  --card: #1a2d22;
+  --card: #2d392e;
   --card-foreground: #f4efe6;
-  --popover: #1a2d22;
+  --popover: #2d392e;
   --popover-foreground: #f4efe6;
   --primary: #bf9974;
-  --primary-foreground: #12241b;
-  --secondary: #223a2c;
+  --primary-foreground: #253027;
+  --secondary: #354638;
   --secondary-foreground: #f4efe6;
-  --muted: #1f3527;
+  --muted: #324133;
   --muted-foreground: #cbc6b8;
-  --accent: #788059;
+  --accent: #93a07a;
   --accent-foreground: #f4efe6;
   --destructive: #b5573a;
   --destructive-foreground: #f4efe6;
