@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { CertificateCard } from "@/components/CertificateCard";
+import { Motif } from "@/components/Motif";
 import logoLight from "@/assets/logo-light.png";
 import {
   MIN_AMOUNT,
@@ -143,9 +144,15 @@ function CertificateFlow() {
                 <div className="mt-10 space-y-8">
                   {(["massage", "spa"] as const).map((group) => (
                     <div key={group}>
-                      <p className="eyebrow">
-                        {group === "massage" ? "Массаж" : "SPA-программы"}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <Motif
+                          name={group === "massage" ? "paisleyDrop" : "offeringBowl"}
+                          className="h-5 w-5 text-gold"
+                        />
+                        <p className="eyebrow">
+                          {group === "massage" ? "Массаж" : "SPA-программы"}
+                        </p>
+                      </div>
                       <div className="mt-4 grid gap-3">
                         {services
                           .filter((s) => s.group === group)
@@ -176,7 +183,10 @@ function CertificateFlow() {
                 </div>
               ) : (
                 <div className="mt-10">
-                  <p className="eyebrow">Сумма сертификата</p>
+                  <div className="flex items-center gap-3">
+                    <Motif name="petalDiamond" className="h-5 w-5 text-gold" />
+                    <p className="eyebrow">Сумма сертификата</p>
+                  </div>
                   <div className="mt-4 flex flex-wrap gap-3">
                     {fixedAmounts.map((a) => (
                       <button
@@ -365,7 +375,8 @@ function CertificateFlow() {
 
           {step === 6 && (
             <div>
-              <p className="eyebrow">Оплачено</p>
+              <Motif name="flowerBurst" className="h-12 w-12 text-gold" />
+              <p className="eyebrow mt-4">Оплачено</p>
               <h1 className="mt-4 font-display text-3xl">Сертификат готов</h1>
               <p className="mt-3 text-sm text-cream/70">
                 Номер сертификата — {number}.{" "}

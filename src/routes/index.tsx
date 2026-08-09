@@ -3,6 +3,8 @@ import heroTexture from "@/assets/texture-green.jpg";
 import interiorImg from "@/assets/interior-candles.jpg";
 import teaImg from "@/assets/detail-tea.jpg";
 import logoLight from "@/assets/logo-light.png";
+import { Motif } from "@/components/Motif";
+import { Divider } from "@/components/Divider";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,6 +45,16 @@ function Index() {
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,22,16,0.82),rgba(10,22,16,0.6)_45%,rgba(18,36,27,0.96))]" />
+        <Motif
+          name="lotusCrown"
+          className="pointer-events-none absolute -top-16 -right-24 h-[26rem] w-[26rem] text-gold sm:h-[34rem] sm:w-[34rem]"
+          style={{ opacity: 0.06 }}
+        />
+        <Motif
+          name="palmFrond"
+          className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 text-cream sm:h-96 sm:w-96"
+          style={{ opacity: 0.05 }}
+        />
         <div className="relative mx-auto flex min-h-[92vh] max-w-3xl flex-col items-center justify-center px-6 text-center">
           <img
             src={logoLight}
@@ -51,7 +63,7 @@ function Index() {
             height={560}
             className="w-52 sm:w-64"
           />
-          <div className="gold-rule mt-10 w-24" />
+          <Divider motif="waveCrown" className="mt-10" />
           <h1 className="mt-9 font-display text-4xl leading-[1.12] sm:text-6xl">
             Подарите тишину,
             <br />
@@ -71,7 +83,10 @@ function Index() {
       <section className="mx-auto max-w-6xl px-6 py-24">
         <div className="grid gap-14 lg:grid-cols-[1fr_0.85fr] lg:items-center">
           <div>
-            <p className="eyebrow">О салоне</p>
+            <div className="flex items-center gap-3">
+              <Motif name="waterLines" className="h-5 w-6 text-gold" />
+              <p className="eyebrow">О салоне</p>
+            </div>
             <h2 className="mt-5 font-display text-3xl sm:text-4xl">
               Аутентичное тайское SPA рядом с домом
             </h2>
@@ -95,8 +110,9 @@ function Index() {
         </div>
       </section>
 
-      <section className="border-t border-border">
-        <div className="mx-auto grid max-w-6xl gap-14 px-6 py-24 lg:grid-cols-[0.85fr_1fr] lg:items-center">
+      <section>
+        <Divider motif="paisleyDrop" className="pt-16" />
+        <div className="mx-auto grid max-w-6xl gap-14 px-6 pt-10 pb-24 lg:grid-cols-[0.85fr_1fr] lg:items-center">
           <img
             src={teaImg}
             alt="Чайная церемония — часть тайской философии RaiThai"
@@ -106,7 +122,10 @@ function Index() {
             className="h-[520px] w-full object-cover"
           />
           <div>
-            <p className="eyebrow">Ритуал</p>
+            <div className="flex items-center gap-3">
+              <Motif name="offeringBowl" className="h-6 w-5 text-gold" />
+              <p className="eyebrow">Ритуал</p>
+            </div>
             <h2 className="mt-5 font-display text-3xl sm:text-4xl">
               Место, где начинается любовь к себе
             </h2>
@@ -119,9 +138,18 @@ function Index() {
         </div>
       </section>
 
-      <section className="border-y border-border">
-        <div className="mx-auto flex max-w-4xl flex-col items-center px-6 py-20 text-center">
-          <p className="eyebrow">Сертификат</p>
+      <section className="relative overflow-hidden border-b border-border">
+        <Divider motif="flowerBurst" className="pt-16" />
+        <Motif
+          name="lotusBloom"
+          className="pointer-events-none absolute top-1/2 left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 text-gold"
+          style={{ opacity: 0.05 }}
+        />
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-10 pb-20 text-center">
+          <div className="flex items-center gap-3">
+            <Motif name="lotusBloom" className="h-6 w-6 text-gold" />
+            <p className="eyebrow">Сертификат</p>
+          </div>
           <h2 className="mt-5 font-display text-3xl sm:text-4xl">
             Два варианта подарка
           </h2>
