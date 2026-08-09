@@ -36,6 +36,20 @@ type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
 const steps = ["Сертификат", "Дизайн", "Данные", "Проверка", "Оплата", "Готово"];
 
+const formatCardNumber = (value: string) =>
+  value
+    .replace(/\D/g, "")
+    .slice(0, 16)
+    .replace(/(.{4})/g, "$1 ")
+    .trim();
+
+const formatCardExpiry = (value: string) => {
+  const digits = value.replace(/\D/g, "").slice(0, 4);
+  return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+};
+
+const formatCardCvv = (value: string) => value.replace(/\D/g, "").slice(0, 3);
+
 function CertificateFlow() {
   const [step, setStep] = useState<Step>(1);
   const [kind, setKind] = useState<Kind>("service");
@@ -51,6 +65,9 @@ function CertificateFlow() {
   const [sendMode, setSendMode] = useState<"now" | "later">("now");
   const [sendAt, setSendAt] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
 
   const design = designs.find((d) => d.id === designId)!;
   const service = services.find((s) => s.id === serviceId) ?? null;
@@ -349,26 +366,69 @@ function CertificateFlow() {
             <div className="max-w-md">
               <h1 className="font-display text-3xl">Оплата</h1>
               <p className="mt-4 text-sm leading-relaxed text-cream/70">
-                Отсканируйте QR-код в приложении Kaspi.kz и подтвердите платёж на{" "}
+                Введите данные карты и подтвердите платёж на{" "}
                 <span className="text-gold">{formatPrice(total)}</span>. Сертификат
                 сформируется автоматически.
               </p>
-              <div className="surface mt-8 flex flex-col items-center gap-4 p-8">
-                <div className="grid h-40 w-40 grid-cols-8 grid-rows-8 gap-[2px] bg-cream p-2">
-                  {Array.from({ length: 64 }).map((_, i) => (
-                    <span
-                      key={i}
-                      className={(i * 7) % 3 === 0 ? "bg-forest-deep" : "bg-transparent"}
-                    />
-                  ))}
+
+              <div className="surface mt-8 flex items-center justify-between gap-3 p-5">
+                <div className="flex items-center gap-3">
+                  <svg
+                    viewBox="0 0 32 24"
+                    className="h-6 w-8 text-gold"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <rect x="1" y="1" width="30" height="22" rx="3" stroke="currentColor" strokeWidth="1.5" />
+                    <rect x="1" y="6.5" width="30" height="3.5" fill="currentColor" />
+                    <rect x="4" y="15" width="8" height="2" rx="1" fill="currentColor" opacity="0.7" />
+                  </svg>
+                  <span className="font-display text-lg tracking-wide">Freedom Pay</span>
                 </div>
-                <p className="text-[0.65rem] tracking-[0.28em] text-cream/50 uppercase">
-                  Kaspi QR · демо-режим
-                </p>
+                <span className="text-[0.6rem] tracking-[0.24em] text-cream/45 uppercase">
+                  Оплата картой
+                </span>
               </div>
+
+              <div className="mt-6 grid gap-5">
+                <Field label="Номер карты">
+                  <input
+                    inputMode="numeric"
+                    autoComplete="cc-number"
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                    placeholder="0000 0000 0000 0000"
+                    className="input"
+                  />
+                </Field>
+                <div className="grid grid-cols-2 gap-5">
+                  <Field label="Срок действия">
+                    <input
+                      inputMode="numeric"
+                      autoComplete="cc-exp"
+                      value={cardExpiry}
+                      onChange={(e) => setCardExpiry(formatCardExpiry(e.target.value))}
+                      placeholder="ММ/ГГ"
+                      className="input"
+                    />
+                  </Field>
+                  <Field label="CVV">
+                    <input
+                      inputMode="numeric"
+                      autoComplete="cc-csc"
+                      value={cardCvv}
+                      onChange={(e) => setCardCvv(formatCardCvv(e.target.value))}
+                      placeholder="•••"
+                      className="input"
+                    />
+                  </Field>
+                </div>
+              </div>
+
               <p className="mt-4 text-xs text-cream/50">
-                Приём платежей Kaspi подключается после получения доступа к Kaspi Pay
-                API. Сейчас шаг работает в тестовом режиме.
+                Приём платежей Freedom Pay подключается после получения API-ключа и
+                Merchant ID. Сейчас форма работает в демо-режиме и не обрабатывает
+                реальные платежи.
               </p>
             </div>
           )}
