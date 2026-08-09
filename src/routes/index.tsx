@@ -50,60 +50,60 @@ function Index() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,18,13,0.88),rgba(8,18,13,0.72)_45%,rgba(14,28,21,0.97))]" />
         <Motif
           name="lotusCrown"
-          className="pointer-events-none absolute -top-20 -right-28 h-[32rem] w-[32rem] text-gold sm:h-[42rem] sm:w-[42rem]"
+          className="pointer-events-none absolute -top-10 -right-16 h-56 w-56 text-gold sm:-top-20 sm:-right-28 sm:h-[32rem] sm:w-[32rem] lg:h-[42rem] lg:w-[42rem]"
           style={{ opacity: 0.22 }}
         />
         <Motif
           name="palmFrond"
-          className="pointer-events-none absolute -bottom-24 -left-20 h-80 w-80 text-gold-soft sm:h-[28rem] sm:w-[28rem]"
+          className="pointer-events-none absolute -bottom-12 -left-10 h-40 w-40 text-gold-soft sm:-bottom-24 sm:-left-20 sm:h-80 sm:w-80 lg:h-[28rem] lg:w-[28rem]"
           style={{ opacity: 0.2 }}
         />
-        <div className="relative mx-auto flex min-h-[92vh] max-w-3xl flex-col items-center justify-center px-6 text-center">
+        <div className="relative mx-auto flex min-h-[92vh] max-w-3xl flex-col items-center justify-center px-5 py-20 text-center sm:px-6">
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
             width={700}
             height={560}
-            className="w-52 sm:w-64"
+            className="w-40 sm:w-52 lg:w-64"
           />
-          <Divider motif="waveCrown" className="mt-10" />
-          <h1 className="mt-9 font-display text-4xl leading-[1.12] sm:text-6xl">
+          <Divider motif="waveCrown" className="mt-7 sm:mt-10" />
+          <h1 className="mt-7 font-display text-[1.9rem] leading-[1.15] sm:mt-9 sm:text-4xl lg:text-6xl">
             Подарите тишину,
             <br />
             тепло и настоящий Таиланд
           </h1>
-          <p className="mt-6 max-w-xl text-sm leading-relaxed text-cream/70">
+          <p className="mt-5 max-w-xl text-sm leading-relaxed text-cream/70 sm:mt-6">
             Электронный подарочный сертификат Rai Thai Spa — на любую услугу или на
             сумму. Оформите онлайн за пару минут: сертификат придёт получателю сразу
             после оплаты.
           </p>
-          <Link to="/certificate" className="btn-gold mt-11">
+          <Link to="/certificate" className="btn-gold mt-9 sm:mt-11">
             Выбрать сертификат
           </Link>
         </div>
       </section>
 
       <section className="relative overflow-hidden">
-        <Divider motif="swirlLeaf" className="pt-20" />
+        <Divider motif="swirlLeaf" className="pt-12 sm:pt-16 lg:pt-20" />
         <Motif
           name="diamondLattice"
-          className="pointer-events-none absolute -top-10 -left-24 h-96 w-96 text-sage sm:h-[26rem] sm:w-[26rem]"
+          className="pointer-events-none absolute -top-6 -left-14 h-52 w-52 text-sage sm:-top-10 sm:-left-24 sm:h-72 sm:w-72 lg:h-[26rem] lg:w-[26rem]"
           style={{ opacity: 0.16 }}
         />
-        <div className="relative mx-auto max-w-6xl px-6 pt-12 pb-32">
-          <div className="grid gap-16 lg:grid-cols-[1fr_0.85fr] lg:items-center">
+        <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-24 lg:pb-32">
+          <div className="grid gap-10 sm:gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center lg:gap-16">
             <div>
               <div className="flex items-center gap-3">
-                <Motif name="waterLines" className="h-7 w-9 text-gold" />
+                <Motif name="waterLines" className="h-6 w-8 text-gold sm:h-7 sm:w-9" />
                 <p className="eyebrow">О салоне</p>
               </div>
-              <h2 className="mt-5 font-display text-3xl sm:text-4xl">
+              <h2 className="mt-4 font-display text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
                 Аутентичное тайское SPA рядом с домом
               </h2>
-              <div className="mt-12 grid gap-10 sm:grid-cols-2">
+              <div className="mt-8 grid gap-8 sm:mt-12 sm:grid-cols-2 sm:gap-10">
                 {points.map((p) => (
                   <div key={p.t}>
-                    <p className="font-display text-xl text-gold">{p.t}</p>
+                    <p className="font-display text-lg text-gold sm:text-xl">{p.t}</p>
                     <p className="mt-2 text-sm leading-relaxed text-cream/70">{p.d}</p>
                   </div>
                 ))}
@@ -116,7 +116,7 @@ function Index() {
                 width={1280}
                 height={1600}
                 loading="lazy"
-                className="h-[560px] w-full object-cover"
+                className="h-[300px] w-full object-cover sm:h-[420px] lg:h-[560px]"
               />
               <img
                 src={redNookImg}
@@ -124,7 +124,7 @@ function Index() {
                 width={1080}
                 height={1350}
                 loading="lazy"
-                className="ring-background absolute -bottom-10 -left-10 hidden h-52 w-44 object-cover shadow-2xl ring-[6px] sm:block"
+                className="ring-background absolute -bottom-8 -left-6 hidden h-36 w-28 object-cover shadow-2xl ring-4 sm:-bottom-10 sm:-left-10 sm:block sm:h-52 sm:w-44 sm:ring-[6px]"
               />
             </div>
           </div>
@@ -132,30 +132,30 @@ function Index() {
       </section>
 
       <section className="relative overflow-hidden">
-        <Divider motif="paisleyDrop" className="pt-20" />
+        <Divider motif="paisleyDrop" className="pt-12 sm:pt-16 lg:pt-20" />
         <Motif
           name="templeArch"
-          className="pointer-events-none absolute -right-24 -bottom-16 h-[26rem] w-[26rem] text-gold"
+          className="pointer-events-none absolute -right-14 -bottom-10 h-56 w-56 text-gold sm:-right-24 sm:-bottom-16 sm:h-72 sm:w-72 lg:h-[26rem] lg:w-[26rem]"
           style={{ opacity: 0.15 }}
         />
-        <div className="relative mx-auto grid max-w-6xl gap-16 px-6 pt-12 pb-32 lg:grid-cols-[0.85fr_1fr] lg:items-center">
+        <div className="relative mx-auto grid max-w-6xl gap-10 px-5 pt-10 pb-16 sm:gap-12 sm:px-6 sm:pt-12 sm:pb-24 lg:grid-cols-[0.85fr_1fr] lg:items-center lg:gap-16 lg:pb-32">
           <img
             src={teaImg}
             alt="Чайная церемония — часть тайской философии RaiThai"
             width={1280}
             height={1600}
             loading="lazy"
-            className="h-[560px] w-full object-cover"
+            className="h-[300px] w-full object-cover sm:h-[420px] lg:h-[560px]"
           />
           <div>
             <div className="flex items-center gap-3">
-              <Motif name="offeringBowl" className="h-9 w-7 text-gold" />
+              <Motif name="offeringBowl" className="h-8 w-6 text-gold sm:h-9 sm:w-7" />
               <p className="eyebrow">Ритуал</p>
             </div>
-            <h2 className="mt-5 font-display text-3xl sm:text-4xl">
+            <h2 className="mt-4 font-display text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
               Место, где начинается любовь к себе
             </h2>
-            <p className="mt-5 max-w-lg text-sm leading-relaxed text-cream/70">
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-cream/70 sm:mt-5">
               Тёплое масло, свечи, тишина и чайная церемония. Мы работаем с деталями:
               температурой, ароматом, ритмом дыхания — чтобы время в RaiThai
               замирало.
@@ -165,18 +165,18 @@ function Index() {
       </section>
 
       <section className="relative overflow-hidden border-b border-border">
-        <Divider motif="flowerBurst" className="pt-20" />
+        <Divider motif="flowerBurst" className="pt-12 sm:pt-16 lg:pt-20" />
         <Motif
           name="lotusBloom"
-          className="pointer-events-none absolute top-1/2 left-1/2 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 text-gold"
+          className="pointer-events-none absolute top-1/2 left-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 text-gold sm:h-96 sm:w-96 lg:h-[36rem] lg:w-[36rem]"
           style={{ opacity: 0.2 }}
         />
-        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-14 pb-28 text-center">
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-5 pt-10 pb-16 text-center sm:px-6 sm:pt-14 sm:pb-24 lg:pb-28">
           <div className="flex items-center gap-3">
-            <Motif name="lotusBloom" className="h-9 w-9 text-gold" />
+            <Motif name="lotusBloom" className="h-7 w-7 text-gold sm:h-9 sm:w-9" />
             <p className="eyebrow">Сертификат</p>
           </div>
-          <h2 className="mt-5 font-display text-3xl sm:text-4xl">
+          <h2 className="mt-4 font-display text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
             Два варианта подарка
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-cream/70">
@@ -184,7 +184,7 @@ function Index() {
             сертификат на сумму от 20 000 ₸, которую получатель потратит на что
             захочет.
           </p>
-          <Link to="/certificate" className="btn-ghost mt-9">
+          <Link to="/certificate" className="btn-ghost mt-8 sm:mt-9">
             Оформить за 2 минуты
           </Link>
         </div>
@@ -193,17 +193,17 @@ function Index() {
       <footer className="relative overflow-hidden">
         <Motif
           name="dottedWave"
-          className="pointer-events-none absolute top-0 left-1/2 h-40 w-64 -translate-x-1/2 text-gold"
+          className="pointer-events-none absolute top-0 left-1/2 h-24 w-40 -translate-x-1/2 text-gold sm:h-40 sm:w-64"
           style={{ opacity: 0.12 }}
         />
-        <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6 px-6 py-16 text-xs text-cream/50">
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-10 text-center text-xs text-cream/50 sm:flex-row sm:gap-6 sm:px-6 sm:py-16 sm:text-left">
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
             width={700}
             height={560}
             loading="lazy"
-            className="h-14 w-auto opacity-70"
+            className="h-12 w-auto opacity-70 sm:h-14"
           />
           <span>Петропавловск · Кокшетау</span>
           <span>Ежедневно 10:00 — 22:00</span>

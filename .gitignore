@@ -34,3 +34,4 @@ dist-ssr
 # Local reference material / npm lockfile (project uses bun.lock)
 /brand-assets/
 package-lock.json
+.vercel
