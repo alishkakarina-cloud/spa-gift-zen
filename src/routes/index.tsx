@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroTexture from "@/assets/texture-green.jpg";
+import heroPhoto from "@/assets/atmosphere-arch.jpg";
 import interiorImg from "@/assets/interior-candles.jpg";
+import redNookImg from "@/assets/atmosphere-red.jpg";
 import teaImg from "@/assets/detail-tea.jpg";
 import logoLight from "@/assets/logo-light.png";
 import { Motif } from "@/components/Motif";
 import { Divider } from "@/components/Divider";
+import { Ribbon } from "@/components/Ribbon";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,23 +39,24 @@ function Index() {
   return (
     <main>
       <section className="relative min-h-[92vh] overflow-hidden">
+        <Ribbon side="left" />
         <img
-          src={heroTexture}
-          alt="Текстура тёмно-зелёной стены интерьера RaiThai Massage & Spa"
-          width={1920}
-          height={1200}
+          src={heroPhoto}
+          alt="Интерьер RaiThai Massage & Spa — тёмно-зелёные стены, авторская картина, полосатый ковёр"
+          width={1080}
+          height={1350}
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,22,16,0.82),rgba(10,22,16,0.6)_45%,rgba(18,36,27,0.96))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,18,13,0.88),rgba(8,18,13,0.72)_45%,rgba(14,28,21,0.97))]" />
         <Motif
           name="lotusCrown"
-          className="pointer-events-none absolute -top-16 -right-24 h-[26rem] w-[26rem] text-gold sm:h-[34rem] sm:w-[34rem]"
-          style={{ opacity: 0.06 }}
+          className="pointer-events-none absolute -top-20 -right-28 h-[32rem] w-[32rem] text-gold sm:h-[42rem] sm:w-[42rem]"
+          style={{ opacity: 0.22 }}
         />
         <Motif
           name="palmFrond"
-          className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 text-cream sm:h-96 sm:w-96"
-          style={{ opacity: 0.05 }}
+          className="pointer-events-none absolute -bottom-24 -left-20 h-80 w-80 text-gold-soft sm:h-[28rem] sm:w-[28rem]"
+          style={{ opacity: 0.2 }}
         />
         <div className="relative mx-auto flex min-h-[92vh] max-w-3xl flex-col items-center justify-center px-6 text-center">
           <img
@@ -80,50 +83,73 @@ function Index() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-24">
-        <div className="grid gap-14 lg:grid-cols-[1fr_0.85fr] lg:items-center">
-          <div>
-            <div className="flex items-center gap-3">
-              <Motif name="waterLines" className="h-5 w-6 text-gold" />
-              <p className="eyebrow">О салоне</p>
+      <section className="relative overflow-hidden">
+        <Divider motif="swirlLeaf" className="pt-20" />
+        <Motif
+          name="diamondLattice"
+          className="pointer-events-none absolute -top-10 -left-24 h-96 w-96 text-sage sm:h-[26rem] sm:w-[26rem]"
+          style={{ opacity: 0.16 }}
+        />
+        <div className="relative mx-auto max-w-6xl px-6 pt-12 pb-32">
+          <div className="grid gap-16 lg:grid-cols-[1fr_0.85fr] lg:items-center">
+            <div>
+              <div className="flex items-center gap-3">
+                <Motif name="waterLines" className="h-7 w-9 text-gold" />
+                <p className="eyebrow">О салоне</p>
+              </div>
+              <h2 className="mt-5 font-display text-3xl sm:text-4xl">
+                Аутентичное тайское SPA рядом с домом
+              </h2>
+              <div className="mt-12 grid gap-10 sm:grid-cols-2">
+                {points.map((p) => (
+                  <div key={p.t}>
+                    <p className="font-display text-xl text-gold">{p.t}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-cream/70">{p.d}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <h2 className="mt-5 font-display text-3xl sm:text-4xl">
-              Аутентичное тайское SPA рядом с домом
-            </h2>
-            <div className="mt-10 grid gap-8 sm:grid-cols-2">
-              {points.map((p) => (
-                <div key={p.t}>
-                  <p className="font-display text-xl text-gold">{p.t}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-cream/70">{p.d}</p>
-                </div>
-              ))}
+            <div className="relative">
+              <img
+                src={interiorImg}
+                alt="Тёмно-зелёные панели, свечи и терраццо в интерьере RaiThai"
+                width={1280}
+                height={1600}
+                loading="lazy"
+                className="h-[560px] w-full object-cover"
+              />
+              <img
+                src={redNookImg}
+                alt="Атмосферная деталь интерьера RaiThai — тёплый свет в нише"
+                width={1080}
+                height={1350}
+                loading="lazy"
+                className="ring-background absolute -bottom-10 -left-10 hidden h-52 w-44 object-cover shadow-2xl ring-[6px] sm:block"
+              />
             </div>
           </div>
-          <img
-            src={interiorImg}
-            alt="Тёмно-зелёные панели, свечи и терраццо в интерьере RaiThai"
-            width={1280}
-            height={1600}
-            loading="lazy"
-            className="h-[540px] w-full object-cover"
-          />
         </div>
       </section>
 
-      <section>
-        <Divider motif="paisleyDrop" className="pt-16" />
-        <div className="mx-auto grid max-w-6xl gap-14 px-6 pt-10 pb-24 lg:grid-cols-[0.85fr_1fr] lg:items-center">
+      <section className="relative overflow-hidden">
+        <Divider motif="paisleyDrop" className="pt-20" />
+        <Motif
+          name="templeArch"
+          className="pointer-events-none absolute -right-24 -bottom-16 h-[26rem] w-[26rem] text-gold"
+          style={{ opacity: 0.15 }}
+        />
+        <div className="relative mx-auto grid max-w-6xl gap-16 px-6 pt-12 pb-32 lg:grid-cols-[0.85fr_1fr] lg:items-center">
           <img
             src={teaImg}
             alt="Чайная церемония — часть тайской философии RaiThai"
             width={1280}
             height={1600}
             loading="lazy"
-            className="h-[520px] w-full object-cover"
+            className="h-[560px] w-full object-cover"
           />
           <div>
             <div className="flex items-center gap-3">
-              <Motif name="offeringBowl" className="h-6 w-5 text-gold" />
+              <Motif name="offeringBowl" className="h-9 w-7 text-gold" />
               <p className="eyebrow">Ритуал</p>
             </div>
             <h2 className="mt-5 font-display text-3xl sm:text-4xl">
@@ -139,15 +165,15 @@ function Index() {
       </section>
 
       <section className="relative overflow-hidden border-b border-border">
-        <Divider motif="flowerBurst" className="pt-16" />
+        <Divider motif="flowerBurst" className="pt-20" />
         <Motif
           name="lotusBloom"
-          className="pointer-events-none absolute top-1/2 left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 text-gold"
-          style={{ opacity: 0.05 }}
+          className="pointer-events-none absolute top-1/2 left-1/2 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 text-gold"
+          style={{ opacity: 0.2 }}
         />
-        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-10 pb-20 text-center">
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-14 pb-28 text-center">
           <div className="flex items-center gap-3">
-            <Motif name="lotusBloom" className="h-6 w-6 text-gold" />
+            <Motif name="lotusBloom" className="h-9 w-9 text-gold" />
             <p className="eyebrow">Сертификат</p>
           </div>
           <h2 className="mt-5 font-display text-3xl sm:text-4xl">
@@ -164,17 +190,24 @@ function Index() {
         </div>
       </section>
 
-      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6 px-6 py-14 text-xs text-cream/50">
-        <img
-          src={logoLight}
-          alt="RaiThai Massage & Spa"
-          width={700}
-          height={560}
-          loading="lazy"
-          className="h-14 w-auto opacity-70"
+      <footer className="relative overflow-hidden">
+        <Motif
+          name="dottedWave"
+          className="pointer-events-none absolute top-0 left-1/2 h-40 w-64 -translate-x-1/2 text-gold"
+          style={{ opacity: 0.12 }}
         />
-        <span>Петропавловск · Кокшетау</span>
-        <span>Ежедневно 10:00 — 22:00</span>
+        <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6 px-6 py-16 text-xs text-cream/50">
+          <img
+            src={logoLight}
+            alt="RaiThai Massage & Spa"
+            width={700}
+            height={560}
+            loading="lazy"
+            className="h-14 w-auto opacity-70"
+          />
+          <span>Петропавловск · Кокшетау</span>
+          <span>Ежедневно 10:00 — 22:00</span>
+        </div>
       </footer>
     </main>
   );

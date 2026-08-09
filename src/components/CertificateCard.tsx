@@ -1,5 +1,6 @@
 import type { CertificateDesign, CertificateTexture } from "@/data/catalog";
 import { Motif } from "@/components/Motif";
+import { Ribbon } from "@/components/Ribbon";
 import logoLight from "@/assets/logo-light.png";
 import logoGold from "@/assets/logo-gold.png";
 import texEmerald from "@/assets/cert-emerald.jpg";
@@ -69,8 +70,9 @@ export function CertificateCard({
       <Motif
         name={design.motif}
         className={`pointer-events-none absolute -bottom-8 -right-8 ${compact ? "h-32 w-32" : "h-56 w-56"}`}
-        style={{ color: design.ink, opacity: 0.08 }}
+        style={{ color: design.ink, opacity: 0.16 }}
       />
+      {!compact && <Ribbon />}
 
       <div
         className={`relative flex flex-col ${compact ? "gap-2 px-7 py-7" : "gap-5 px-9 py-10 sm:px-12 sm:py-12"}`}
@@ -86,7 +88,7 @@ export function CertificateCard({
           />
           <Motif
             name={design.motif}
-            className={compact ? "h-5 w-5" : "h-8 w-8"}
+            className={compact ? "h-6 w-6" : "h-10 w-10"}
             style={{ color: design.accent }}
           />
         </div>

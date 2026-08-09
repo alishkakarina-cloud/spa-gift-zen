@@ -147,7 +147,7 @@ function CertificateFlow() {
                       <div className="flex items-center gap-3">
                         <Motif
                           name={group === "massage" ? "paisleyDrop" : "offeringBowl"}
-                          className="h-5 w-5 text-gold"
+                          className="h-7 w-7 text-gold"
                         />
                         <p className="eyebrow">
                           {group === "massage" ? "Массаж" : "SPA-программы"}
@@ -184,7 +184,7 @@ function CertificateFlow() {
               ) : (
                 <div className="mt-10">
                   <div className="flex items-center gap-3">
-                    <Motif name="petalDiamond" className="h-5 w-5 text-gold" />
+                    <Motif name="petalDiamond" className="h-7 w-7 text-gold" />
                     <p className="eyebrow">Сумма сертификата</p>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-3">
@@ -375,7 +375,7 @@ function CertificateFlow() {
 
           {step === 6 && (
             <div>
-              <Motif name="flowerBurst" className="h-12 w-12 text-gold" />
+              <Motif name="flowerBurst" className="h-16 w-16 text-gold" />
               <p className="eyebrow mt-4">Оплачено</p>
               <h1 className="mt-4 font-display text-3xl">Сертификат готов</h1>
               <p className="mt-3 text-sm text-cream/70">
