@@ -7,6 +7,8 @@ import logoLight from "@/assets/logo-light.png";
 import { Motif } from "@/components/Motif";
 import { Divider } from "@/components/Divider";
 import { Ribbon } from "@/components/Ribbon";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,18 +30,20 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const points = [
-  { t: "Сеть тайских SPA", d: "Салоны в Петропавловске и Кокшетау, ежедневно с 10:00 до 22:00." },
-  { t: "Мастера из Таиланда", d: "Настоящие тайские техники в исполнении сертифицированных мастеров." },
-  { t: "Массаж и SPA-программы", d: "От Oil-массажа до фирменных ритуалов «Королева» и «Король Таиланда»." },
-  { t: "Сертификат за 2 минуты", d: "Онлайн-оплата, автоматическая выдача и отправка получателю." },
-];
-
 function Index() {
+  const { t } = useLanguage();
+  const points = [
+    { title: t("home.point1Title"), desc: t("home.point1Desc") },
+    { title: t("home.point2Title"), desc: t("home.point2Desc") },
+    { title: t("home.point3Title"), desc: t("home.point3Desc") },
+    { title: t("home.point4Title"), desc: t("home.point4Desc") },
+  ];
+
   return (
     <main>
       <section className="relative min-h-[92vh] overflow-hidden">
         <Ribbon side="left" />
+        <LanguageSwitcher className="absolute top-5 right-5 z-20 sm:top-6 sm:right-6" />
         <img
           src={heroPhoto}
           alt="Интерьер RaiThai Massage & Spa — тёмно-зелёные стены, авторская картина, полосатый ковёр"
@@ -68,17 +72,15 @@ function Index() {
           />
           <Divider motif="waveCrown" className="mt-7 sm:mt-10" />
           <h1 className="mt-7 font-display text-[1.9rem] leading-[1.15] sm:mt-9 sm:text-4xl lg:text-6xl">
-            Подарите тишину,
+            {t("home.heroTitle1")}
             <br />
-            тепло и настоящий Таиланд
+            {t("home.heroTitle2")}
           </h1>
           <p className="mt-5 max-w-xl text-sm leading-relaxed text-cream/70 sm:mt-6">
-            Электронный подарочный сертификат Rai Thai Spa — на любую услугу или на
-            сумму. Оформите онлайн за пару минут: сертификат придёт получателю сразу
-            после оплаты.
+            {t("home.heroSubtitle")}
           </p>
           <Link to="/certificate" className="btn-gold mt-9 sm:mt-11">
-            Выбрать сертификат
+            {t("home.heroCta")}
           </Link>
         </div>
       </section>
@@ -95,16 +97,16 @@ function Index() {
             <div>
               <div className="flex items-center gap-3">
                 <Motif name="waterLines" className="h-6 w-8 text-gold sm:h-7 sm:w-9" />
-                <p className="eyebrow">О салоне</p>
+                <p className="eyebrow">{t("home.aboutEyebrow")}</p>
               </div>
               <h2 className="mt-4 font-display text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
-                Аутентичное тайское SPA рядом с домом
+                {t("home.aboutTitle")}
               </h2>
               <div className="mt-8 grid gap-8 sm:mt-12 sm:grid-cols-2 sm:gap-10">
                 {points.map((p) => (
-                  <div key={p.t}>
-                    <p className="font-display text-lg text-gold sm:text-xl">{p.t}</p>
-                    <p className="mt-2 text-sm leading-relaxed text-cream/70">{p.d}</p>
+                  <div key={p.title}>
+                    <p className="font-display text-lg text-gold sm:text-xl">{p.title}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-cream/70">{p.desc}</p>
                   </div>
                 ))}
               </div>
@@ -150,15 +152,13 @@ function Index() {
           <div>
             <div className="flex items-center gap-3">
               <Motif name="offeringBowl" className="h-8 w-6 text-gold sm:h-9 sm:w-7" />
-              <p className="eyebrow">Ритуал</p>
+              <p className="eyebrow">{t("home.ritualEyebrow")}</p>
             </div>
             <h2 className="mt-4 font-display text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
-              Место, где начинается любовь к себе
+              {t("home.ritualTitle")}
             </h2>
             <p className="mt-4 max-w-lg text-sm leading-relaxed text-cream/70 sm:mt-5">
-              Тёплое масло, свечи, тишина и чайная церемония. Мы работаем с деталями:
-              температурой, ароматом, ритмом дыхания — чтобы время в RaiThai
-              замирало.
+              {t("home.ritualText")}
             </p>
           </div>
         </div>
@@ -174,18 +174,16 @@ function Index() {
         <div className="relative mx-auto flex max-w-4xl flex-col items-center px-5 pt-10 pb-16 text-center sm:px-6 sm:pt-14 sm:pb-24 lg:pb-28">
           <div className="flex items-center gap-3">
             <Motif name="lotusBloom" className="h-7 w-7 text-gold sm:h-9 sm:w-9" />
-            <p className="eyebrow">Сертификат</p>
+            <p className="eyebrow">{t("home.ctaEyebrow")}</p>
           </div>
           <h2 className="mt-4 font-display text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
-            Два варианта подарка
+            {t("home.ctaTitle")}
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-cream/70">
-            Сертификат на конкретную услугу — массаж или SPA-программу. Либо
-            сертификат на сумму от 20 000 ₸, которую получатель потратит на что
-            захочет.
+            {t("home.ctaText")}
           </p>
           <Link to="/certificate" className="btn-ghost mt-8 sm:mt-9">
-            Оформить за 2 минуты
+            {t("home.ctaButton")}
           </Link>
         </div>
       </section>
@@ -205,8 +203,8 @@ function Index() {
             loading="lazy"
             className="h-12 w-auto opacity-70 sm:h-14"
           />
-          <span>Петропавловск · Кокшетау</span>
-          <span>Ежедневно 10:00 — 22:00</span>
+          <span>{t("home.footerCity")}</span>
+          <span>{t("home.footerHours")}</span>
         </div>
       </footer>
     </main>

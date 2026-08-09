@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { CertificateCard } from "@/components/CertificateCard";
 import { Motif } from "@/components/Motif";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { translations } from "@/i18n/translations";
 import logoLight from "@/assets/logo-light.png";
 import {
   MIN_AMOUNT,
@@ -34,8 +37,6 @@ export const Route = createFileRoute("/certificate")({
 type Kind = "service" | "amount";
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
-const steps = ["Сертификат", "Дизайн", "Данные", "Проверка", "Оплата", "Готово"];
-
 const formatCardNumber = (value: string) =>
   value
     .replace(/\D/g, "")
@@ -50,7 +51,11 @@ const formatCardExpiry = (value: string) => {
 
 const formatCardCvv = (value: string) => value.replace(/\D/g, "").slice(0, 3);
 
+const dateLocales = { ru: "ru-RU", kz: "kk-KZ", en: "en-GB" } as const;
+
 function CertificateFlow() {
+  const { t, lang } = useLanguage();
+  const steps = translations[lang].cert.steps;
   const [step, setStep] = useState<Step>(1);
   const [kind, setKind] = useState<Kind>("service");
   const [serviceId, setServiceId] = useState<string | null>(null);
@@ -74,7 +79,7 @@ function CertificateFlow() {
   const effectiveAmount = customAmount ? Number(customAmount) : amount;
   const total = kind === "service" ? (service?.price ?? 0) : effectiveAmount;
   const valueLabel =
-    kind === "service" && service ? service.name : formatPrice(total || 0);
+    kind === "service" && service ? t(`services.${service.id}.name`) : formatPrice(total || 0);
 
   const number = useMemo(
     () => "RT-" + Math.random().toString(36).slice(2, 7).toUpperCase() + "-" + new Date().getFullYear(),
@@ -82,21 +87,21 @@ function CertificateFlow() {
   );
 
   const validateStep1 = () => {
-    if (kind === "service" && !service) return ["Выберите услугу"];
+    if (kind === "service" && !service) return [t("cert.errServiceRequired")];
     if (kind === "amount" && (!total || total < MIN_AMOUNT))
-      return [`Минимальная сумма сертификата — ${formatPrice(MIN_AMOUNT)}`];
+      return [t("cert.errMinAmount", { amount: formatPrice(MIN_AMOUNT) })];
     return [];
   };
 
   const validateStep3 = () => {
     const e: string[] = [];
-    if (!sender.trim()) e.push("Укажите имя отправителя");
-    if (!recipient.trim()) e.push("Укажите имя получателя");
+    if (!sender.trim()) e.push(t("cert.errSenderRequired"));
+    if (!recipient.trim()) e.push(t("cert.errRecipientRequired"));
     if (contactType === "phone" && !/^[+()\d\s-]{10,}$/.test(contact))
-      e.push("Укажите корректный телефон получателя");
+      e.push(t("cert.errPhoneInvalid"));
     if (contactType === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact))
-      e.push("Укажите корректный e-mail получателя");
-    if (sendMode === "later" && !sendAt) e.push("Выберите дату и время отправки");
+      e.push(t("cert.errEmailInvalid"));
+    if (sendMode === "later" && !sendAt) e.push(t("cert.errSendDateRequired"));
     return e;
   };
 
@@ -113,8 +118,8 @@ function CertificateFlow() {
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-      <header className="flex items-center justify-between">
-        <Link to="/" aria-label="RaiThai Massage & Spa — на главную">
+      <header className="flex items-center justify-between gap-4">
+        <Link to="/" aria-label={t("cert.backHomeLink")}>
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
@@ -123,9 +128,12 @@ function CertificateFlow() {
             className="h-12 w-auto"
           />
         </Link>
-        <span className="text-[0.65rem] tracking-[0.28em] text-cream/50 uppercase">
-          Шаг {step} из 6 · {steps[step - 1]}
-        </span>
+        <div className="flex items-center gap-4">
+          <span className="hidden text-[0.65rem] tracking-[0.28em] text-cream/50 uppercase sm:inline">
+            {t("cert.stepOf", { step, name: steps[step - 1]! })}
+          </span>
+          <LanguageSwitcher />
+        </div>
       </header>
 
       <div className="mt-6 flex gap-1">
@@ -141,18 +149,18 @@ function CertificateFlow() {
         <section>
           {step === 1 && (
             <div>
-              <h1 className="font-display text-3xl">Выберите сертификат</h1>
+              <h1 className="font-display text-3xl">{t("cert.step1Title")}</h1>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <Choice
                   active={kind === "service"}
-                  title="На любую услугу"
-                  desc="Массаж или SPA-программа на выбор"
+                  title={t("cert.choiceServiceTitle")}
+                  desc={t("cert.choiceServiceDesc")}
                   onClick={() => setKind("service")}
                 />
                 <Choice
                   active={kind === "amount"}
-                  title="На сумму"
-                  desc={`От ${formatPrice(MIN_AMOUNT)}`}
+                  title={t("cert.choiceAmountTitle")}
+                  desc={t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
                   onClick={() => setKind("amount")}
                 />
               </div>
@@ -167,7 +175,7 @@ function CertificateFlow() {
                           className="h-7 w-7 text-gold"
                         />
                         <p className="eyebrow">
-                          {group === "massage" ? "Массаж" : "SPA-программы"}
+                          {group === "massage" ? t("cert.groupMassage") : t("cert.groupSpa")}
                         </p>
                       </div>
                       <div className="mt-4 grid gap-3">
@@ -181,16 +189,18 @@ function CertificateFlow() {
                               className={`surface flex flex-col gap-2 p-5 text-left transition-colors ${serviceId === s.id ? "border-gold" : "hover:border-gold/60"}`}
                             >
                               <div className="flex flex-wrap items-baseline justify-between gap-3">
-                                <span className="font-display text-xl">{s.name}</span>
+                                <span className="font-display text-xl">
+                                  {t(`services.${s.id}.name`)}
+                                </span>
                                 <span className="text-sm text-gold">
                                   {formatPrice(s.price)}
                                 </span>
                               </div>
                               <span className="text-[0.65rem] tracking-[0.2em] text-cream/50 uppercase">
-                                {s.duration}
+                                {t(`services.${s.id}.duration`)}
                               </span>
                               <span className="text-sm leading-relaxed text-cream/70">
-                                {s.description}
+                                {t(`services.${s.id}.description`)}
                               </span>
                             </button>
                           ))}
@@ -202,7 +212,7 @@ function CertificateFlow() {
                 <div className="mt-10">
                   <div className="flex items-center gap-3">
                     <Motif name="petalDiamond" className="h-7 w-7 text-gold" />
-                    <p className="eyebrow">Сумма сертификата</p>
+                    <p className="eyebrow">{t("cert.amountEyebrow")}</p>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-3">
                     {fixedAmounts.map((a) => (
@@ -220,7 +230,7 @@ function CertificateFlow() {
                     ))}
                   </div>
                   <label className="mt-6 block max-w-xs">
-                    <span className="text-xs text-cream/60">Своя сумма, ₸</span>
+                    <span className="text-xs text-cream/60">{t("cert.customAmountLabel")}</span>
                     <input
                       type="number"
                       min={MIN_AMOUNT}
@@ -238,10 +248,9 @@ function CertificateFlow() {
 
           {step === 2 && (
             <div>
-              <h1 className="font-display text-3xl">Выберите дизайн сертификата</h1>
+              <h1 className="font-display text-3xl">{t("cert.step2Title")}</h1>
               <p className="mt-3 max-w-lg text-sm leading-relaxed text-cream/65">
-                Каждое оформление собрано в фирменной айдентике RaiThai — плотные
-                текстуры, золотая рамка и логотип салона.
+                {t("cert.step2Text")}
               </p>
               <div className="mt-8 grid gap-5 sm:grid-cols-2">
                 {designs.map((d) => (
@@ -255,7 +264,7 @@ function CertificateFlow() {
                     <span
                       className={`block px-3 py-3 text-[0.68rem] tracking-[0.28em] uppercase ${designId === d.id ? "text-gold" : "text-cream/65"}`}
                     >
-                      {d.title}
+                      {t(`designs.${d.id}.title`)}
                     </span>
                   </button>
                 ))}
@@ -265,9 +274,9 @@ function CertificateFlow() {
 
           {step === 3 && (
             <div className="max-w-xl">
-              <h1 className="font-display text-3xl">Данные сертификата</h1>
+              <h1 className="font-display text-3xl">{t("cert.step3Title")}</h1>
               <div className="mt-8 grid gap-5">
-                <Field label="Ваше имя (от кого)">
+                <Field label={t("cert.senderLabel")}>
                   <input
                     value={sender}
                     onChange={(e) => setSender(e.target.value)}
@@ -275,7 +284,7 @@ function CertificateFlow() {
                     className="input"
                   />
                 </Field>
-                <Field label="Имя получателя">
+                <Field label={t("cert.recipientLabel")}>
                   <input
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
@@ -285,18 +294,22 @@ function CertificateFlow() {
                 </Field>
                 <div>
                   <div className="flex gap-2">
-                    {(["phone", "email"] as const).map((t) => (
+                    {(["phone", "email"] as const).map((ct) => (
                       <button
-                        key={t}
+                        key={ct}
                         type="button"
-                        onClick={() => setContactType(t)}
-                        className={`border px-4 py-2 text-xs tracking-[0.2em] uppercase transition-colors ${contactType === t ? "border-gold text-gold" : "border-border text-cream/60"}`}
+                        onClick={() => setContactType(ct)}
+                        className={`border px-4 py-2 text-xs tracking-[0.2em] uppercase transition-colors ${contactType === ct ? "border-gold text-gold" : "border-border text-cream/60"}`}
                       >
-                        {t === "phone" ? "Телефон" : "E-mail"}
+                        {ct === "phone" ? t("cert.contactTypePhone") : t("cert.contactTypeEmail")}
                       </button>
                     ))}
                   </div>
-                  <Field label={contactType === "phone" ? "Телефон получателя" : "E-mail получателя"}>
+                  <Field
+                    label={
+                      contactType === "phone" ? t("cert.recipientPhoneLabel") : t("cert.recipientEmailLabel")
+                    }
+                  >
                     <input
                       value={contact}
                       onChange={(e) => setContact(e.target.value)}
@@ -306,7 +319,7 @@ function CertificateFlow() {
                     />
                   </Field>
                 </div>
-                <Field label="Поздравительный текст">
+                <Field label={t("cert.messageLabel")}>
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -316,7 +329,7 @@ function CertificateFlow() {
                   />
                 </Field>
                 <div>
-                  <p className="text-xs text-cream/60">Дата отправки</p>
+                  <p className="text-xs text-cream/60">{t("cert.sendDateLabel")}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {(["now", "later"] as const).map((m) => (
                       <button
@@ -325,7 +338,7 @@ function CertificateFlow() {
                         onClick={() => setSendMode(m)}
                         className={`border px-4 py-2 text-xs tracking-[0.2em] uppercase transition-colors ${sendMode === m ? "border-gold text-gold" : "border-border text-cream/60"}`}
                       >
-                        {m === "now" ? "Отправить сразу" : "Выбрать дату"}
+                        {m === "now" ? t("cert.sendNow") : t("cert.sendLater")}
                       </button>
                     ))}
                   </div>
@@ -344,31 +357,43 @@ function CertificateFlow() {
 
           {step === 4 && (
             <div className="max-w-xl">
-              <h1 className="font-display text-3xl">Проверьте заказ</h1>
+              <h1 className="font-display text-3xl">{t("cert.step4Title")}</h1>
               <dl className="mt-8 divide-y divide-border border-y border-border text-sm">
-                <Row k="Сертификат" v={kind === "service" ? service!.name : "На сумму"} />
-                {kind === "service" && <Row k="Длительность" v={service!.duration} />}
-                <Row k="Оформление" v={design.title} />
-                <Row k="Сумма" v={formatPrice(total)} />
-                <Row k="От кого" v={sender} />
-                <Row k="Получатель" v={recipient} />
-                <Row k={contactType === "phone" ? "Телефон" : "E-mail"} v={contact} />
                 <Row
-                  k="Отправка"
-                  v={sendMode === "now" ? "Сразу после оплаты" : new Date(sendAt).toLocaleString("ru-RU")}
+                  k={t("cert.rowCertificate")}
+                  v={kind === "service" ? t(`services.${service!.id}.name`) : t("cert.rowByAmount")}
                 />
-                {message && <Row k="Пожелание" v={message} />}
+                {kind === "service" && (
+                  <Row k={t("cert.rowDuration")} v={t(`services.${service!.id}.duration`)} />
+                )}
+                <Row k={t("cert.rowDesign")} v={t(`designs.${design.id}.title`)} />
+                <Row k={t("cert.rowAmount")} v={formatPrice(total)} />
+                <Row k={t("cert.rowFrom")} v={sender} />
+                <Row k={t("cert.rowRecipient")} v={recipient} />
+                <Row k={contactType === "phone" ? t("cert.contactTypePhone") : t("cert.contactTypeEmail")} v={contact} />
+                <Row
+                  k={t("cert.rowSending")}
+                  v={sendMode === "now" ? t("cert.rowSendingNow") : new Date(sendAt).toLocaleString(dateLocales[lang])}
+                />
+                {message && <Row k={t("cert.rowWish")} v={message} />}
               </dl>
             </div>
           )}
 
           {step === 5 && (
             <div className="max-w-md">
-              <h1 className="font-display text-3xl">Оплата</h1>
+              <h1 className="font-display text-3xl">{t("cert.step5Title")}</h1>
               <p className="mt-4 text-sm leading-relaxed text-cream/70">
-                Введите данные карты и подтвердите платёж на{" "}
-                <span className="text-gold">{formatPrice(total)}</span>. Сертификат
-                сформируется автоматически.
+                {(() => {
+                  const [before, after] = t("cert.paymentIntro").split("{amount}");
+                  return (
+                    <>
+                      {before}
+                      <span className="text-gold">{formatPrice(total)}</span>
+                      {after}
+                    </>
+                  );
+                })()}
               </p>
 
               <div className="surface mt-8 flex items-center justify-between gap-3 p-5">
@@ -386,12 +411,12 @@ function CertificateFlow() {
                   <span className="font-display text-lg tracking-wide">Freedom Pay</span>
                 </div>
                 <span className="text-[0.6rem] tracking-[0.24em] text-cream/45 uppercase">
-                  Оплата картой
+                  {t("cert.paymentByCard")}
                 </span>
               </div>
 
               <div className="mt-6 grid gap-5">
-                <Field label="Номер карты">
+                <Field label={t("cert.cardNumberLabel")}>
                   <input
                     inputMode="numeric"
                     autoComplete="cc-number"
@@ -402,7 +427,7 @@ function CertificateFlow() {
                   />
                 </Field>
                 <div className="grid grid-cols-2 gap-5">
-                  <Field label="Срок действия">
+                  <Field label={t("cert.cardExpiryLabel")}>
                     <input
                       inputMode="numeric"
                       autoComplete="cc-exp"
@@ -412,7 +437,7 @@ function CertificateFlow() {
                       className="input"
                     />
                   </Field>
-                  <Field label="CVV">
+                  <Field label={t("cert.cardCvvLabel")}>
                     <input
                       inputMode="numeric"
                       autoComplete="cc-csc"
@@ -425,24 +450,25 @@ function CertificateFlow() {
                 </div>
               </div>
 
-              <p className="mt-4 text-xs text-cream/50">
-                Приём платежей Freedom Pay подключается после получения API-ключа и
-                Merchant ID. Сейчас форма работает в демо-режиме и не обрабатывает
-                реальные платежи.
-              </p>
+              <p className="mt-4 text-xs text-cream/50">{t("cert.paymentNote")}</p>
             </div>
           )}
 
           {step === 6 && (
             <div>
               <Motif name="flowerBurst" className="h-16 w-16 text-gold" />
-              <p className="eyebrow mt-4">Оплачено</p>
-              <h1 className="mt-4 font-display text-3xl">Сертификат готов</h1>
+              <p className="eyebrow mt-4">{t("cert.step6Eyebrow")}</p>
+              <h1 className="mt-4 font-display text-3xl">{t("cert.step6Title")}</h1>
               <p className="mt-3 text-sm text-cream/70">
-                Номер сертификата — {number}.{" "}
-                {sendMode === "now"
-                  ? "Отправлен получателю."
-                  : `Будет отправлен ${new Date(sendAt).toLocaleString("ru-RU")}.`}
+                {t("cert.step6Text", {
+                  number,
+                  status:
+                    sendMode === "now"
+                      ? t("cert.step6SentNow")
+                      : t("cert.step6SentLater", {
+                          date: new Date(sendAt).toLocaleString(dateLocales[lang]),
+                        }),
+                })}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <button
@@ -450,13 +476,13 @@ function CertificateFlow() {
                   onClick={() => window.print()}
                   className="btn-gold"
                 >
-                  Скачать сертификат
+                  {t("cert.downloadButton")}
                 </button>
                 <Link
                   to="/"
                   className="btn-ghost"
                 >
-                  На главную
+                  {t("cert.backHomeLink")}
                 </Link>
               </div>
             </div>
@@ -478,7 +504,7 @@ function CertificateFlow() {
                   onClick={back}
                   className="btn-ghost"
                 >
-                  Назад
+                  {t("cert.backButton")}
                 </button>
               )}
               <button
@@ -486,7 +512,7 @@ function CertificateFlow() {
                 onClick={next}
                 className="btn-gold"
               >
-                {step === 4 ? "Оплатить" : step === 5 ? "Я оплатил" : "Далее"}
+                {step === 4 ? t("cert.payButton") : step === 5 ? t("cert.paidButton") : t("cert.nextButton")}
               </button>
             </div>
           )}
@@ -502,7 +528,7 @@ function CertificateFlow() {
             number={step === 6 ? number : undefined}
           />
           <div className="mt-5 flex items-baseline justify-between border-t border-border pt-4 text-sm">
-            <span className="text-cream/60">К оплате</span>
+            <span className="text-cream/60">{t("cert.payTotal")}</span>
             <span className="font-display text-2xl text-gold">
               {formatPrice(total || 0)}
             </span>

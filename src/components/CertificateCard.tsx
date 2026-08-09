@@ -1,6 +1,7 @@
 import type { CertificateDesign, CertificateTexture } from "@/data/catalog";
 import { Motif } from "@/components/Motif";
 import { Ribbon } from "@/components/Ribbon";
+import { useLanguage } from "@/i18n/LanguageContext";
 import logoLight from "@/assets/logo-light.png";
 import logoGold from "@/assets/logo-gold.png";
 import texEmerald from "@/assets/cert-emerald.jpg";
@@ -36,6 +37,7 @@ export function CertificateCard({
   number,
   compact = false,
 }: Props) {
+  const { t } = useLanguage();
   const logo = design.logo === "gold" ? logoGold : logoLight;
 
   return (
@@ -107,7 +109,7 @@ export function CertificateCard({
             className="text-[0.58rem] tracking-[0.36em] uppercase"
             style={{ color: design.accent }}
           >
-            {design.caption}
+            {t(`designs.${design.id}.caption`)}
           </p>
           <p
             className={`mt-3 font-display leading-[1.1] ${compact ? "text-2xl" : "text-4xl sm:text-5xl"}`}
@@ -118,8 +120,16 @@ export function CertificateCard({
 
         {(recipient || sender) && (
           <div className="flex flex-wrap gap-x-8 gap-y-1 text-xs opacity-90">
-            {recipient && <span>Кому: {recipient}</span>}
-            {sender && <span>От: {sender}</span>}
+            {recipient && (
+              <span>
+                {t("cert.cardTo")}: {recipient}
+              </span>
+            )}
+            {sender && (
+              <span>
+                {t("cert.cardFrom")}: {sender}
+              </span>
+            )}
           </div>
         )}
 
@@ -130,8 +140,8 @@ export function CertificateCard({
         )}
 
         <div className="mt-2 flex items-end justify-between text-[0.56rem] tracking-[0.24em] uppercase opacity-90">
-          <span className="whitespace-nowrap">Петропавловск · Кокшетау</span>
-          <span className="text-right">{number ? `№ ${number}` : "Действителен 12 месяцев"}</span>
+          <span className="whitespace-nowrap">{t("home.footerCity")}</span>
+          <span className="text-right">{number ? `№ ${number}` : t("cert.cardValidity")}</span>
         </div>
       </div>
     </div>
