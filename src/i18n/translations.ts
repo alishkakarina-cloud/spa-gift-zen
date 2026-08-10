@@ -166,6 +166,9 @@ const ru = {
   },
   whatsapp: {
     label: "Написать в WhatsApp",
+    choose: "Выберите филиал",
+    kokshetau: "Кокшетау",
+    petropavlovsk: "Петропавловск",
   },
 };
 
@@ -319,6 +322,9 @@ const kz = {
   },
   whatsapp: {
     label: "WhatsApp-қа жазу",
+    choose: "Филиалды таңдаңыз",
+    kokshetau: "Көкшетау",
+    petropavlovsk: "Петропавл",
   },
 };
 
@@ -471,6 +477,9 @@ const en = {
   },
   whatsapp: {
     label: "Message us on WhatsApp",
+    choose: "Choose a branch",
+    kokshetau: "Kokshetau",
+    petropavlovsk: "Petropavlovsk",
   },
 };
 
