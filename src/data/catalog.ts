@@ -138,17 +138,6 @@ export const designs: CertificateDesign[] = [
     logo: "gold",
   },
   {
-    id: "for-two",
-    title: "Для двоих",
-    caption: "SPA для двоих",
-    motif: "wingsBow",
-    texture: "emerald",
-    veil: "linear-gradient(150deg, rgba(18,36,27,0.62), rgba(120,128,89,0.42))",
-    ink: "#f4efe6",
-    accent: "#d8b795",
-    logo: "light",
-  },
-  {
     id: "romantic",
     title: "Романтический",
     caption: "С любовью",

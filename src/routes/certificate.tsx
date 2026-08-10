@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { CertificateCard } from "@/components/CertificateCard";
 import { Motif } from "@/components/Motif";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -53,6 +53,23 @@ const formatCardCvv = (value: string) => value.replace(/\D/g, "").slice(0, 3);
 
 const dateLocales = { ru: "ru-RU", kz: "kk-KZ", en: "en-GB" } as const;
 
+/**
+ * Certificate number, e.g. "RTS-2026-00147" — same format and generation path
+ * for every certificate, regardless of the chosen design or service/amount.
+ *
+ * The 5-digit part is random here because there's no backend yet to hand out
+ * a real sequential counter or persist the number for admin-panel lookup —
+ * that needs a database (see conversation). This only guarantees per-browser
+ * uniqueness, not global uniqueness across all customers.
+ */
+const generateCertificateNumber = () => {
+  const year = new Date().getFullYear();
+  const seq = Math.floor(Math.random() * 100000)
+    .toString()
+    .padStart(5, "0");
+  return `RTS-${year}-${seq}`;
+};
+
 function CertificateFlow() {
   const { t, lang } = useLanguage();
   const steps = translations[lang].cert.steps;
@@ -83,10 +100,8 @@ function CertificateFlow() {
     kind === "service" && service ? t(`services.${service.id}.name`) : formatPrice(total || 0);
   const recipientFullName = [recipientFirstName, recipientLastName].filter(Boolean).join(" ").trim();
 
-  const number = useMemo(
-    () => "RT-" + Math.random().toString(36).slice(2, 7).toUpperCase() + "-" + new Date().getFullYear(),
-    [],
-  );
+  // Issued only once payment is confirmed (see `next`), not on page load.
+  const [certificateNumber, setCertificateNumber] = useState<string | null>(null);
 
   const validateStep1 = () => {
     if (kind === "service" && !service) return [t("cert.errServiceRequired")];
@@ -111,7 +126,12 @@ function CertificateFlow() {
   const next = () => {
     const e = step === 1 ? validateStep1() : step === 3 ? validateStep3() : [];
     setErrors(e);
-    if (e.length === 0) setStep((s) => Math.min(6, s + 1) as Step);
+    if (e.length === 0) {
+      // Payment confirmed (step 5 → 6): issue the certificate number now, the
+      // same way for every design/service/amount combination.
+      if (step === 5) setCertificateNumber(generateCertificateNumber());
+      setStep((s) => Math.min(6, s + 1) as Step);
+    }
   };
 
   const back = () => {
@@ -474,7 +494,7 @@ function CertificateFlow() {
               <h1 className="mt-4 font-display text-3xl">{t("cert.step6Title")}</h1>
               <p className="mt-3 text-sm text-cream/70">
                 {t("cert.step6Text", {
-                  number,
+                  number: certificateNumber ?? "",
                   status:
                     sendMode === "now"
                       ? t("cert.step6SentNow")
@@ -538,7 +558,7 @@ function CertificateFlow() {
             recipient={recipientFullName || undefined}
             sender={sender || undefined}
             message={message || undefined}
-            number={step === 6 ? number : undefined}
+            number={certificateNumber ?? undefined}
           />
           <div className="mt-5 flex items-baseline justify-between border-t border-border pt-4 text-sm">
             <span className="text-cream/60">{t("cert.payTotal")}</span>
