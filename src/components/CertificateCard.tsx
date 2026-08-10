@@ -139,8 +139,7 @@ export function CertificateCard({
           </p>
         )}
 
-        <div className="mt-2 flex items-end justify-between text-[0.56rem] tracking-[0.24em] uppercase opacity-90">
-          <span className="whitespace-nowrap">{t("home.footerCity")}</span>
+        <div className="mt-2 flex items-end justify-end text-[0.56rem] tracking-[0.24em] uppercase opacity-90">
           <span className="text-right">{number ? `№ ${number}` : t("cert.cardValidity")}</span>
         </div>
       </div>

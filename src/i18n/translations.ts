@@ -16,7 +16,7 @@ const ru = {
   meta: {
     homeTitle: "Rai Thai Spa — подарочные сертификаты онлайн",
     homeDescription:
-      "Электронные подарочные сертификаты Rai Thai Spa: тайский массаж и SPA-программы в Петропавловске и Кокшетау. Оформление за 2 минуты, сертификат приходит сразу после оплаты.",
+      "Электронные подарочные сертификаты Rai Thai Spa: тайский массаж и SPA-программы. Оформление за 2 минуты, сертификат приходит сразу после оплаты.",
     homeOgDescription:
       "Подарите настоящее тайское SPA. Сертификат на услугу или на сумму — оформление за 2 минуты.",
     certTitle: "Оформить подарочный сертификат — Rai Thai Spa",
@@ -33,8 +33,6 @@ const ru = {
     heroCta: "Выбрать сертификат",
     aboutEyebrow: "О салоне",
     aboutTitle: "Аутентичное тайское SPA рядом с домом",
-    point1Title: "Сеть тайских SPA",
-    point1Desc: "Салоны в Петропавловске и Кокшетау, ежедневно с 10:00 до 22:00.",
     point2Title: "Мастера из Таиланда",
     point2Desc: "Настоящие тайские техники в исполнении сертифицированных мастеров.",
     point3Title: "Массаж и SPA-программы",
@@ -50,8 +48,6 @@ const ru = {
     ctaText:
       "Сертификат на конкретную услугу — массаж или SPA-программу. Либо сертификат на сумму от 20 000 ₸, которую получатель потратит на что захочет.",
     ctaButton: "Оформить за 2 минуты",
-    footerCity: "Петропавловск · Кокшетау",
-    footerHours: "Ежедневно 10:00 — 22:00",
   },
   cert: {
     steps: ["Сертификат", "Дизайн", "Данные", "Проверка", "Оплата", "Готово"],
@@ -70,7 +66,8 @@ const ru = {
       "Каждое оформление собрано в фирменной айдентике RaiThai — плотные текстуры, золотая рамка и логотип салона.",
     step3Title: "Данные сертификата",
     senderLabel: "Ваше имя (от кого)",
-    recipientLabel: "Имя получателя",
+    recipientFirstNameLabel: "Имя получателя",
+    recipientLastNameLabel: "Фамилия получателя",
     contactTypePhone: "Телефон",
     contactTypeEmail: "E-mail",
     recipientPhoneLabel: "Телефон получателя",
@@ -109,6 +106,7 @@ const ru = {
     errMinAmount: "Минимальная сумма сертификата — {amount}",
     errSenderRequired: "Укажите имя отправителя",
     errRecipientRequired: "Укажите имя получателя",
+    errRecipientLastNameRequired: "Укажите фамилию получателя",
     errPhoneInvalid: "Укажите корректный телефон получателя",
     errEmailInvalid: "Укажите корректный e-mail получателя",
     errSendDateRequired: "Выберите дату и время отправки",
@@ -144,22 +142,6 @@ const ru = {
       duration: "60 мин",
       description: "Массаж горячими вулканическими камнями — глубокое прогревание и полное расслабление.",
     },
-    "foot-massage": {
-      name: "Тайский массаж ног",
-      duration: "40 мин",
-      description: "Работа с рефлекторными зонами стоп: лёгкость в ногах и прилив энергии.",
-    },
-    "neck-zone": {
-      name: "Массаж шейно-воротниковой зоны",
-      duration: "40 мин",
-      description: "Точечная работа с зоной напряжения от сидячей работы.",
-    },
-    reboot: {
-      name: "SPA-программа «Перезагрузка»",
-      duration: "120 мин",
-      description:
-        "Хамам с аромотерапией, пилинг кесе, скрабирование, мытьё головы, чайная церемония и Oil-массаж 60 минут.",
-    },
     "queen-of-thailand": {
       name: "SPA-ритуал «Королева Таиланда»",
       duration: "160 мин",
@@ -192,7 +174,7 @@ const kz = {
   meta: {
     homeTitle: "Rai Thai Spa — онлайн сыйлық сертификаттары",
     homeDescription:
-      "Rai Thai Spa электрондық сыйлық сертификаттары: Петропавл және Көкшетаудағы тай массажы мен SPA-бағдарламалары. Ресімдеу 2 минут, сертификат төлемнен кейін бірден келеді.",
+      "Rai Thai Spa электрондық сыйлық сертификаттары: тай массажы мен SPA-бағдарламалары. Ресімдеу 2 минут, сертификат төлемнен кейін бірден келеді.",
     homeOgDescription:
       "Нағыз тай SPA-сын сыйға тартыңыз. Қызметке немесе соманы сертификат — 2 минутта рәсімделеді.",
     certTitle: "Сыйлық сертификатын рәсімдеу — Rai Thai Spa",
@@ -208,8 +190,6 @@ const kz = {
     heroCta: "Сертификат таңдау",
     aboutEyebrow: "Салон туралы",
     aboutTitle: "Үйіңізге жақын аутентті тай SPA",
-    point1Title: "Тай SPA желісі",
-    point1Desc: "Петропавл және Көкшетаудағы салондар, күн сайын 10:00-ден 22:00-ге дейін.",
     point2Title: "Тайландтық шеберлер",
     point2Desc: "Сертификатталған шеберлер орындайтын нағыз тай техникалары.",
     point3Title: "Массаж және SPA-бағдарламалар",
@@ -225,8 +205,6 @@ const kz = {
     ctaText:
       "Нақты қызметке — массаж немесе SPA-бағдарламасына сертификат. Немесе алушы қалағанына жұмсай алатын, 20 000 ₸-ден басталатын соманы сертификат.",
     ctaButton: "2 минутта рәсімдеу",
-    footerCity: "Петропавл · Көкшетау",
-    footerHours: "Күн сайын 10:00 — 22:00",
   },
   cert: {
     steps: ["Сертификат", "Дизайн", "Деректер", "Тексеру", "Төлем", "Дайын"],
@@ -245,7 +223,8 @@ const kz = {
       "Әрбір безендіру RaiThai фирмалық стилінде жасалған — тығыз текстуралар, алтын жиек және салон логотипі.",
     step3Title: "Сертификат деректері",
     senderLabel: "Атыңыз (кімнен)",
-    recipientLabel: "Алушының аты",
+    recipientFirstNameLabel: "Алушының аты",
+    recipientLastNameLabel: "Алушының тегі",
     contactTypePhone: "Телефон",
     contactTypeEmail: "E-mail",
     recipientPhoneLabel: "Алушының телефоны",
@@ -284,6 +263,7 @@ const kz = {
     errMinAmount: "Сертификаттың ең аз сомасы — {amount}",
     errSenderRequired: "Жіберушінің атын көрсетіңіз",
     errRecipientRequired: "Алушының атын көрсетіңіз",
+    errRecipientLastNameRequired: "Алушының тегін көрсетіңіз",
     errPhoneInvalid: "Алушының дұрыс телефон нөмірін көрсетіңіз",
     errEmailInvalid: "Алушының дұрыс e-mail мекенжайын көрсетіңіз",
     errSendDateRequired: "Жіберу күні мен уақытын таңдаңыз",
@@ -317,21 +297,6 @@ const kz = {
       duration: "60 мин",
       description: "Ыстық вулкандық тастармен массаж — терең жылыту және толық релаксация.",
     },
-    "foot-massage": {
-      name: "Тай аяқ массажы",
-      duration: "40 мин",
-      description: "Табанның рефлекторлық аймақтарымен жұмыс: аяқта жеңілдік және қуат толқыны.",
-    },
-    "neck-zone": {
-      name: "Мойын-жаға аймағының массажы",
-      duration: "40 мин",
-      description: "Отырықшы жұмыстан пайда болған кернеу аймағымен нүктелі жұмыс.",
-    },
-    reboot: {
-      name: "«Қайта жүктеу» SPA-бағдарламасы",
-      duration: "120 мин",
-      description: "Хош иісті хамам, кесе пилингі, скрабтау, бас жуу, шай рәсімі және 60 минуттық Oil-массаж.",
-    },
     "queen-of-thailand": {
       name: "«Тайланд патшайымы» SPA-рәсімі",
       duration: "160 мин",
@@ -363,7 +328,7 @@ const en = {
   meta: {
     homeTitle: "Rai Thai Spa — gift certificates online",
     homeDescription:
-      "Rai Thai Spa electronic gift certificates: Thai massage and SPA programs in Petropavlovsk and Kokshetau. Order in 2 minutes, the certificate arrives right after payment.",
+      "Rai Thai Spa electronic gift certificates: Thai massage and SPA programs. Order in 2 minutes, the certificate arrives right after payment.",
     homeOgDescription: "Give the gift of real Thai SPA. Certificate for a service or an amount — ready in 2 minutes.",
     certTitle: "Order a gift certificate — Rai Thai Spa",
     certDescription:
@@ -378,8 +343,6 @@ const en = {
     heroCta: "Choose a certificate",
     aboutEyebrow: "About the salon",
     aboutTitle: "Authentic Thai SPA close to home",
-    point1Title: "A network of Thai SPAs",
-    point1Desc: "Salons in Petropavlovsk and Kokshetau, daily from 10:00 to 22:00.",
     point2Title: "Masters from Thailand",
     point2Desc: "Genuine Thai techniques performed by certified therapists.",
     point3Title: "Massage and SPA programs",
@@ -395,8 +358,6 @@ const en = {
     ctaText:
       "A certificate for a specific service — massage or a SPA program. Or a certificate for an amount from 20,000 ₸, which the recipient can spend on whatever they like.",
     ctaButton: "Order in 2 minutes",
-    footerCity: "Petropavlovsk · Kokshetau",
-    footerHours: "Daily 10:00 — 22:00",
   },
   cert: {
     steps: ["Certificate", "Design", "Details", "Review", "Payment", "Done"],
@@ -415,7 +376,8 @@ const en = {
       "Every design is crafted in RaiThai's brand identity — rich textures, a gold frame and the salon's logo.",
     step3Title: "Certificate details",
     senderLabel: "Your name (from)",
-    recipientLabel: "Recipient's name",
+    recipientFirstNameLabel: "Recipient's first name",
+    recipientLastNameLabel: "Recipient's last name",
     contactTypePhone: "Phone",
     contactTypeEmail: "E-mail",
     recipientPhoneLabel: "Recipient's phone",
@@ -453,7 +415,8 @@ const en = {
     errServiceRequired: "Choose a service",
     errMinAmount: "Minimum certificate amount — {amount}",
     errSenderRequired: "Enter the sender's name",
-    errRecipientRequired: "Enter the recipient's name",
+    errRecipientRequired: "Enter the recipient's first name",
+    errRecipientLastNameRequired: "Enter the recipient's last name",
     errPhoneInvalid: "Enter a valid recipient phone number",
     errEmailInvalid: "Enter a valid recipient e-mail",
     errSendDateRequired: "Choose the delivery date and time",
@@ -486,21 +449,6 @@ const en = {
       name: "The magic power of stones",
       duration: "60 min",
       description: "Massage with hot volcanic stones — deep warmth and complete relaxation.",
-    },
-    "foot-massage": {
-      name: "Thai foot massage",
-      duration: "40 min",
-      description: "Working the foot's reflex zones: lightness in the legs and a rush of energy.",
-    },
-    "neck-zone": {
-      name: "Neck and collar area massage",
-      duration: "40 min",
-      description: "Targeted work on the tension area caused by sedentary work.",
-    },
-    reboot: {
-      name: "«Reboot» SPA program",
-      duration: "120 min",
-      description: "Hammam with aromatherapy, kese peeling, scrubbing, hair wash, tea ceremony and a 60-minute Oil massage.",
     },
     "queen-of-thailand": {
       name: "«Queen of Thailand» SPA ritual",

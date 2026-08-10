@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Электронные подарочные сертификаты Rai Thai Spa: тайский массаж и SPA-программы в Петропавловске и Кокшетау. Оформление за 2 минуты, сертификат приходит сразу после оплаты.",
+          "Электронные подарочные сертификаты Rai Thai Spa: тайский массаж и SPA-программы. Оформление за 2 минуты, сертификат приходит сразу после оплаты.",
       },
       { property: "og:title", content: "Rai Thai Spa — подарочные сертификаты онлайн" },
       {
@@ -33,7 +33,6 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { t } = useLanguage();
   const points = [
-    { title: t("home.point1Title"), desc: t("home.point1Desc") },
     { title: t("home.point2Title"), desc: t("home.point2Desc") },
     { title: t("home.point3Title"), desc: t("home.point3Desc") },
     { title: t("home.point4Title"), desc: t("home.point4Desc") },
@@ -194,7 +193,7 @@ function Index() {
           className="pointer-events-none absolute top-0 left-1/2 h-24 w-40 -translate-x-1/2 text-gold sm:h-40 sm:w-64"
           style={{ opacity: 0.12 }}
         />
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-10 text-center text-xs text-cream/50 sm:flex-row sm:gap-6 sm:px-6 sm:py-16 sm:text-left">
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 px-5 py-10 text-center text-xs text-cream/50 sm:py-16">
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
@@ -203,8 +202,6 @@ function Index() {
             loading="lazy"
             className="h-12 w-auto opacity-70 sm:h-14"
           />
-          <span>{t("home.footerCity")}</span>
-          <span>{t("home.footerHours")}</span>
         </div>
       </footer>
     </main>

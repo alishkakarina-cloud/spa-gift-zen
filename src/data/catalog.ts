@@ -47,32 +47,6 @@ export const services: Service[] = [
     group: "massage",
   },
   {
-    id: "foot-massage",
-    name: "Тайский массаж ног",
-    duration: "40 мин",
-    price: 12000,
-    description:
-      "Работа с рефлекторными зонами стоп: лёгкость в ногах и прилив энергии.",
-    group: "massage",
-  },
-  {
-    id: "neck-zone",
-    name: "Массаж шейно-воротниковой зоны",
-    duration: "40 мин",
-    price: 12000,
-    description: "Точечная работа с зоной напряжения от сидячей работы.",
-    group: "massage",
-  },
-  {
-    id: "reboot",
-    name: "SPA-программа «Перезагрузка»",
-    duration: "120 мин",
-    price: 42500,
-    description:
-      "Хамам с аромотерапией, пилинг кесе, скрабирование, мытьё головы, чайная церемония и Oil-массаж 60 минут.",
-    group: "spa",
-  },
-  {
     id: "queen-of-thailand",
     name: "SPA-ритуал «Королева Таиланда»",
     duration: "160 мин",

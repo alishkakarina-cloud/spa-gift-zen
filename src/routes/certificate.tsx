@@ -63,7 +63,8 @@ function CertificateFlow() {
   const [customAmount, setCustomAmount] = useState("");
   const [designId, setDesignId] = useState(designs[0]!.id);
   const [sender, setSender] = useState("");
-  const [recipient, setRecipient] = useState("");
+  const [recipientFirstName, setRecipientFirstName] = useState("");
+  const [recipientLastName, setRecipientLastName] = useState("");
   const [contactType, setContactType] = useState<"phone" | "email">("phone");
   const [contact, setContact] = useState("");
   const [message, setMessage] = useState("");
@@ -80,6 +81,7 @@ function CertificateFlow() {
   const total = kind === "service" ? (service?.price ?? 0) : effectiveAmount;
   const valueLabel =
     kind === "service" && service ? t(`services.${service.id}.name`) : formatPrice(total || 0);
+  const recipientFullName = [recipientFirstName, recipientLastName].filter(Boolean).join(" ").trim();
 
   const number = useMemo(
     () => "RT-" + Math.random().toString(36).slice(2, 7).toUpperCase() + "-" + new Date().getFullYear(),
@@ -96,7 +98,8 @@ function CertificateFlow() {
   const validateStep3 = () => {
     const e: string[] = [];
     if (!sender.trim()) e.push(t("cert.errSenderRequired"));
-    if (!recipient.trim()) e.push(t("cert.errRecipientRequired"));
+    if (!recipientFirstName.trim()) e.push(t("cert.errRecipientRequired"));
+    if (!recipientLastName.trim()) e.push(t("cert.errRecipientLastNameRequired"));
     if (contactType === "phone" && !/^[+()\d\s-]{10,}$/.test(contact))
       e.push(t("cert.errPhoneInvalid"));
     if (contactType === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact))
@@ -284,14 +287,24 @@ function CertificateFlow() {
                     className="input"
                   />
                 </Field>
-                <Field label={t("cert.recipientLabel")}>
-                  <input
-                    value={recipient}
-                    onChange={(e) => setRecipient(e.target.value)}
-                    maxLength={60}
-                    className="input"
-                  />
-                </Field>
+                <div className="grid grid-cols-2 gap-5">
+                  <Field label={t("cert.recipientFirstNameLabel")}>
+                    <input
+                      value={recipientFirstName}
+                      onChange={(e) => setRecipientFirstName(e.target.value)}
+                      maxLength={60}
+                      className="input"
+                    />
+                  </Field>
+                  <Field label={t("cert.recipientLastNameLabel")}>
+                    <input
+                      value={recipientLastName}
+                      onChange={(e) => setRecipientLastName(e.target.value)}
+                      maxLength={60}
+                      className="input"
+                    />
+                  </Field>
+                </div>
                 <div>
                   <div className="flex gap-2">
                     {(["phone", "email"] as const).map((ct) => (
@@ -369,7 +382,7 @@ function CertificateFlow() {
                 <Row k={t("cert.rowDesign")} v={t(`designs.${design.id}.title`)} />
                 <Row k={t("cert.rowAmount")} v={formatPrice(total)} />
                 <Row k={t("cert.rowFrom")} v={sender} />
-                <Row k={t("cert.rowRecipient")} v={recipient} />
+                <Row k={t("cert.rowRecipient")} v={recipientFullName} />
                 <Row k={contactType === "phone" ? t("cert.contactTypePhone") : t("cert.contactTypeEmail")} v={contact} />
                 <Row
                   k={t("cert.rowSending")}
@@ -522,7 +535,7 @@ function CertificateFlow() {
           <CertificateCard
             design={design}
             valueLabel={valueLabel}
-            recipient={recipient || undefined}
+            recipient={recipientFullName || undefined}
             sender={sender || undefined}
             message={message || undefined}
             number={step === 6 ? number : undefined}
