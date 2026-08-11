@@ -88,6 +88,7 @@ const ru = {
     rowSendingNow: "Сразу после оплаты",
     rowWish: "Пожелание",
     step5Title: "Оплата",
+    paymentMethodLabel: "Способ оплаты",
     paymentIntro: "Введите данные карты и подтвердите платёж на {amount}. Сертификат сформируется автоматически.",
     paymentByCard: "Оплата картой",
     cardNumberLabel: "Номер карты",
@@ -95,6 +96,12 @@ const ru = {
     cardCvvLabel: "CVV",
     paymentNote:
       "Приём платежей Freedom Pay подключается после получения API-ключа и Merchant ID. Сейчас форма работает в демо-режиме и не обрабатывает реальные платежи.",
+    paymentByKaspi: "Оплата по QR-коду",
+    kaspiQrIntro:
+      "Отсканируйте QR-код в приложении Kaspi.kz и подтвердите платёж на {amount}. Сертификат сформируется автоматически.",
+    kaspiQrCaption: "Kaspi QR · демо-режим",
+    kaspiQrNote:
+      "Приём платежей Kaspi подключается после получения доступа к Kaspi Pay API. Сейчас QR-код показан в демо-режиме и не привязан к реальному платежу.",
     step6Eyebrow: "Оплачено",
     step6Title: "Сертификат готов",
     step6Text: "Номер сертификата — {number}. {status}",
@@ -247,6 +254,7 @@ const kz = {
     rowSendingNow: "Төлемнен кейін бірден",
     rowWish: "Тілек",
     step5Title: "Төлем",
+    paymentMethodLabel: "Төлем әдісі",
     paymentIntro: "Карта деректерін енгізіп, {amount} төлемін растаңыз. Сертификат автоматты түрде қалыптасады.",
     paymentByCard: "Картамен төлеу",
     cardNumberLabel: "Карта нөмірі",
@@ -254,6 +262,12 @@ const kz = {
     cardCvvLabel: "CVV",
     paymentNote:
       "Freedom Pay төлемдерін қабылдау API-кілт пен Merchant ID алынғаннан кейін қосылады. Қазір форма демо-режимде жұмыс істейді және нақты төлемдерді өңдемейді.",
+    paymentByKaspi: "QR-код арқылы төлеу",
+    kaspiQrIntro:
+      "Kaspi.kz қосымшасында QR-кодты сканерлеп, {amount} төлемін растаңыз. Сертификат автоматты түрде қалыптасады.",
+    kaspiQrCaption: "Kaspi QR · демо-режим",
+    kaspiQrNote:
+      "Kaspi төлемдерін қабылдау Kaspi Pay API-ге қолжетімділік алынғаннан кейін қосылады. Қазір QR-код демо-режимде көрсетілген және нақты төлеммен байланысты емес.",
     step6Eyebrow: "Төленді",
     step6Title: "Сертификат дайын",
     step6Text: "Сертификат нөмірі — {number}. {status}",
@@ -402,6 +416,7 @@ const en = {
     rowSendingNow: "Right after payment",
     rowWish: "Message",
     step5Title: "Payment",
+    paymentMethodLabel: "Payment method",
     paymentIntro: "Enter your card details and confirm payment of {amount}. The certificate will be generated automatically.",
     paymentByCard: "Pay by card",
     cardNumberLabel: "Card number",
@@ -409,6 +424,12 @@ const en = {
     cardCvvLabel: "CVV",
     paymentNote:
       "Freedom Pay payment processing goes live once the API key and Merchant ID are received. The form is currently in demo mode and does not process real payments.",
+    paymentByKaspi: "Pay by QR code",
+    kaspiQrIntro:
+      "Scan the QR code in the Kaspi.kz app and confirm the payment of {amount}. The certificate will be generated automatically.",
+    kaspiQrCaption: "Kaspi QR · demo mode",
+    kaspiQrNote:
+      "Accepting Kaspi payments will be enabled once access to the Kaspi Pay API is granted. Right now the QR code is shown in demo mode and is not linked to a real payment.",
     step6Eyebrow: "Paid",
     step6Title: "Certificate is ready",
     step6Text: "Certificate number — {number}. {status}",
