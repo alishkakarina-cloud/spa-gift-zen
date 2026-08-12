@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "thai-massage-dev",
-      "url": "http://localhost:8082",
-      "port": 8082
+      "url": "http://localhost:8083",
+      "port": 8083
     }
   ]
 }
