@@ -1,0 +1,10 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "thai-massage-dev",
+      "url": "http://localhost:8082",
+      "port": 8082
+    }
+  ]
+}

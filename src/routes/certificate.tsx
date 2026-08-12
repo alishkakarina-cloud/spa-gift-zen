@@ -55,23 +55,6 @@ const formatCardCvv = (value: string) => value.replace(/\D/g, "").slice(0, 3);
 
 const dateLocales = { ru: "ru-RU", kz: "kk-KZ", en: "en-GB" } as const;
 
-/**
- * Certificate number, e.g. "RTS-2026-00147" — same format and generation path
- * for every certificate, regardless of the chosen design or service/amount.
- *
- * The 5-digit part is random here because there's no backend yet to hand out
- * a real sequential counter or persist the number for admin-panel lookup —
- * that needs a database (see conversation). This only guarantees per-browser
- * uniqueness, not global uniqueness across all customers.
- */
-const generateCertificateNumber = () => {
-  const year = new Date().getFullYear();
-  const seq = Math.floor(Math.random() * 100000)
-    .toString()
-    .padStart(5, "0");
-  return `RTS-${year}-${seq}`;
-};
-
 function CertificateFlow() {
   const { t, lang } = useLanguage();
   const steps = translations[lang].cert.steps;
@@ -96,6 +79,7 @@ function CertificateFlow() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   // Stable per-visit reference for the Kaspi QR demo payload below — not a real order/payment id.
   const [kaspiDemoRef] = useState(() => Math.random().toString(36).slice(2, 10).toUpperCase());
+  const [saving, setSaving] = useState(false);
 
   const design = designs.find((d) => d.id === designId)!;
   const service = services.find((s) => s.id === serviceId) ?? null;
@@ -138,15 +122,41 @@ function CertificateFlow() {
     return e;
   };
 
-  const next = () => {
+  const next = async () => {
     const e = step === 1 ? validateStep1() : step === 3 ? validateStep3() : [];
     setErrors(e);
-    if (e.length === 0) {
-      // Payment confirmed (step 5 → 6): issue the certificate number now, the
-      // same way for every design/service/amount combination.
-      if (step === 5) setCertificateNumber(generateCertificateNumber());
-      setStep((s) => Math.min(6, s + 1) as Step);
+    if (e.length > 0) return;
+
+    if (step === 5) {
+      // Payment confirmed (step 5 → 6): persist the certificate to Supabase
+      // first, and only advance once that succeeds — the number shown to the
+      // user is whatever the server actually saved, not a client guess.
+      setSaving(true);
+      try {
+        const response = await fetch("/api/certificates/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: total,
+            buyerName: sender,
+            recipientName: recipientFullName || null,
+            recipientContact: contact || null,
+            paymentMethod: paymentMethod === "kaspi" ? "kaspi" : "freedom_pay",
+          }),
+        });
+        if (!response.ok) throw new Error("save_failed");
+        const data = (await response.json()) as { certificateNumber: string };
+        setCertificateNumber(data.certificateNumber);
+        setStep(6);
+      } catch {
+        setErrors([t("cert.errCertificateSaveFailed")]);
+      } finally {
+        setSaving(false);
+      }
+      return;
     }
+
+    setStep((s) => Math.min(6, s + 1) as Step);
   };
 
   const back = () => {
@@ -598,7 +608,8 @@ function CertificateFlow() {
                 <button
                   type="button"
                   onClick={back}
-                  className="btn-ghost"
+                  disabled={saving}
+                  className="btn-ghost disabled:opacity-50"
                 >
                   {t("cert.backButton")}
                 </button>
@@ -606,9 +617,16 @@ function CertificateFlow() {
               <button
                 type="button"
                 onClick={next}
-                className="btn-gold"
+                disabled={saving}
+                className="btn-gold disabled:opacity-60"
               >
-                {step === 4 ? t("cert.payButton") : step === 5 ? t("cert.paidButton") : t("cert.nextButton")}
+                {saving
+                  ? t("cert.savingButton")
+                  : step === 4
+                    ? t("cert.payButton")
+                    : step === 5
+                      ? t("cert.paidButton")
+                      : t("cert.nextButton")}
               </button>
             </div>
           )}

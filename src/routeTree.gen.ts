@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CertificateRouteImport } from './routes/certificate'
+import { Route as ApiCertificatesCreateRouteImport } from './routes/api/certificates/create'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const CertificateRoute = CertificateRouteImport.update({
   path: '/certificate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCertificatesCreateRoute = ApiCertificatesCreateRouteImport.update({
+  id: '/api/certificates/create',
+  path: '/api/certificates/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/certificate': typeof CertificateRoute
+  '/api/certificates/create': typeof ApiCertificatesCreateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/certificate': typeof CertificateRoute
+  '/api/certificates/create': typeof ApiCertificatesCreateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/certificate': typeof CertificateRoute
+  '/api/certificates/create': typeof ApiCertificatesCreateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/certificate'
+  fullPaths: '/' | '/certificate' | '/api/certificates/create'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/certificate'
-  id: '__root__' | '/' | '/certificate'
+  to: '/' | '/certificate' | '/api/certificates/create'
+  id: '__root__' | '/' | '/certificate' | '/api/certificates/create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CertificateRoute: typeof CertificateRoute
+  ApiCertificatesCreateRoute: typeof ApiCertificatesCreateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CertificateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/certificates/create': {
+      id: '/api/certificates/create'
+      path: '/api/certificates/create'
+      fullPath: '/api/certificates/create'
+      preLoaderRoute: typeof ApiCertificatesCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CertificateRoute: CertificateRoute,
+  ApiCertificatesCreateRoute: ApiCertificatesCreateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
