@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
-import { Motif } from "@/components/Motif";
+import { Motif, type MotifName } from "@/components/Motif";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
@@ -13,6 +13,7 @@ import {
   fixedAmounts,
   formatPrice,
   services,
+  type Service,
 } from "@/data/catalog";
 
 export const Route = createFileRoute("/certificate")({
@@ -38,6 +39,22 @@ export const Route = createFileRoute("/certificate")({
 type Kind = "service" | "amount";
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 type PaymentMethod = "card" | "kaspi";
+
+/**
+ * Service groups in the order they are shown on step 1, mirroring how the
+ * RaiThai price list itself is split (raithai-spa.kamiqr.com).
+ */
+const SERVICE_GROUPS: ReadonlyArray<{
+  id: Service["group"];
+  motif: MotifName;
+  labelKey: string;
+}> = [
+  { id: "massage", motif: "paisleyDrop", labelKey: "cert.groupMassage" },
+  { id: "complex", motif: "waveCrown", labelKey: "cert.groupComplex" },
+  { id: "spa", motif: "offeringBowl", labelKey: "cert.groupSpa" },
+  { id: "travel", motif: "templeArch", labelKey: "cert.groupTravel" },
+  { id: "kids", motif: "flowerBurst", labelKey: "cert.groupKids" },
+];
 
 const formatCardNumber = (value: string) =>
   value
@@ -215,16 +232,11 @@ function CertificateFlow() {
 
               {kind === "service" ? (
                 <div className="mt-10 space-y-8">
-                  {(["massage", "spa"] as const).map((group) => (
+                  {SERVICE_GROUPS.map(({ id: group, motif, labelKey }) => (
                     <div key={group}>
                       <div className="flex items-center gap-3">
-                        <Motif
-                          name={group === "massage" ? "paisleyDrop" : "offeringBowl"}
-                          className="h-7 w-7 text-gold"
-                        />
-                        <p className="eyebrow">
-                          {group === "massage" ? t("cert.groupMassage") : t("cert.groupSpa")}
-                        </p>
+                        <Motif name={motif} className="h-7 w-7 text-gold" />
+                        <p className="eyebrow">{t(labelKey)}</p>
                       </div>
                       <div className="mt-4 grid gap-3">
                         {services

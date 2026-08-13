@@ -58,7 +58,10 @@ const ru = {
     choiceAmountTitle: "На сумму",
     choiceAmountFrom: "От {amount}",
     groupMassage: "Массаж",
+    groupComplex: "Комплексные массажи",
     groupSpa: "SPA-программы",
+    groupTravel: "SPA-путешествия",
+    groupKids: "Детская линия",
     amountEyebrow: "Сумма сертификата",
     customAmountLabel: "Своя сумма, ₸",
     step2Title: "Выберите дизайн сертификата",
@@ -162,6 +165,236 @@ const ru = {
       description:
         "Мужская программа восстановления: хамам, пилинг, скраб, Ломи-Ломи или тайский массаж 60 минут и работа с ногами или ШВЗ.",
     },
+    "oil-absolute-calm-90": {
+      name: "Oil-массаж «Абсолютный покой», 90 минут",
+      duration: "90 мин",
+      description: "Плавная обволакивающая техника с тёплыми натуральными маслами. Снимает хронический стресс и тревожность.",
+    },
+    "oil-absolute-calm-120": {
+      name: "Oil-массаж «Абсолютный покой», 120 минут",
+      duration: "120 мин",
+      description: "Плавная обволакивающая техника с тёплыми натуральными маслами. Снимает хронический стресс и тревожность.",
+    },
+    "traditional-thai-90": {
+      name: "Традиционный тайский массаж, 90 минут",
+      duration: "90 мин",
+      description: "Без масла, в хлопковой пижаме. Элементы пассивной йоги, глубокие нажатия и скрутки.",
+    },
+    "traditional-thai-120": {
+      name: "Традиционный тайский массаж, 120 минут",
+      duration: "120 мин",
+      description: "Без масла, в хлопковой пижаме. Элементы пассивной йоги, глубокие нажатия и скрутки.",
+    },
+    "lomi-lomi-90": {
+      name: "Гавайский массаж «Ломи-Ломи», 90 минут",
+      duration: "90 мин",
+      description: "Плавные глубокие движения предплечьями и локтями. Эффективно снимает мышечное напряжение.",
+    },
+    "lomi-lomi-120": {
+      name: "Гавайский массаж «Ломи-Ломи», 120 минут",
+      duration: "120 мин",
+      description: "Плавные глубокие движения предплечьями и локтями. Эффективно снимает мышечное напряжение.",
+    },
+    "hot-stones-90": {
+      name: "Магическая сила камней, 90 минут",
+      duration: "90 мин",
+      description: "Глубокий прогрев мышц гладкими вулканическими камнями в сочетании с oil-массажем.",
+    },
+    "hot-stones-120": {
+      name: "Магическая сила камней, 120 минут",
+      duration: "120 мин",
+      description: "Глубокий прогрев мышц гладкими вулканическими камнями в сочетании с oil-массажем.",
+    },
+    "balinese-60": {
+      name: "Балийский массаж «Гармония энергии», 60 минут",
+      duration: "60 мин",
+      description: "Баланс между глубокой проработкой мышц и расслабляющим воздействием масел.",
+    },
+    "balinese-90": {
+      name: "Балийский массаж «Гармония энергии», 90 минут",
+      duration: "90 мин",
+      description: "Баланс между глубокой проработкой мышц и расслабляющим воздействием масел.",
+    },
+    "balinese-120": {
+      name: "Балийский массаж «Гармония энергии», 120 минут",
+      duration: "120 мин",
+      description: "Баланс между глубокой проработкой мышц и расслабляющим воздействием масел.",
+    },
+    "anticellulite-60": {
+      name: "Антицеллюлитный массаж Slim, 60 минут",
+      duration: "60 мин",
+      description: "Интенсивная техника для улучшения лимфодренажа и подтяжки кожи.",
+    },
+    "anticellulite-90": {
+      name: "Антицеллюлитный массаж Slim, 90 минут",
+      duration: "90 мин",
+      description: "Интенсивная техника для улучшения лимфодренажа и подтяжки кожи.",
+    },
+    "herbal-pouch-60": {
+      name: "Массаж тела травяными мешочками, 60 минут",
+      duration: "60 мин",
+      description: "Горячие мешочки со сборами целебных тайских трав: ароматерапия и глубокий прогрев.",
+    },
+    "herbal-pouch-90": {
+      name: "Массаж тела травяными мешочками, 90 минут",
+      duration: "90 мин",
+      description: "Горячие мешочки со сборами целебных тайских трав: ароматерапия и глубокий прогрев.",
+    },
+    "herbal-pouch-120": {
+      name: "Массаж тела травяными мешочками, 120 минут",
+      duration: "120 мин",
+      description: "Горячие мешочки со сборами целебных тайских трав: ароматерапия и глубокий прогрев.",
+    },
+    "mom-to-be-60": {
+      name: "Массаж для будущих мам, 60 минут",
+      duration: "60 мин",
+      description: "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку.",
+    },
+    "mom-to-be-90": {
+      name: "Массаж для будущих мам, 90 минут",
+      duration: "90 мин",
+      description: "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку.",
+    },
+    "paraffin-hands": {
+      name: "Парафинотерапия для рук",
+      duration: "",
+      description: "Тёплый парафиновый кокон для рук — глубокое питание кожи.",
+    },
+    "complex-calm-harmony": {
+      name: "«Спокойствие и гармония»",
+      duration: "90 мин",
+      description: "Массаж спины и шейно-воротниковой зоны 45 минут и тайский массаж ног 45 минут.",
+    },
+    "complex-energy-90": {
+      name: "«Источник энергии», 90 минут",
+      duration: "90 мин",
+      description: "Oil-массаж 60 минут и тайский массаж ног 30 минут — снимает хроническую усталость.",
+    },
+    "complex-energy-120": {
+      name: "«Источник энергии», 120 минут",
+      duration: "120 мин",
+      description: "Oil-массаж 60 минут и тайский массаж ног 60 минут — снимает хроническую усталость.",
+    },
+    "complex-serenity": {
+      name: "«Покой и безмятежность»",
+      duration: "120 мин",
+      description: "Традиционный тайский массаж 60 минут и oil-массаж 60 минут. Снятие мышечных блоков.",
+    },
+    "thai-bath-1": {
+      name: "Баня по-тайски, 1 персона",
+      duration: "60 мин",
+      description: "Хамам или сауна с ароматерапией, пилинг кесе, скрабирование, мытьё головы и чайная церемония.",
+    },
+    "thai-bath-2": {
+      name: "Баня по-тайски, 2 персоны",
+      duration: "60 мин",
+      description: "Хамам или сауна с ароматерапией, пилинг кесе, скрабирование, мытьё головы и чайная церемония.",
+    },
+    "thai-bath-3": {
+      name: "Баня по-тайски, 3 персоны",
+      duration: "60 мин",
+      description: "Хамам или сауна с ароматерапией, пилинг кесе, скрабирование, мытьё головы и чайная церемония.",
+    },
+    reload: {
+      name: "SPA-программа «Перезагрузка»",
+      duration: "120 мин",
+      description: "Хамам, пилинг, скрабирование, мытьё головы, чайная церемония и расслабляющий oil-массаж 60 минут.",
+    },
+    "date-raithai": {
+      name: "«Свидание в Райтай», 2 персоны",
+      duration: "120 мин",
+      description: "Программа для двоих: хамам, пилинг, скрабирование, пенное омовение, чайная церемония и арома-oil массаж.",
+    },
+    "paradise-recovery-1": {
+      name: "«Райское восстановление», 1 персона",
+      duration: "150 мин",
+      description: "Хамам, пилинг кесе, скрабирование, пенный массаж, мытьё головы, чайная церемония и oil-массаж 60 минут.",
+    },
+    "paradise-recovery-2": {
+      name: "«Райское восстановление», 2 персоны",
+      duration: "150 мин",
+      description: "Хамам, пилинг кесе, скрабирование, пенный массаж, мытьё головы, чайная церемония и oil-массаж 60 минут.",
+    },
+    "paradise-recovery-3": {
+      name: "«Райское восстановление», 3 персоны",
+      duration: "150 мин",
+      description: "Хамам, пилинг кесе, скрабирование, пенный массаж, мытьё головы, чайная церемония и oil-массаж 60 минут.",
+    },
+    "mom-and-child": {
+      name: "«Мама и ребёнок», 2 персоны",
+      duration: "90 мин",
+      description: "Хамам, пилинг кесе, мытьё головы, oil-массаж 60 минут, маска для лица и чайная церемония на двоих.",
+    },
+    "luxury-for-two": {
+      name: "«Роскошь для двоих», 2 персоны",
+      duration: "180 мин",
+      description: "Хамам, пилинг, шоколадное обёртывание, пенный массаж, арома-oil массаж и массаж лица. Бонус — оформление комнаты.",
+    },
+    "hen-party": {
+      name: "«Девичник», 3 персоны",
+      duration: "120 мин",
+      description: "Хамам, пилинг кесе, скрабирование, мытьё головы, расслабляющий oil-массаж и чайная церемония.",
+    },
+    "journey-thailand-1": {
+      name: "«Путешествие в Таиланд», 1 персона",
+      duration: "150 мин",
+      description: "Хамам или сауна, пилинг, скрабирование, чайная церемония и традиционный тайский массаж 60 минут.",
+    },
+    "journey-thailand-2": {
+      name: "«Путешествие в Таиланд», 2 персоны",
+      duration: "150 мин",
+      description: "Хамам или сауна, пилинг, скрабирование, чайная церемония и традиционный тайский массаж 60 минут.",
+    },
+    "journey-bali-1": {
+      name: "«Путешествие на Бали», 1 персона",
+      duration: "180 мин",
+      description: "Хамам, пилинг, обёртывание тела, чайная церемония, массаж лица травяными мешочками и балийский массаж.",
+    },
+    "journey-bali-2": {
+      name: "«Путешествие на Бали», 2 персоны",
+      duration: "180 мин",
+      description: "Хамам, пилинг, обёртывание тела, чайная церемония, массаж лица травяными мешочками и балийский массаж.",
+    },
+    "journey-bali-3": {
+      name: "«Путешествие на Бали», 3 персоны",
+      duration: "180 мин",
+      description: "Хамам, пилинг, обёртывание тела, чайная церемония, массаж лица травяными мешочками и балийский массаж.",
+    },
+    "journey-malaysia-1": {
+      name: "«Путешествие в Малайзию», 1 персона",
+      duration: "240 мин",
+      description: "Хамам, пилинг, обёртывание, чайная церемония, массаж лица травяными мешочками и арома-oil массаж.",
+    },
+    "journey-malaysia-2": {
+      name: "«Путешествие в Малайзию», 2 персоны",
+      duration: "240 мин",
+      description: "Хамам, пилинг, обёртывание, чайная церемония, массаж лица травяными мешочками и арома-oil массаж.",
+    },
+    "journey-malaysia-3": {
+      name: "«Путешествие в Малайзию», 3 персоны",
+      duration: "240 мин",
+      description: "Хамам, пилинг, обёртывание, чайная церемония, массаж лица травяными мешочками и арома-oil массаж.",
+    },
+    "kids-thai-60": {
+      name: "Детский тайский массаж «Тайская сказка», 60 минут",
+      duration: "60 мин",
+      description: "Для детей от 5 лет. Мягкая пассивная гимнастика в хлопковой пижаме, снимает гипертонус.",
+    },
+    "kids-thai-90": {
+      name: "Детский тайский массаж «Тайская сказка», 90 минут",
+      duration: "90 мин",
+      description: "Для детей от 5 лет. Мягкая пассивная гимнастика в хлопковой пижаме, снимает гипертонус.",
+    },
+    "kids-oil-60": {
+      name: "Детский oil-массаж, 60 минут",
+      duration: "60 мин",
+      description: "Для детей от 5 лет. Плавные движения с тёплым маслом снимают тревожность и переутомление.",
+    },
+    "kids-oil-90": {
+      name: "Детский oil-массаж, 90 минут",
+      duration: "90 мин",
+      description: "Для детей от 5 лет. Плавные движения с тёплым маслом снимают тревожность и переутомление.",
+    },
   },
   designs: {
     universal: { title: "Универсальный", caption: "Подарочный сертификат" },
@@ -226,7 +459,10 @@ const kz = {
     choiceAmountTitle: "Соманы",
     choiceAmountFrom: "{amount}-ден",
     groupMassage: "Массаж",
+    groupComplex: "Кешенді массаждар",
     groupSpa: "SPA-бағдарламалар",
+    groupTravel: "SPA-саяхаттар",
+    groupKids: "Балалар желісі",
     amountEyebrow: "Сертификат сомасы",
     customAmountLabel: "Өз соманыз, ₸",
     step2Title: "Сертификат дизайнын таңдаңыз",
@@ -327,6 +563,236 @@ const kz = {
       duration: "160 мин",
       description: "Ерлерге арналған қалпына келтіру бағдарламасы: хамам, пилинг, скраб, Ломи-Ломи немесе 60 минуттық тай массажы және аяқ немесе мойын-жаға аймағымен жұмыс.",
     },
+    "oil-absolute-calm-90": {
+      name: "«Абсолютті тыныштық» Oil-массажы, 90 минут",
+      duration: "90 мин",
+      description: "Жылы табиғи майлармен орындалатын баяу техника. Созылмалы күйзеліс пен мазасыздықты басады.",
+    },
+    "oil-absolute-calm-120": {
+      name: "«Абсолютті тыныштық» Oil-массажы, 120 минут",
+      duration: "120 мин",
+      description: "Жылы табиғи майлармен орындалатын баяу техника. Созылмалы күйзеліс пен мазасыздықты басады.",
+    },
+    "traditional-thai-90": {
+      name: "Дәстүрлі тай массажы, 90 минут",
+      duration: "90 мин",
+      description: "Майсыз, мақта пижамада. Пассивті йога элементтері, терең басу және бұрау.",
+    },
+    "traditional-thai-120": {
+      name: "Дәстүрлі тай массажы, 120 минут",
+      duration: "120 мин",
+      description: "Майсыз, мақта пижамада. Пассивті йога элементтері, терең басу және бұрау.",
+    },
+    "lomi-lomi-90": {
+      name: "Гавайлық «Ломи-Ломи» массажы, 90 минут",
+      duration: "90 мин",
+      description: "Білек пен шынтақпен жасалатын баяу терең қозғалыстар. Бұлшықет кернеуін тиімді басады.",
+    },
+    "lomi-lomi-120": {
+      name: "Гавайлық «Ломи-Ломи» массажы, 120 минут",
+      duration: "120 мин",
+      description: "Білек пен шынтақпен жасалатын баяу терең қозғалыстар. Бұлшықет кернеуін тиімді басады.",
+    },
+    "hot-stones-90": {
+      name: "Тастардың сиқырлы күші, 90 минут",
+      duration: "90 мин",
+      description: "Тегіс вулкан тастарымен бұлшықеттерді терең жылыту және oil-массаж үйлесімі.",
+    },
+    "hot-stones-120": {
+      name: "Тастардың сиқырлы күші, 120 минут",
+      duration: "120 мин",
+      description: "Тегіс вулкан тастарымен бұлшықеттерді терең жылыту және oil-массаж үйлесімі.",
+    },
+    "balinese-60": {
+      name: "«Энергия үйлесімі» Бали массажы, 60 минут",
+      duration: "60 мин",
+      description: "Бұлшықеттерді терең өңдеу мен майлардың босаңсытатын әсері арасындағы тепе-теңдік.",
+    },
+    "balinese-90": {
+      name: "«Энергия үйлесімі» Бали массажы, 90 минут",
+      duration: "90 мин",
+      description: "Бұлшықеттерді терең өңдеу мен майлардың босаңсытатын әсері арасындағы тепе-теңдік.",
+    },
+    "balinese-120": {
+      name: "«Энергия үйлесімі» Бали массажы, 120 минут",
+      duration: "120 мин",
+      description: "Бұлшықеттерді терең өңдеу мен майлардың босаңсытатын әсері арасындағы тепе-теңдік.",
+    },
+    "anticellulite-60": {
+      name: "Антицеллюлиттік Slim массажы, 60 минут",
+      duration: "60 мин",
+      description: "Лимфа ағынын жақсартуға және теріні тартуға бағытталған қарқынды техника.",
+    },
+    "anticellulite-90": {
+      name: "Антицеллюлиттік Slim массажы, 90 минут",
+      duration: "90 мин",
+      description: "Лимфа ағынын жақсартуға және теріні тартуға бағытталған қарқынды техника.",
+    },
+    "herbal-pouch-60": {
+      name: "Шөп қапшықтарымен дене массажы, 60 минут",
+      duration: "60 мин",
+      description: "Емдік тай шөптері салынған ыстық қапшықтар: ароматерапия және терең жылыту.",
+    },
+    "herbal-pouch-90": {
+      name: "Шөп қапшықтарымен дене массажы, 90 минут",
+      duration: "90 мин",
+      description: "Емдік тай шөптері салынған ыстық қапшықтар: ароматерапия және терең жылыту.",
+    },
+    "herbal-pouch-120": {
+      name: "Шөп қапшықтарымен дене массажы, 120 минут",
+      duration: "120 мин",
+      description: "Емдік тай шөптері салынған ыстық қапшықтар: ароматерапия және терең жылыту.",
+    },
+    "mom-to-be-60": {
+      name: "Болашақ аналарға арналған массаж, 60 минут",
+      duration: "60 мин",
+      description: "Болашақ анаға ұқыпты қамқорлық: бел мен аяққа түсетін жүктемені азайту, бүйірде жату.",
+    },
+    "mom-to-be-90": {
+      name: "Болашақ аналарға арналған массаж, 90 минут",
+      duration: "90 мин",
+      description: "Болашақ анаға ұқыпты қамқорлық: бел мен аяққа түсетін жүктемені азайту, бүйірде жату.",
+    },
+    "paraffin-hands": {
+      name: "Қолға арналған парафинотерапия",
+      duration: "",
+      description: "Қолға арналған жылы парафин коконы — теріні терең қоректендіреді.",
+    },
+    "complex-calm-harmony": {
+      name: "«Тыныштық пен үйлесім»",
+      duration: "90 мин",
+      description: "Арқа мен мойын-жаға аймағының массажы 45 минут және тай аяқ массажы 45 минут.",
+    },
+    "complex-energy-90": {
+      name: "«Энергия көзі», 90 минут",
+      duration: "90 мин",
+      description: "Oil-массаж 60 минут және тай аяқ массажы 30 минут — созылмалы шаршауды басады.",
+    },
+    "complex-energy-120": {
+      name: "«Энергия көзі», 120 минут",
+      duration: "120 мин",
+      description: "Oil-массаж 60 минут және тай аяқ массажы 60 минут — созылмалы шаршауды басады.",
+    },
+    "complex-serenity": {
+      name: "«Тыныштық пен рахат»",
+      duration: "120 мин",
+      description: "Дәстүрлі тай массажы 60 минут және oil-массаж 60 минут. Бұлшықет түйіндерін тарқатады.",
+    },
+    "thai-bath-1": {
+      name: "Тайша моншасы, 1 адам",
+      duration: "60 мин",
+      description: "Ароматерапиямен хамам немесе сауна, кесе пилингі, скраб, бас жуу және шәй рәсімі.",
+    },
+    "thai-bath-2": {
+      name: "Тайша моншасы, 2 адам",
+      duration: "60 мин",
+      description: "Ароматерапиямен хамам немесе сауна, кесе пилингі, скраб, бас жуу және шәй рәсімі.",
+    },
+    "thai-bath-3": {
+      name: "Тайша моншасы, 3 адам",
+      duration: "60 мин",
+      description: "Ароматерапиямен хамам немесе сауна, кесе пилингі, скраб, бас жуу және шәй рәсімі.",
+    },
+    reload: {
+      name: "«Қайта жүктеу» SPA-бағдарламасы",
+      duration: "120 мин",
+      description: "Хамам, пилинг, скраб, бас жуу, шәй рәсімі және 60 минуттық босаңсытатын oil-массаж.",
+    },
+    "date-raithai": {
+      name: "«Райтайдағы кездесу», 2 адам",
+      duration: "120 мин",
+      description: "Екеуге арналған бағдарлама: хамам, пилинг, скраб, көбікпен жуыну, шәй рәсімі және арома-oil массаж.",
+    },
+    "paradise-recovery-1": {
+      name: "«Жұмақтық қалпына келтіру», 1 адам",
+      duration: "150 мин",
+      description: "Хамам, кесе пилингі, скраб, көбік массажы, бас жуу, шәй рәсімі және 60 минуттық oil-массаж.",
+    },
+    "paradise-recovery-2": {
+      name: "«Жұмақтық қалпына келтіру», 2 адам",
+      duration: "150 мин",
+      description: "Хамам, кесе пилингі, скраб, көбік массажы, бас жуу, шәй рәсімі және 60 минуттық oil-массаж.",
+    },
+    "paradise-recovery-3": {
+      name: "«Жұмақтық қалпына келтіру», 3 адам",
+      duration: "150 мин",
+      description: "Хамам, кесе пилингі, скраб, көбік массажы, бас жуу, шәй рәсімі және 60 минуттық oil-массаж.",
+    },
+    "mom-and-child": {
+      name: "«Ана мен бала», 2 адам",
+      duration: "90 мин",
+      description: "Хамам, кесе пилингі, бас жуу, 60 минуттық oil-массаж, бетке маска және екеуге шәй рәсімі.",
+    },
+    "luxury-for-two": {
+      name: "«Екеуге арналған сән-салтанат», 2 адам",
+      duration: "180 мин",
+      description: "Хамам, пилинг, шоколад орамасы, көбік массажы, арома-oil массаж және бет массажы.",
+    },
+    "hen-party": {
+      name: "«Қыздар кеші», 3 адам",
+      duration: "120 мин",
+      description: "Хамам, кесе пилингі, скраб, бас жуу, босаңсытатын oil-массаж және шәй рәсімі.",
+    },
+    "journey-thailand-1": {
+      name: "«Таиландқа саяхат», 1 адам",
+      duration: "150 мин",
+      description: "Хамам немесе сауна, пилинг, скраб, шәй рәсімі және 60 минуттық дәстүрлі тай массажы.",
+    },
+    "journey-thailand-2": {
+      name: "«Таиландқа саяхат», 2 адам",
+      duration: "150 мин",
+      description: "Хамам немесе сауна, пилинг, скраб, шәй рәсімі және 60 минуттық дәстүрлі тай массажы.",
+    },
+    "journey-bali-1": {
+      name: "«Балиге саяхат», 1 адам",
+      duration: "180 мин",
+      description: "Хамам, пилинг, дене орамасы, шәй рәсімі, шөп қапшықтарымен бет массажы және Бали массажы.",
+    },
+    "journey-bali-2": {
+      name: "«Балиге саяхат», 2 адам",
+      duration: "180 мин",
+      description: "Хамам, пилинг, дене орамасы, шәй рәсімі, шөп қапшықтарымен бет массажы және Бали массажы.",
+    },
+    "journey-bali-3": {
+      name: "«Балиге саяхат», 3 адам",
+      duration: "180 мин",
+      description: "Хамам, пилинг, дене орамасы, шәй рәсімі, шөп қапшықтарымен бет массажы және Бали массажы.",
+    },
+    "journey-malaysia-1": {
+      name: "«Малайзияға саяхат», 1 адам",
+      duration: "240 мин",
+      description: "Хамам, пилинг, орама, шәй рәсімі, шөп қапшықтарымен бет массажы және арома-oil массаж.",
+    },
+    "journey-malaysia-2": {
+      name: "«Малайзияға саяхат», 2 адам",
+      duration: "240 мин",
+      description: "Хамам, пилинг, орама, шәй рәсімі, шөп қапшықтарымен бет массажы және арома-oil массаж.",
+    },
+    "journey-malaysia-3": {
+      name: "«Малайзияға саяхат», 3 адам",
+      duration: "240 мин",
+      description: "Хамам, пилинг, орама, шәй рәсімі, шөп қапшықтарымен бет массажы және арома-oil массаж.",
+    },
+    "kids-thai-60": {
+      name: "«Тай ертегісі» балалар тай массажы, 60 минут",
+      duration: "60 мин",
+      description: "5 жастан бастап. Мақта пижамадағы жұмсақ пассивті гимнастика, гипертонусты басады.",
+    },
+    "kids-thai-90": {
+      name: "«Тай ертегісі» балалар тай массажы, 90 минут",
+      duration: "90 мин",
+      description: "5 жастан бастап. Мақта пижамадағы жұмсақ пассивті гимнастика, гипертонусты басады.",
+    },
+    "kids-oil-60": {
+      name: "Балаларға арналған oil-массаж, 60 минут",
+      duration: "60 мин",
+      description: "5 жастан бастап. Жылы майлы баяу қозғалыстар мазасыздық пен шаршауды басады.",
+    },
+    "kids-oil-90": {
+      name: "Балаларға арналған oil-массаж, 90 минут",
+      duration: "90 мин",
+      description: "5 жастан бастап. Жылы майлы баяу қозғалыстар мазасыздық пен шаршауды басады.",
+    },
   },
   designs: {
     universal: { title: "Әмбебап", caption: "Сыйлық сертификаты" },
@@ -390,7 +856,10 @@ const en = {
     choiceAmountTitle: "For an amount",
     choiceAmountFrom: "From {amount}",
     groupMassage: "Massage",
+    groupComplex: "Combined massages",
     groupSpa: "SPA programs",
+    groupTravel: "SPA journeys",
+    groupKids: "Kids line",
     amountEyebrow: "Certificate amount",
     customAmountLabel: "Custom amount, ₸",
     step2Title: "Choose a certificate design",
@@ -490,6 +959,236 @@ const en = {
       name: "«King of Thailand» SPA ritual",
       duration: "160 min",
       description: "A recovery program for men: hammam, peeling, scrub, Lomi-Lomi or a 60-minute Thai massage, plus foot or neck & collar work.",
+    },
+    "oil-absolute-calm-90": {
+      name: "«Absolute Calm» oil massage, 90 minutes",
+      duration: "90 min",
+      description: "A flowing, enveloping technique with warm natural oils. Relieves chronic stress and anxiety.",
+    },
+    "oil-absolute-calm-120": {
+      name: "«Absolute Calm» oil massage, 120 minutes",
+      duration: "120 min",
+      description: "A flowing, enveloping technique with warm natural oils. Relieves chronic stress and anxiety.",
+    },
+    "traditional-thai-90": {
+      name: "Traditional Thai massage, 90 minutes",
+      duration: "90 min",
+      description: "Oil-free, in a cotton outfit. Passive yoga elements, deep pressure and stretches.",
+    },
+    "traditional-thai-120": {
+      name: "Traditional Thai massage, 120 minutes",
+      duration: "120 min",
+      description: "Oil-free, in a cotton outfit. Passive yoga elements, deep pressure and stretches.",
+    },
+    "lomi-lomi-90": {
+      name: "«Lomi-Lomi» Hawaiian massage, 90 minutes",
+      duration: "90 min",
+      description: "Flowing, deep strokes with forearms and elbows. Effectively releases muscle tension.",
+    },
+    "lomi-lomi-120": {
+      name: "«Lomi-Lomi» Hawaiian massage, 120 minutes",
+      duration: "120 min",
+      description: "Flowing, deep strokes with forearms and elbows. Effectively releases muscle tension.",
+    },
+    "hot-stones-90": {
+      name: "Magic power of stones, 90 minutes",
+      duration: "90 min",
+      description: "Deep muscle warming with smooth volcanic stones combined with an oil massage.",
+    },
+    "hot-stones-120": {
+      name: "Magic power of stones, 120 minutes",
+      duration: "120 min",
+      description: "Deep muscle warming with smooth volcanic stones combined with an oil massage.",
+    },
+    "balinese-60": {
+      name: "«Harmony of Energy» Balinese massage, 60 minutes",
+      duration: "60 min",
+      description: "A balance between deep muscle work and the relaxing effect of oils.",
+    },
+    "balinese-90": {
+      name: "«Harmony of Energy» Balinese massage, 90 minutes",
+      duration: "90 min",
+      description: "A balance between deep muscle work and the relaxing effect of oils.",
+    },
+    "balinese-120": {
+      name: "«Harmony of Energy» Balinese massage, 120 minutes",
+      duration: "120 min",
+      description: "A balance between deep muscle work and the relaxing effect of oils.",
+    },
+    "anticellulite-60": {
+      name: "Slim anti-cellulite massage, 60 minutes",
+      duration: "60 min",
+      description: "An intensive technique for better lymphatic drainage and firmer skin.",
+    },
+    "anticellulite-90": {
+      name: "Slim anti-cellulite massage, 90 minutes",
+      duration: "90 min",
+      description: "An intensive technique for better lymphatic drainage and firmer skin.",
+    },
+    "herbal-pouch-60": {
+      name: "Herbal pouch body massage, 60 minutes",
+      duration: "60 min",
+      description: "Hot pouches filled with healing Thai herbs: aromatherapy and deep warming.",
+    },
+    "herbal-pouch-90": {
+      name: "Herbal pouch body massage, 90 minutes",
+      duration: "90 min",
+      description: "Hot pouches filled with healing Thai herbs: aromatherapy and deep warming.",
+    },
+    "herbal-pouch-120": {
+      name: "Herbal pouch body massage, 120 minutes",
+      duration: "120 min",
+      description: "Hot pouches filled with healing Thai herbs: aromatherapy and deep warming.",
+    },
+    "mom-to-be-60": {
+      name: "Massage for mums-to-be, 60 minutes",
+      duration: "60 min",
+      description: "Gentle care for the mother-to-be: relief for the lower back and legs, side-lying position.",
+    },
+    "mom-to-be-90": {
+      name: "Massage for mums-to-be, 90 minutes",
+      duration: "90 min",
+      description: "Gentle care for the mother-to-be: relief for the lower back and legs, side-lying position.",
+    },
+    "paraffin-hands": {
+      name: "Paraffin therapy for hands",
+      duration: "",
+      description: "A warm paraffin cocoon for the hands — deep nourishment for the skin.",
+    },
+    "complex-calm-harmony": {
+      name: "«Calm and Harmony»",
+      duration: "90 min",
+      description: "A 45-minute back and neck & collar massage plus a 45-minute Thai foot massage.",
+    },
+    "complex-energy-90": {
+      name: "«Source of Energy», 90 minutes",
+      duration: "90 min",
+      description: "A 60-minute oil massage plus a 30-minute Thai foot massage — clears chronic fatigue.",
+    },
+    "complex-energy-120": {
+      name: "«Source of Energy», 120 minutes",
+      duration: "120 min",
+      description: "A 60-minute oil massage plus a 60-minute Thai foot massage — clears chronic fatigue.",
+    },
+    "complex-serenity": {
+      name: "«Peace and Serenity»",
+      duration: "120 min",
+      description: "A 60-minute traditional Thai massage plus a 60-minute oil massage. Releases muscle blocks.",
+    },
+    "thai-bath-1": {
+      name: "Thai bath ritual, 1 person",
+      duration: "60 min",
+      description: "Hammam or sauna with aromatherapy, kese peeling, body scrub, hair wash and a tea ceremony.",
+    },
+    "thai-bath-2": {
+      name: "Thai bath ritual, 2 people",
+      duration: "60 min",
+      description: "Hammam or sauna with aromatherapy, kese peeling, body scrub, hair wash and a tea ceremony.",
+    },
+    "thai-bath-3": {
+      name: "Thai bath ritual, 3 people",
+      duration: "60 min",
+      description: "Hammam or sauna with aromatherapy, kese peeling, body scrub, hair wash and a tea ceremony.",
+    },
+    reload: {
+      name: "«Reload» SPA program",
+      duration: "120 min",
+      description: "Hammam, peeling, scrub, hair wash, tea ceremony and a 60-minute relaxing oil massage.",
+    },
+    "date-raithai": {
+      name: "«A Date at RaiThai», 2 people",
+      duration: "120 min",
+      description: "A program for two: hammam, peeling, scrub, foam bathing, tea ceremony and an aroma-oil massage.",
+    },
+    "paradise-recovery-1": {
+      name: "«Paradise Recovery», 1 person",
+      duration: "150 min",
+      description: "Hammam, kese peeling, scrub, foam massage, hair wash, tea ceremony and a 60-minute oil massage.",
+    },
+    "paradise-recovery-2": {
+      name: "«Paradise Recovery», 2 people",
+      duration: "150 min",
+      description: "Hammam, kese peeling, scrub, foam massage, hair wash, tea ceremony and a 60-minute oil massage.",
+    },
+    "paradise-recovery-3": {
+      name: "«Paradise Recovery», 3 people",
+      duration: "150 min",
+      description: "Hammam, kese peeling, scrub, foam massage, hair wash, tea ceremony and a 60-minute oil massage.",
+    },
+    "mom-and-child": {
+      name: "«Mother and Child», 2 people",
+      duration: "90 min",
+      description: "Hammam, kese peeling, hair wash, a 60-minute oil massage, face mask and a tea ceremony for two.",
+    },
+    "luxury-for-two": {
+      name: "«Luxury for Two», 2 people",
+      duration: "180 min",
+      description: "Hammam, peeling, chocolate wrap, foam massage, aroma-oil massage and a face massage.",
+    },
+    "hen-party": {
+      name: "«Hen Party», 3 people",
+      duration: "120 min",
+      description: "Hammam, kese peeling, scrub, hair wash, a relaxing oil massage and a tea ceremony.",
+    },
+    "journey-thailand-1": {
+      name: "«Journey to Thailand», 1 person",
+      duration: "150 min",
+      description: "Hammam or sauna, peeling, scrub, tea ceremony and a 60-minute traditional Thai massage.",
+    },
+    "journey-thailand-2": {
+      name: "«Journey to Thailand», 2 people",
+      duration: "150 min",
+      description: "Hammam or sauna, peeling, scrub, tea ceremony and a 60-minute traditional Thai massage.",
+    },
+    "journey-bali-1": {
+      name: "«Journey to Bali», 1 person",
+      duration: "180 min",
+      description: "Hammam, peeling, body wrap, tea ceremony, herbal pouch face massage and a Balinese massage.",
+    },
+    "journey-bali-2": {
+      name: "«Journey to Bali», 2 people",
+      duration: "180 min",
+      description: "Hammam, peeling, body wrap, tea ceremony, herbal pouch face massage and a Balinese massage.",
+    },
+    "journey-bali-3": {
+      name: "«Journey to Bali», 3 people",
+      duration: "180 min",
+      description: "Hammam, peeling, body wrap, tea ceremony, herbal pouch face massage and a Balinese massage.",
+    },
+    "journey-malaysia-1": {
+      name: "«Journey to Malaysia», 1 person",
+      duration: "240 min",
+      description: "Hammam, peeling, wrap, tea ceremony, herbal pouch face massage and an aroma-oil massage.",
+    },
+    "journey-malaysia-2": {
+      name: "«Journey to Malaysia», 2 people",
+      duration: "240 min",
+      description: "Hammam, peeling, wrap, tea ceremony, herbal pouch face massage and an aroma-oil massage.",
+    },
+    "journey-malaysia-3": {
+      name: "«Journey to Malaysia», 3 people",
+      duration: "240 min",
+      description: "Hammam, peeling, wrap, tea ceremony, herbal pouch face massage and an aroma-oil massage.",
+    },
+    "kids-thai-60": {
+      name: "«Thai Fairytale» kids Thai massage, 60 minutes",
+      duration: "60 min",
+      description: "For children from 5 years. Gentle passive gymnastics in a cotton outfit, eases muscle tension.",
+    },
+    "kids-thai-90": {
+      name: "«Thai Fairytale» kids Thai massage, 90 minutes",
+      duration: "90 min",
+      description: "For children from 5 years. Gentle passive gymnastics in a cotton outfit, eases muscle tension.",
+    },
+    "kids-oil-60": {
+      name: "Kids oil massage, 60 minutes",
+      duration: "60 min",
+      description: "For children from 5 years. Soft strokes with warm oil ease anxiety and tiredness.",
+    },
+    "kids-oil-90": {
+      name: "Kids oil massage, 90 minutes",
+      duration: "90 min",
+      description: "For children from 5 years. Soft strokes with warm oil ease anxiety and tiredness.",
     },
   },
   designs: {
