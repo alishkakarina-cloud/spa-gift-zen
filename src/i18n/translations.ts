@@ -126,7 +126,7 @@ const ru = {
     payTotal: "К оплате",
     cardTo: "Кому",
     cardFrom: "От",
-    cardValidity: "Действителен 12 месяцев",
+    cardValidity: "Бессрочный сертификат",
   },
   services: {
     "oil-absolute-calm": {
@@ -294,7 +294,7 @@ const kz = {
     payTotal: "Төлеуге",
     cardTo: "Кімге",
     cardFrom: "Кімнен",
-    cardValidity: "12 ай жарамды",
+    cardValidity: "Мерзімсіз сертификат",
   },
   services: {
     "oil-absolute-calm": {
@@ -458,7 +458,7 @@ const en = {
     payTotal: "Total due",
     cardTo: "To",
     cardFrom: "From",
-    cardValidity: "Valid for 12 months",
+    cardValidity: "No expiry date",
   },
   services: {
     "oil-absolute-calm": {
