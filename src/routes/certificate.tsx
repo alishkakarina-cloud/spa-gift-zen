@@ -2,24 +2,22 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
-import { Motif, type MotifName } from "@/components/Motif";
+import { Motif } from "@/components/Motif";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { AtmosphereGallery } from "@/components/AtmosphereGallery";
-import { CategoryCarousel } from "@/components/CategoryCarousel";
+import { ServiceCatalogBrowser } from "@/components/ServiceCatalogBrowser";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
 import logoLight from "@/assets/logo-light.png";
-import {
-  MIN_AMOUNT,
-  designs,
-  fixedAmounts,
-  formatPrice,
-  serviceImage,
-  services,
-  type Service,
-} from "@/data/catalog";
+import { MIN_AMOUNT, designs, fixedAmounts, formatPrice, services, type Service } from "@/data/catalog";
+
+type CertificateSearch = {
+  /** Услуга, выбранная на /catalog — предзаполняет шаг 1 при переходе. */
+  service?: string;
+};
 
 export const Route = createFileRoute("/certificate")({
+  validateSearch: (search: Record<string, unknown>): CertificateSearch =>
+    typeof search["service"] === "string" ? { service: search["service"] } : {},
   head: () => ({
     meta: [
       { title: "Оформить подарочный сертификат — Rai Thai Spa" },
@@ -43,40 +41,6 @@ type Kind = "service" | "amount";
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 type PaymentMethod = "card" | "kaspi";
 
-/**
- * Service groups in the order they are shown on step 1, mirroring how the
- * RaiThai price list itself is split (raithai-spa.kamiqr.com).
- */
-const SERVICE_GROUPS: ReadonlyArray<{
-  id: Service["group"];
-  motif: MotifName;
-  labelKey: string;
-  /** Услуга, фото которой представляет категорию в карусели. */
-  imageFrom: string | null;
-}> = [
-  {
-    id: "massage",
-    motif: "paisleyDrop",
-    labelKey: "cert.groupMassage",
-    imageFrom: "oil-absolute-calm-90",
-  },
-  {
-    id: "complex",
-    motif: "waveCrown",
-    labelKey: "cert.groupComplex",
-    imageFrom: "complex-energy-90",
-  },
-  { id: "spa", motif: "offeringBowl", labelKey: "cert.groupSpa", imageFrom: "reload" },
-  {
-    id: "travel",
-    motif: "templeArch",
-    labelKey: "cert.groupTravel",
-    imageFrom: "journey-bali-1",
-  },
-  // Детскую линию ещё не снимали — карточка идёт с фирменным мотивом.
-  { id: "kids", motif: "flowerBurst", labelKey: "cert.groupKids", imageFrom: null },
-];
-
 const formatCardNumber = (value: string) =>
   value
     .replace(/\D/g, "")
@@ -95,11 +59,17 @@ const dateLocales = { ru: "ru-RU", kz: "kk-KZ", en: "en-GB" } as const;
 
 function CertificateFlow() {
   const { t, lang } = useLanguage();
+  const { service: presetServiceId } = Route.useSearch();
+  // Пришли с /catalog с уже выбранной услугой — открываем шаг 1 на её
+  // категории и с ней самой отмеченной, а не с дефолтного "massage".
+  const presetService = presetServiceId
+    ? (services.find((s) => s.id === presetServiceId) ?? null)
+    : null;
   const steps = translations[lang].cert.steps;
   const [step, setStep] = useState<Step>(1);
   const [kind, setKind] = useState<Kind>("service");
-  const [groupId, setGroupId] = useState<Service["group"]>("massage");
-  const [serviceId, setServiceId] = useState<string | null>(null);
+  const [groupId, setGroupId] = useState<Service["group"]>(presetService?.group ?? "massage");
+  const [serviceId, setServiceId] = useState<string | null>(presetService?.id ?? null);
   const [amount, setAmount] = useState<number>(fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
   const [designId, setDesignId] = useState(designs[0]!.id);
@@ -120,7 +90,6 @@ function CertificateFlow() {
   const [kaspiDemoRef] = useState(() => Math.random().toString(36).slice(2, 10).toUpperCase());
   const [saving, setSaving] = useState(false);
 
-  const activeGroup = SERVICE_GROUPS.find((g) => g.id === groupId)!;
   const design = designs.find((d) => d.id === designId)!;
   const service = services.find((s) => s.id === serviceId) ?? null;
   const effectiveAmount = customAmount ? Number(customAmount) : amount;
@@ -255,73 +224,13 @@ function CertificateFlow() {
 
               {kind === "service" ? (
                 <div className="mt-10">
-                  <AtmosphereGallery label={t("cert.galleryLabel")} />
-
-                  <div className="mt-10 flex items-center gap-3">
-                    <Motif name={activeGroup.motif} className="text-gold h-7 w-7" />
-                    <p className="eyebrow">{t("cert.categoriesEyebrow")}</p>
-                  </div>
-                  <div className="mt-4">
-                    <CategoryCarousel
-                      categories={SERVICE_GROUPS.map((g) => ({
-                        id: g.id,
-                        labelKey: g.labelKey,
-                        motif: g.motif,
-                        imageFrom: g.imageFrom,
-                        count: services.filter((s) => s.group === g.id).length,
-                      }))}
-                      activeId={groupId}
-                      onSelect={(id) => setGroupId(id as Service["group"])}
-                      t={t}
-                      prevLabel={t("cert.railPrev")}
-                      nextLabel={t("cert.railNext")}
-                    />
-                  </div>
-
-                  <h2 className="font-display mt-10 text-2xl">{t(activeGroup.labelKey)}</h2>
-                  <div className="mt-4 grid gap-3">
-                    {services
-                      .filter((s) => s.group === groupId)
-                      .map((s) => {
-                        const image = serviceImage(s.id);
-                        return (
-                          <button
-                            key={s.id}
-                            type="button"
-                            onClick={() => setServiceId(s.id)}
-                            className={`surface flex gap-4 overflow-hidden p-3 text-left transition-colors ${serviceId === s.id ? "border-gold" : "hover:border-gold/60"}`}
-                          >
-                            {image && (
-                              <img
-                                src={image}
-                                alt=""
-                                width={720}
-                                height={720}
-                                loading="lazy"
-                                decoding="async"
-                                className="h-24 w-24 shrink-0 rounded-md object-cover sm:h-28 sm:w-28"
-                              />
-                            )}
-                            <span className="flex min-w-0 flex-1 flex-col gap-1.5 py-1 pr-2">
-                              <span className="flex flex-wrap items-baseline justify-between gap-3">
-                                <span className="font-display text-lg">
-                                  {t(`services.${s.id}.name`)}
-                                </span>
-                                <span className="text-gold text-sm">{formatPrice(s.price)}</span>
-                              </span>
-                              {t(`services.${s.id}.duration`) && (
-                                <span className="text-cream/50 text-[0.65rem] tracking-[0.2em] uppercase">
-                                  {t(`services.${s.id}.duration`)}
-                                </span>
-                              )}
-                              <span className="text-cream/70 text-sm leading-relaxed">
-                                {t(`services.${s.id}.description`)}
-                              </span>
-                            </span>
-                          </button>
-                        );
-                      })}
-                  </div>
+                  <ServiceCatalogBrowser
+                    groupId={groupId}
+                    onGroupChange={setGroupId}
+                    selectedServiceId={serviceId}
+                    onServiceSelect={setServiceId}
+                    t={t}
+                  />
                 </div>
               ) : (
                 <div className="mt-10">

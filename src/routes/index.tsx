@@ -78,9 +78,14 @@ function Index() {
           <p className="mt-5 max-w-xl text-sm leading-relaxed text-cream/70 sm:mt-6">
             {t("home.heroSubtitle")}
           </p>
-          <Link to="/certificate" className="btn-gold mt-9 sm:mt-11">
-            {t("home.heroCta")}
-          </Link>
+          <div className="mt-9 flex flex-col gap-3 sm:mt-11 sm:flex-row">
+            <Link to="/certificate" className="btn-gold">
+              {t("home.heroCta")}
+            </Link>
+            <Link to="/catalog" className="btn-ghost">
+              {t("home.heroCatalogCta")}
+            </Link>
+          </div>
         </div>
       </section>
 

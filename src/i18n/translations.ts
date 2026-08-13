@@ -26,11 +26,12 @@ const ru = {
       "Сертификат на тайский массаж или SPA-программу. Оформление за 2 минуты, мгновенная выдача.",
   },
   home: {
-    heroTitle1: "Подарите тишину,",
-    heroTitle2: "тепло и настоящий Таиланд",
+    heroTitle1: "Подарите кусочек",
+    heroTitle2: "Таиланда",
     heroSubtitle:
-      "Электронный подарочный сертификат Rai Thai Spa — на любую услугу или на сумму. Оформите онлайн за пару минут: сертификат придёт получателю сразу после оплаты.",
+      "Бессрочный сертификат на массаж и SPA от настоящих мастеров из Таиланда. Оформление онлайн за 2 минуты.",
     heroCta: "Выбрать сертификат",
+    heroCatalogCta: "Смотреть каталог",
     aboutEyebrow: "О салоне",
     aboutTitle: "Аутентичное тайское SPA рядом с домом",
     point2Title: "Мастера из Таиланда",
@@ -416,6 +417,11 @@ const ru = {
     kokshetau: "Кокшетау",
     petropavlovsk: "Петропавловск",
   },
+  catalog: {
+    title: "Каталог услуг",
+    subtitle:
+      "Массаж, комплексные программы, SPA-путешествия и детская линия Rai Thai Spa. Выберите услугу — оформление сертификата на неё займёт 2 минуты.",
+  },
 };
 
 const kz = {
@@ -431,11 +437,12 @@ const kz = {
     certOgDescription: "Тай массажына немесе SPA-бағдарламасына сертификат. Ресімдеу 2 минут, лезде беріледі.",
   },
   home: {
-    heroTitle1: "Тыныштық пен жылуды,",
-    heroTitle2: "нағыз Тайландты сыйға тартыңыз",
+    heroTitle1: "Тайландтың бір",
+    heroTitle2: "бөлшегін сыйға тартыңыз",
     heroSubtitle:
-      "Rai Thai Spa электрондық сыйлық сертификаты — кез келген қызметке немесе соманы. Онлайн бірнеше минутта рәсімдеңіз: сертификат алушыға төлемнен кейін бірден келеді.",
+      "Тайландтан келген нағыз шеберлерден массаж бен SPA-ға мерзімсіз сертификат. Онлайн рәсімдеу — 2 минут.",
     heroCta: "Сертификат таңдау",
+    heroCatalogCta: "Каталогты қарау",
     aboutEyebrow: "Салон туралы",
     aboutTitle: "Үйіңізге жақын аутентті тай SPA",
     point2Title: "Тайландтық шеберлер",
@@ -818,6 +825,11 @@ const kz = {
     kokshetau: "Көкшетау",
     petropavlovsk: "Петропавл",
   },
+  catalog: {
+    title: "Қызметтер каталогы",
+    subtitle:
+      "Rai Thai Spa массажы, кешенді бағдарламалары, SPA-саяхаттары және балалар желісі. Қызметті таңдаңыз — оған сертификат рәсімдеу 2 минут алады.",
+  },
 };
 
 const en = {
@@ -832,11 +844,12 @@ const en = {
     certOgDescription: "A certificate for Thai massage or a SPA program. Ready in 2 minutes, instant delivery.",
   },
   home: {
-    heroTitle1: "Give the gift of stillness,",
-    heroTitle2: "warmth and true Thailand",
+    heroTitle1: "Give the gift of",
+    heroTitle2: "a piece of Thailand",
     heroSubtitle:
-      "An electronic Rai Thai Spa gift certificate — for any service or amount. Order online in a couple of minutes: the certificate reaches the recipient right after payment.",
+      "An open-ended certificate for massage and SPA from real Thai-trained masters. Order online in 2 minutes.",
     heroCta: "Choose a certificate",
+    heroCatalogCta: "Browse the catalog",
     aboutEyebrow: "About the salon",
     aboutTitle: "Authentic Thai SPA close to home",
     point2Title: "Masters from Thailand",
@@ -1218,6 +1231,11 @@ const en = {
     choose: "Choose a branch",
     kokshetau: "Kokshetau",
     petropavlovsk: "Petropavlovsk",
+  },
+  catalog: {
+    title: "Service catalog",
+    subtitle:
+      "Massage, combined programs, SPA journeys and the kids' line at Rai Thai Spa. Pick a service — a certificate for it takes 2 minutes to arrange.",
   },
 };
 
