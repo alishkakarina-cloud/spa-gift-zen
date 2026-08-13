@@ -421,6 +421,7 @@ const ru = {
     title: "Каталог услуг",
     subtitle:
       "Массаж, комплексные программы, SPA-путешествия и детская линия Rai Thai Spa. Выберите услугу — оформление сертификата на неё займёт 2 минуты.",
+    giftThis: "Подарить эту услугу",
   },
 };
 
@@ -829,6 +830,7 @@ const kz = {
     title: "Қызметтер каталогы",
     subtitle:
       "Rai Thai Spa массажы, кешенді бағдарламалары, SPA-саяхаттары және балалар желісі. Қызметті таңдаңыз — оған сертификат рәсімдеу 2 минут алады.",
+    giftThis: "Осы қызметті сыйға тарту",
   },
 };
 
@@ -1236,6 +1238,7 @@ const en = {
     title: "Service catalog",
     subtitle:
       "Massage, combined programs, SPA journeys and the kids' line at Rai Thai Spa. Pick a service — a certificate for it takes 2 minutes to arrange.",
+    giftThis: "Gift this service",
   },
 };
 

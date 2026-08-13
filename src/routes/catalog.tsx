@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ServiceCatalogBrowser } from "@/components/ServiceCatalogBrowser";
@@ -32,7 +32,6 @@ export const Route = createFileRoute("/catalog")({
  */
 function CatalogPage() {
   const { t } = useLanguage();
-  const navigate = useNavigate();
   const [groupId, setGroupId] = useState<Service["group"]>("massage");
 
   return (
@@ -54,13 +53,7 @@ function CatalogPage() {
       <p className="text-cream/65 mt-3 max-w-lg text-sm leading-relaxed">{t("catalog.subtitle")}</p>
 
       <div className="mt-10">
-        <ServiceCatalogBrowser
-          groupId={groupId}
-          onGroupChange={setGroupId}
-          selectedServiceId={null}
-          onServiceSelect={(id) => navigate({ to: "/certificate", search: { service: id } })}
-          t={t}
-        />
+        <ServiceCatalogBrowser groupId={groupId} onGroupChange={setGroupId} t={t} />
       </div>
     </main>
   );

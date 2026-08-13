@@ -4,7 +4,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
 import { Motif } from "@/components/Motif";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { ServiceCatalogBrowser } from "@/components/ServiceCatalogBrowser";
+import { ServicePicker } from "@/components/ServicePicker";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
 import logoLight from "@/assets/logo-light.png";
@@ -68,7 +68,6 @@ function CertificateFlow() {
   const steps = translations[lang].cert.steps;
   const [step, setStep] = useState<Step>(1);
   const [kind, setKind] = useState<Kind>("service");
-  const [groupId, setGroupId] = useState<Service["group"]>(presetService?.group ?? "massage");
   const [serviceId, setServiceId] = useState<string | null>(presetService?.id ?? null);
   const [amount, setAmount] = useState<number>(fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
@@ -224,13 +223,7 @@ function CertificateFlow() {
 
               {kind === "service" ? (
                 <div className="mt-10">
-                  <ServiceCatalogBrowser
-                    groupId={groupId}
-                    onGroupChange={setGroupId}
-                    selectedServiceId={serviceId}
-                    onServiceSelect={setServiceId}
-                    t={t}
-                  />
+                  <ServicePicker selectedId={serviceId} onSelect={setServiceId} t={t} />
                 </div>
               ) : (
                 <div className="mt-10">
