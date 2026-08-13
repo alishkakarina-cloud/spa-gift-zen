@@ -11,13 +11,23 @@ import logoLight from "@/assets/logo-on-dark.webp";
 import { MIN_AMOUNT, designs, fixedAmounts, formatPrice, services, type Service } from "@/data/catalog";
 
 type CertificateSearch = {
-  /** Услуга, выбранная на /catalog — предзаполняет шаг 1 при переходе. */
+  /** Услуга, выбранная на /catalog или на главной — предзаполняет шаг 1. */
   service?: string;
+  /** «Сумма» или «услуга» — какой из двух вариантов открыть на шаге 1. */
+  kind?: "amount" | "service";
+  /** Номинал, выбранный в коммерческом блоке главной. */
+  amount?: number;
 };
 
 export const Route = createFileRoute("/certificate")({
-  validateSearch: (search: Record<string, unknown>): CertificateSearch =>
-    typeof search["service"] === "string" ? { service: search["service"] } : {},
+  validateSearch: (search: Record<string, unknown>): CertificateSearch => {
+    const out: CertificateSearch = {};
+    if (typeof search["service"] === "string") out.service = search["service"];
+    if (search["kind"] === "amount" || search["kind"] === "service") out.kind = search["kind"];
+    const amount = Number(search["amount"]);
+    if (Number.isFinite(amount) && amount > 0) out.amount = amount;
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "Оформить подарочный сертификат — Rai Thai Spa" },
@@ -59,17 +69,17 @@ const dateLocales = { ru: "ru-RU", kz: "kk-KZ", en: "en-GB" } as const;
 
 function CertificateFlow() {
   const { t, lang } = useLanguage();
-  const { service: presetServiceId } = Route.useSearch();
-  // Пришли с /catalog с уже выбранной услугой — открываем шаг 1 на её
-  // категории и с ней самой отмеченной, а не с дефолтного "massage".
+  const { service: presetServiceId, kind: presetKind, amount: presetAmount } = Route.useSearch();
+  // Пришли с /catalog или из коммерческого блока главной — открываем шаг 1
+  // сразу на нужном варианте и с выбранной услугой либо номиналом.
   const presetService = presetServiceId
     ? (services.find((s) => s.id === presetServiceId) ?? null)
     : null;
   const steps = translations[lang].cert.steps;
   const [step, setStep] = useState<Step>(1);
-  const [kind, setKind] = useState<Kind>("service");
+  const [kind, setKind] = useState<Kind>(presetKind ?? (presetAmount ? "amount" : "service"));
   const [serviceId, setServiceId] = useState<string | null>(presetService?.id ?? null);
-  const [amount, setAmount] = useState<number>(fixedAmounts[0]!);
+  const [amount, setAmount] = useState<number>(presetAmount ?? fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
   const [designId, setDesignId] = useState(designs[0]!.id);
   const [sender, setSender] = useState("");
@@ -227,27 +237,45 @@ function CertificateFlow() {
                 </div>
               ) : (
                 <div className="mt-10">
-                  <div className="flex items-center gap-3">
-                    <Motif name="petalDiamond" className="h-7 w-7 text-gold" />
-                    <p className="eyebrow">{t("cert.amountEyebrow")}</p>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <Motif name="petalDiamond" className="text-gold h-7 w-7" />
+                      <p className="eyebrow">{t("cert.amountEyebrow")}</p>
+                    </div>
+                    {/* Точка бессрочности рядом с выбором номинала. */}
+                    <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.62rem] tracking-[0.2em] uppercase">
+                      {t("cert.endless")}
+                    </span>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-3">
-                    {fixedAmounts.map((a) => (
-                      <button
-                        key={a}
-                        type="button"
-                        onClick={() => {
-                          setAmount(a);
-                          setCustomAmount("");
-                        }}
-                        className={`border px-6 py-3 text-sm transition-colors ${!customAmount && amount === a ? "border-gold text-gold" : "border-border text-cream/75 hover:border-gold/60"}`}
-                      >
-                        {formatPrice(a)}
-                      </button>
-                    ))}
+                    {fixedAmounts.map((a) => {
+                      const active = !customAmount && amount === a;
+                      return (
+                        <button
+                          key={a}
+                          type="button"
+                          onClick={() => {
+                            setAmount(a);
+                            setCustomAmount("");
+                          }}
+                          aria-pressed={active}
+                          className={`rounded-md border px-6 py-3 text-sm transition-colors ${active ? "border-gold bg-gold/10 text-gold" : "border-border text-cream/75 hover:border-gold/60"}`}
+                        >
+                          {formatPrice(a)}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <label className="mt-6 block max-w-xs">
-                    <span className="text-xs text-cream/60">{t("cert.customAmountLabel")}</span>
+                  {/* Своя сумма подсвечивается так же, как выбранный номинал,
+                      иначе клик по ней выглядит как «ничего не произошло». */}
+                  <label
+                    className={`mt-6 block max-w-xs rounded-md border p-4 transition-colors ${customAmount ? "border-gold bg-gold/10" : "border-border"}`}
+                  >
+                    <span
+                      className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
+                    >
+                      {t("cert.customAmountLabel")}
+                    </span>
                     <input
                       type="number"
                       min={MIN_AMOUNT}
@@ -255,7 +283,7 @@ function CertificateFlow() {
                       value={customAmount}
                       onChange={(e) => setCustomAmount(e.target.value)}
                       placeholder="20000"
-                      className="mt-2 w-full border border-input bg-transparent px-4 py-3 text-sm outline-none focus:border-gold"
+                      className={`border-input mt-2 w-full border bg-transparent px-4 py-3 text-sm outline-none focus:border-gold ${customAmount ? "border-gold text-gold" : ""}`}
                     />
                   </label>
                 </div>
@@ -591,11 +619,14 @@ function CertificateFlow() {
               >
                 {saving
                   ? t("cert.savingButton")
-                  : step === 4
-                    ? t("cert.payButton")
-                    : step === 5
-                      ? t("cert.paidButton")
-                      : t("cert.nextButton")}
+                  : step === 1
+                    ? // Кнопка сразу после выбора суммы или программы — «Подарить».
+                      t("cert.giftButton")
+                    : step === 4
+                      ? t("cert.payButton")
+                      : step === 5
+                        ? t("cert.paidButton")
+                        : t("cert.nextButton")}
               </button>
             </div>
           )}
