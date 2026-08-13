@@ -38,22 +38,34 @@
   --color-forest: var(--forest);
   --color-forest-deep: var(--forest-deep);
   --color-maroon: var(--maroon);
-  --font-display: "Fraunces", "Cormorant Garamond", Georgia, serif;
+  /* Брендбук, стр. 02/08: заголовочный шрифт — Vetrino. Он коммерческий и в
+     переданных материалах файлов шрифта нет, поэтому в вебе стоит ближайший
+     по стилистике Cormorant Garamond (высокий контраст штриха, тонкие
+     засечки, есть кириллица — она нужна для RU/KZ). */
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  /* Брендбук, стр. 03/08: основной шрифт — Raleway (Light/Regular/Medium). */
   --font-sans: "Raleway", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.125rem;
 
-  /* Brand palette — RaiThai official identity (magiceight.agency brand guide) */
-  --sage: #93a07a;
-  --gold: #bf9974; /* brass/gold accent from interior photography, per TZ style brief */
-  --gold-soft: #edcea5;
+  /* Фирменная палитра RaiThai — брендбук magiceight.agency, стр. 01/08
+     «Цветовая палитра». Пять значений ниже взяты из него дословно. */
+  --forest: #32513c; /* брендбук: RGB 50,81,60 */
+  --forest-deep: #253027; /* брендбук: RGB 37,48,39 */
+  --sage: #93a07a; /* брендбук: RGB 147,160,122 */
+  --gold-soft: #edcea5; /* брендбук: RGB 237,206,165 — фирменный бежевый */
+  --maroon: #4b0302; /* брендбук: RGB 75,3,2 */
+
+  /* Золото логотипа: точное значение из официального файла
+     Logo/RaiThai_on dark_background.png (было #bf9974 — подобрано на глаз). */
+  --gold: #b49775;
+
+  /* Вне палитры брендбука, но прямо предусмотрено ТЗ:
+     «молочный/кремовый» и «натуральные древесные оттенки». */
+  --cream: #f4efe6;
   --clay: #7f4925;
-  --cream: #f4efe6; /* milky white, per TZ "молочные цвета" */
-  --forest-deep: #253027;
-  --forest: #32513c;
-  --maroon: #4b0302; /* official accent — reserved for future decorative use */
 
   --background: #253027;
   --foreground: #f4efe6;

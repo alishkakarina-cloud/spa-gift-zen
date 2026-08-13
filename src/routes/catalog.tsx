@@ -3,19 +3,19 @@ import { useState } from "react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ServiceCatalogBrowser } from "@/components/ServiceCatalogBrowser";
 import { useLanguage } from "@/i18n/LanguageContext";
-import logoLight from "@/assets/logo-light.png";
+import logoLight from "@/assets/logo-on-dark.webp";
 import type { Service } from "@/data/catalog";
 
 export const Route = createFileRoute("/catalog")({
   head: () => ({
     meta: [
-      { title: "Каталог услуг — Rai Thai Spa" },
+      { title: "Наши услуги — Rai Thai Spa" },
       {
         name: "description",
         content:
           "Массаж, комплексные программы, SPA-путешествия и детская линия Rai Thai Spa. Выберите услугу и оформите подарочный сертификат онлайн.",
       },
-      { property: "og:title", content: "Каталог услуг — Rai Thai Spa" },
+      { property: "og:title", content: "Наши услуги — Rai Thai Spa" },
       {
         property: "og:description",
         content: "Все услуги Rai Thai Spa по категориям — с фото и ценами.",
@@ -41,8 +41,8 @@ function CatalogPage() {
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
-            width={700}
-            height={560}
+            width={900}
+            height={778}
             className="h-12 w-auto"
           />
         </Link>

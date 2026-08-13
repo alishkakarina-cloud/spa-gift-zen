@@ -7,7 +7,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ServicePicker } from "@/components/ServicePicker";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
-import logoLight from "@/assets/logo-light.png";
+import logoLight from "@/assets/logo-on-dark.webp";
 import { MIN_AMOUNT, designs, fixedAmounts, formatPrice, services, type Service } from "@/data/catalog";
 
 type CertificateSearch = {
@@ -179,8 +179,8 @@ function CertificateFlow() {
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
-            width={700}
-            height={560}
+            width={900}
+            height={778}
             className="h-12 w-auto"
           />
         </Link>

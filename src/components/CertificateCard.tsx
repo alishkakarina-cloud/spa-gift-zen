@@ -2,8 +2,8 @@ import type { CertificateDesign, CertificateTexture } from "@/data/catalog";
 import { Motif } from "@/components/Motif";
 import { Ribbon } from "@/components/Ribbon";
 import { useLanguage } from "@/i18n/LanguageContext";
-import logoLight from "@/assets/logo-light.png";
-import logoGold from "@/assets/logo-gold.png";
+import logoLight from "@/assets/logo-on-dark.webp";
+import logoGold from "@/assets/logo-on-light.webp";
 import texEmerald from "@/assets/cert-emerald.jpg";
 import texCream from "@/assets/cert-cream.jpg";
 import texRose from "@/assets/cert-rose.jpg";
@@ -83,8 +83,8 @@ export function CertificateCard({
           <img
             src={logo}
             alt="RaiThai Massage & Spa"
-            width={700}
-            height={560}
+            width={900}
+            height={778}
             loading="lazy"
             className={compact ? "h-12 w-auto" : "h-20 w-auto"}
           />

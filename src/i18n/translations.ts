@@ -31,7 +31,7 @@ const ru = {
     heroSubtitle:
       "Бессрочный сертификат на массаж и SPA от настоящих мастеров из Таиланда. Оформление онлайн за 2 минуты.",
     heroCta: "Выбрать сертификат",
-    heroCatalogCta: "Смотреть каталог",
+    heroCatalogCta: "Наши услуги",
     aboutEyebrow: "О салоне",
     aboutTitle: "Аутентичное тайское SPA рядом с домом",
     point2Title: "Мастера из Таиланда",
@@ -418,7 +418,7 @@ const ru = {
     petropavlovsk: "Петропавловск",
   },
   catalog: {
-    title: "Каталог услуг",
+    title: "Наши услуги",
     subtitle:
       "Массаж, комплексные программы, SPA-путешествия и детская линия Rai Thai Spa. Выберите услугу — оформление сертификата на неё займёт 2 минуты.",
     giftThis: "Подарить эту услугу",
@@ -443,7 +443,7 @@ const kz = {
     heroSubtitle:
       "Тайландтан келген нағыз шеберлерден массаж бен SPA-ға мерзімсіз сертификат. Онлайн рәсімдеу — 2 минут.",
     heroCta: "Сертификат таңдау",
-    heroCatalogCta: "Каталогты қарау",
+    heroCatalogCta: "Біздің қызметтер",
     aboutEyebrow: "Салон туралы",
     aboutTitle: "Үйіңізге жақын аутентті тай SPA",
     point2Title: "Тайландтық шеберлер",
@@ -827,7 +827,7 @@ const kz = {
     petropavlovsk: "Петропавл",
   },
   catalog: {
-    title: "Қызметтер каталогы",
+    title: "Біздің қызметтер",
     subtitle:
       "Rai Thai Spa массажы, кешенді бағдарламалары, SPA-саяхаттары және балалар желісі. Қызметті таңдаңыз — оған сертификат рәсімдеу 2 минут алады.",
     giftThis: "Осы қызметті сыйға тарту",
@@ -851,7 +851,7 @@ const en = {
     heroSubtitle:
       "An open-ended certificate for massage and SPA from real Thai-trained masters. Order online in 2 minutes.",
     heroCta: "Choose a certificate",
-    heroCatalogCta: "Browse the catalog",
+    heroCatalogCta: "Our services",
     aboutEyebrow: "About the salon",
     aboutTitle: "Authentic Thai SPA close to home",
     point2Title: "Masters from Thailand",
@@ -1235,7 +1235,7 @@ const en = {
     petropavlovsk: "Petropavlovsk",
   },
   catalog: {
-    title: "Service catalog",
+    title: "Our services",
     subtitle:
       "Massage, combined programs, SPA journeys and the kids' line at Rai Thai Spa. Pick a service — a certificate for it takes 2 minutes to arrange.",
     giftThis: "Gift this service",

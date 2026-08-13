@@ -3,7 +3,7 @@ import heroPhoto from "@/assets/atmosphere-arch.jpg";
 import interiorImg from "@/assets/interior-candles.jpg";
 import redNookImg from "@/assets/atmosphere-red.jpg";
 import teaImg from "@/assets/detail-tea.jpg";
-import logoLight from "@/assets/logo-light.png";
+import logoLight from "@/assets/logo-on-dark.webp";
 import { Motif } from "@/components/Motif";
 import { Divider } from "@/components/Divider";
 import { Ribbon } from "@/components/Ribbon";
@@ -65,8 +65,8 @@ function Index() {
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
-            width={700}
-            height={560}
+            width={900}
+            height={778}
             className="w-40 sm:w-52 lg:w-64"
           />
           <Divider motif="waveCrown" className="mt-7 sm:mt-10" />
@@ -202,8 +202,8 @@ function Index() {
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
-            width={700}
-            height={560}
+            width={900}
+            height={778}
             loading="lazy"
             className="h-12 w-auto opacity-70 sm:h-14"
           />
