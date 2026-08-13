@@ -600,3 +600,15 @@ export const designs: CertificateDesign[] = [
 
 export const formatPrice = (value: number) =>
   new Intl.NumberFormat("ru-KZ").format(value) + " ₸";
+
+/**
+ * Фирменные фото услуг: src/assets/services/<id услуги>.webp — квадрат 720×720,
+ * как на прежнем меню RaiThai. Файл есть не у каждой услуги (парафинотерапия и
+ * детская линия пока без съёмки), поэтому возвращаем undefined, а не заглушку.
+ */
+const serviceImages = import.meta.glob<{ default: string }>("../assets/services/*.webp", {
+  eager: true,
+});
+
+export const serviceImage = (id: string): string | undefined =>
+  serviceImages[`../assets/services/${id}.webp`]?.default;

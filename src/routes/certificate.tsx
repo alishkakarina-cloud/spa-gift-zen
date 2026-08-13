@@ -4,6 +4,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
 import { Motif, type MotifName } from "@/components/Motif";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ServiceRail } from "@/components/ServiceRail";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
 import logoLight from "@/assets/logo-light.png";
@@ -211,7 +212,7 @@ function CertificateFlow() {
       </div>
 
       <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_380px] lg:items-start">
-        <section>
+        <section className="min-w-0">
           {step === 1 && (
             <div>
               <h1 className="font-display text-3xl">{t("cert.step1Title")}</h1>
@@ -238,32 +239,15 @@ function CertificateFlow() {
                         <Motif name={motif} className="h-7 w-7 text-gold" />
                         <p className="eyebrow">{t(labelKey)}</p>
                       </div>
-                      <div className="mt-4 grid gap-3">
-                        {services
-                          .filter((s) => s.group === group)
-                          .map((s) => (
-                            <button
-                              key={s.id}
-                              type="button"
-                              onClick={() => setServiceId(s.id)}
-                              className={`surface flex flex-col gap-2 p-5 text-left transition-colors ${serviceId === s.id ? "border-gold" : "hover:border-gold/60"}`}
-                            >
-                              <div className="flex flex-wrap items-baseline justify-between gap-3">
-                                <span className="font-display text-xl">
-                                  {t(`services.${s.id}.name`)}
-                                </span>
-                                <span className="text-sm text-gold">
-                                  {formatPrice(s.price)}
-                                </span>
-                              </div>
-                              <span className="text-[0.65rem] tracking-[0.2em] text-cream/50 uppercase">
-                                {t(`services.${s.id}.duration`)}
-                              </span>
-                              <span className="text-sm leading-relaxed text-cream/70">
-                                {t(`services.${s.id}.description`)}
-                              </span>
-                            </button>
-                          ))}
+                      <div className="mt-4">
+                        <ServiceRail
+                          services={services.filter((s) => s.group === group)}
+                          selectedId={serviceId}
+                          onSelect={setServiceId}
+                          t={t}
+                          prevLabel={t("cert.railPrev")}
+                          nextLabel={t("cert.railNext")}
+                        />
                       </div>
                     </div>
                   ))}
