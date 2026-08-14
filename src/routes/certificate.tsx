@@ -384,7 +384,7 @@ function CertificateFlow() {
                     key={d.id}
                     type="button"
                     onClick={() => setDesignId(d.id)}
-                    className={`border p-1.5 text-left transition-colors ${designId === d.id ? "border-gold" : "border-border/40 hover:border-gold/60"}`}
+                    className={`w-full border p-1.5 text-left transition-colors ${designId === d.id ? "border-gold" : "border-border/40 hover:border-gold/60"}`}
                   >
                     <CertificateCard design={d} valueLabel={valueLabel} items={cardItems} compact />
                     <span

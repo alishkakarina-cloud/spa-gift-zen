@@ -1,4 +1,4 @@
-import type { CertificateDesign } from "@/data/catalog";
+import { CERT_DESIGN_ASPECT, type CertificateDesign } from "@/data/catalog";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 /**
@@ -45,19 +45,25 @@ export function CertificateCard({
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl"
-      style={{ aspectRatio: "512 / 924", boxShadow: "0 24px 60px -30px rgba(0,0,0,0.75)" }}
+      // w-full — обязателен: без явной ширины блок с aspect-ratio внутри
+      // <button> (у него нет собственной ширины) считает размеры непредсказуемо,
+      // из-за чего три карточки на шаге выбора дизайна могли обрезаться
+      // по-разному. С явной шириной все три получают одинаковый бокс.
+      className="relative w-full overflow-hidden rounded-2xl"
+      style={{ aspectRatio: CERT_DESIGN_ASPECT, boxShadow: "0 24px 60px -30px rgba(0,0,0,0.75)" }}
     >
       {/* Логотип, рамка и сама арка уже впечатаны в фото заказчиком — карточке
-          больше не нужно рисовать текстуру/вуаль/мотив программно поверх. */}
+          больше не нужно рисовать текстуру/вуаль/мотив программно поверх.
+          object-fit: cover + object-position: center держат кадрирование
+          одинаковым на всех трёх, пропорции фото не искажаются. */}
       <img
         src={design.photo}
         alt=""
         aria-hidden="true"
         loading="lazy"
-        width={512}
-        height={924}
-        className="absolute inset-0 h-full w-full object-cover"
+        width={457}
+        height={915}
+        className="absolute inset-0 h-full w-full object-cover object-center"
       />
 
       {/* Текстовый блок внутри арки — координаты свои под каждое фото

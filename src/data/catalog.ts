@@ -530,24 +530,30 @@ export type CertificateDesign = {
   archBox: { top: number; bottom: number; centerX: number; width: number };
 };
 
+/**
+ * 457×915 — общий для всех трёх файлов размер после переобрезки (см.
+ * CertificateCard: `aspectRatio` карточки завязан на эти же числа).
+ */
+export const CERT_DESIGN_ASPECT = "457 / 915";
+
 export const designs: CertificateDesign[] = [
   {
     id: "standard",
     title: "Стандартный",
     photo: standardDesignPhoto,
-    archBox: { top: 41, bottom: 76, centerX: 54, width: 50 },
+    archBox: { top: 41, bottom: 75, centerX: 52, width: 50 },
   },
   {
     id: "for-her",
     title: "Для неё",
     photo: forHerDesignPhoto,
-    archBox: { top: 41, bottom: 76, centerX: 50, width: 50 },
+    archBox: { top: 41, bottom: 75, centerX: 50, width: 50 },
   },
   {
     id: "for-him",
     title: "Для него",
     photo: forHimDesignPhoto,
-    archBox: { top: 41, bottom: 76, centerX: 44, width: 50 },
+    archBox: { top: 41, bottom: 75, centerX: 48, width: 50 },
   },
 ];
 
