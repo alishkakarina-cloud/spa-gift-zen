@@ -77,6 +77,8 @@ type Kind = "service" | "amount";
 /** 1 — выбор, 2 — дизайн, 3 — оформление со сводкой, 4 — оплата, 5 — готово. */
 type Step = 1 | 2 | 3 | 4 | 5;
 type PaymentMethod = "card" | "kaspi";
+/** Арка на бланке маленькая — длинный текст туда физически не влезает. */
+const MESSAGE_MAX_LENGTH = 140;
 
 const formatCardNumber = (value: string) =>
   value
@@ -478,13 +480,19 @@ function CertificateFlow() {
                     </Field>
                   </div>
                   <Field label={t("cert.messageLabel")}>
+                    {/* Арка на бланке маленькая — 400 символов туда физически
+                        не помещались бы даже мелким кеглем. 140 укладывается
+                        в 3–4 строки и остаётся читаемым. */}
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      maxLength={400}
+                      maxLength={MESSAGE_MAX_LENGTH}
                       rows={3}
                       className="input resize-none"
                     />
+                    <span className="text-cream/40 mt-1 block text-right text-[0.65rem]">
+                      {message.length}/{MESSAGE_MAX_LENGTH}
+                    </span>
                   </Field>
                 </div>
               )}

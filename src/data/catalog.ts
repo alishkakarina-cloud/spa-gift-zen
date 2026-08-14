@@ -1,5 +1,3 @@
-import type { MotifName } from "@/components/Motif";
-
 export type Service = {
   id: string;
   name: string;
@@ -515,117 +513,41 @@ export const services: Service[] = [
 export const fixedAmounts = [20000, 30000, 50000, 75000, 100000];
 export const MIN_AMOUNT = 20000;
 
-export type CertificateTexture =
-  | "emerald"
-  | "cream"
-  | "rose"
-  | "noir"
-  | "terracotta";
+import standardDesignPhoto from "@/assets/cert-designs/standard.webp";
+import forHerDesignPhoto from "@/assets/cert-designs/for-her.webp";
+import forHimDesignPhoto from "@/assets/cert-designs/for-him.webp";
 
 export type CertificateDesign = {
   id: string;
   title: string;
-  caption: string;
-  motif: MotifName;
-  texture: CertificateTexture;
-  /** Цвет вуали поверх текстуры для читаемости */
-  veil: string;
-  /** Основной цвет текста и рамки */
-  ink: string;
-  /** Акцент — сумма, номинал */
-  accent: string;
-  /** Светлая или золотая версия логотипа */
-  logo: "light" | "gold";
+  /** Фото-фон сертификата от заказчика — логотип и арка уже впечатаны в кадр. */
+  photo: string;
+  /**
+   * Безопасная зона под текст внутри арки, в процентах от размеров карточки.
+   * У каждого фото арка сдвинута по-своему (декор на фото не симметричен),
+   * поэтому центр и границы — на дизайн, а не общие для всех трёх.
+   */
+  archBox: { top: number; bottom: number; centerX: number; width: number };
 };
 
 export const designs: CertificateDesign[] = [
   {
-    id: "universal",
-    title: "Универсальный",
-    caption: "Подарочный сертификат",
-    motif: "offeringBowl",
-    texture: "emerald",
-    veil: "linear-gradient(150deg, rgba(10,26,18,0.82), rgba(10,26,18,0.62))",
-    ink: "#f4efe6",
-    accent: "#bf9974",
-    logo: "light",
-  },
-  {
-    id: "birthday",
-    title: "День рождения",
-    caption: "С днём рождения",
-    motif: "flowerBurst",
-    texture: "cream",
-    veil: "linear-gradient(150deg, rgba(244,239,230,0.72), rgba(216,183,149,0.5))",
-    ink: "#22301f",
-    accent: "#7f4925",
-    logo: "gold",
+    id: "standard",
+    title: "Стандартный",
+    photo: standardDesignPhoto,
+    archBox: { top: 41, bottom: 76, centerX: 54, width: 50 },
   },
   {
     id: "for-her",
     title: "Для неё",
-    caption: "Для неё",
-    motif: "petalDiamond",
-    texture: "rose",
-    veil: "linear-gradient(150deg, rgba(60,26,26,0.5), rgba(120,60,52,0.42))",
-    ink: "#fdf4ee",
-    accent: "#f0d3b8",
-    logo: "light",
+    photo: forHerDesignPhoto,
+    archBox: { top: 41, bottom: 76, centerX: 50, width: 50 },
   },
   {
     id: "for-him",
     title: "Для него",
-    caption: "Для него",
-    motif: "templeArch",
-    texture: "noir",
-    veil: "linear-gradient(150deg, rgba(8,14,11,0.7), rgba(8,14,11,0.5))",
-    ink: "#f0ece2",
-    accent: "#bf9974",
-    logo: "gold",
-  },
-  {
-    id: "romantic",
-    title: "Романтический",
-    caption: "С любовью",
-    motif: "paisleyDrop",
-    texture: "terracotta",
-    veil: "linear-gradient(150deg, rgba(40,10,8,0.74), rgba(70,20,14,0.56))",
-    ink: "#fbeee4",
-    accent: "#e2bb92",
-    logo: "light",
-  },
-  {
-    id: "new-year",
-    title: "Новый год",
-    caption: "С Новым годом",
-    motif: "diamondLattice",
-    texture: "emerald",
-    veil: "linear-gradient(150deg, rgba(8,22,15,0.86), rgba(30,52,36,0.66))",
-    ink: "#f4efe6",
-    accent: "#bf9974",
-    logo: "gold",
-  },
-  {
-    id: "8-march",
-    title: "8 марта",
-    caption: "С 8 марта",
-    motif: "lotusBloom",
-    texture: "rose",
-    veil: "linear-gradient(150deg, rgba(244,239,230,0.62), rgba(224,168,158,0.5))",
-    ink: "#3a2320",
-    accent: "#7f4925",
-    logo: "gold",
-  },
-  {
-    id: "14-feb",
-    title: "14 февраля",
-    caption: "С Днём святого Валентина",
-    motif: "waveCrown",
-    texture: "terracotta",
-    veil: "linear-gradient(150deg, rgba(38,8,8,0.72), rgba(78,18,14,0.5))",
-    ink: "#fbeee4",
-    accent: "#d8b795",
-    logo: "light",
+    photo: forHimDesignPhoto,
+    archBox: { top: 41, bottom: 76, centerX: 44, width: 50 },
   },
 ];
 
