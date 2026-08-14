@@ -34,7 +34,8 @@ export const SERVICE_GROUPS: ReadonlyArray<{
     labelKey: "cert.groupTravel",
     imageFrom: "journey-bali-1",
   },
-  { id: "kids", motif: "flowerBurst", labelKey: "cert.groupKids", imageFrom: "kids-oil-60" },
+  // Обложкой берём общий план: на нём видно и мастера, и интерьер салона.
+  { id: "kids", motif: "flowerBurst", labelKey: "cert.groupKids", imageFrom: "kids-thai-60" },
 ];
 
 export const serviceGroupCounts = () =>
