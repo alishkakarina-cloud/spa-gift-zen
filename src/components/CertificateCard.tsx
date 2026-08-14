@@ -21,6 +21,12 @@ const textures: Record<CertificateTexture, string> = {
 type Props = {
   design: CertificateDesign;
   valueLabel: string;
+  /**
+   * Состав сертификата: названия программ печатаются списком. Чем длиннее
+   * список, тем мельче кегль — иначе четыре позиции не помещаются в бланк.
+   * Пусто — печатается `valueLabel` (номинал сертификата на сумму).
+   */
+  items?: ReadonlyArray<string> | undefined;
   recipient?: string | undefined;
   sender?: string | undefined;
   message?: string | undefined;
@@ -35,6 +41,7 @@ type Props = {
 export function CertificateCard({
   design,
   valueLabel,
+  items,
   recipient,
   sender,
   message,
@@ -45,6 +52,19 @@ export function CertificateCard({
 }: Props) {
   const { t } = useLanguage();
   const logo = design.logo === "gold" ? logoGold : logoLight;
+  const lines = items && items.length > 0 ? items : null;
+  const count = lines?.length ?? 1;
+  const titleSize = compact
+    ? count > 3
+      ? "text-sm"
+      : count > 1
+        ? "text-base"
+        : "text-2xl"
+    : count > 3
+      ? "text-xl sm:text-2xl"
+      : count > 1
+        ? "text-2xl sm:text-3xl"
+        : "text-4xl sm:text-5xl";
 
   return (
     <div
@@ -117,11 +137,26 @@ export function CertificateCard({
           >
             {t(`designs.${design.id}.caption`)}
           </p>
-          <p
-            className={`mt-3 font-display leading-[1.1] ${compact ? "text-2xl" : "text-4xl sm:text-5xl"}`}
-          >
-            {valueLabel}
-          </p>
+          {lines ? (
+            <>
+              <ul className={`font-display mt-3 flex flex-col ${compact ? "gap-0.5" : "gap-1"}`}>
+                {lines.map((line) => (
+                  <li key={line} className={`leading-[1.15] ${titleSize}`}>
+                    {line}
+                  </li>
+                ))}
+              </ul>
+              {/* Итог рядом со списком — иначе по одним названиям не понять,
+                  на какую сумму выдан сертификат. */}
+              <p
+                className={`mt-2 tracking-[0.2em] uppercase opacity-80 ${compact ? "text-[0.55rem]" : "text-xs"}`}
+              >
+                {valueLabel}
+              </p>
+            </>
+          ) : (
+            <p className={`font-display mt-3 leading-[1.1] ${titleSize}`}>{valueLabel}</p>
+          )}
         </div>
 
         {(recipient || sender) && (

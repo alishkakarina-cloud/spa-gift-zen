@@ -6,6 +6,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import logoLight from "@/assets/logo-on-dark.webp";
 import { BRANCHES, spaMenuPdfFor, type Branch } from "@/data/branches";
 import type { CatalogGroup } from "@/data/serviceGroups";
+import { serializeServiceIds, toggleServiceId } from "@/data/selection";
 
 export const Route = createFileRoute("/catalog")({
   head: () => ({
@@ -37,6 +38,10 @@ function CatalogPage() {
   // Город для SPA-меню. Пока файл общий, но выбор уже влияет на ссылку —
   // когда появятся отдельные PDF, менять придётся только пути в branches.ts.
   const [branch, setBranch] = useState<Branch | null>(null);
+  // Выбор живёт на уровне страницы, а не внутри витрины: переключение
+  // категории не должно сбрасывать уже отмеченные услуги.
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const branchSearch = branch ? { branch } : {};
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -90,7 +95,23 @@ function CatalogPage() {
       </div>
 
       <div className="mt-10">
-        <ServiceCatalogBrowser groupId={groupId} onGroupChange={setGroupId} t={t} />
+        <ServiceCatalogBrowser
+          groupId={groupId}
+          onGroupChange={setGroupId}
+          selectedIds={selectedIds}
+          onToggle={(id) => setSelectedIds((ids) => toggleServiceId(ids, id))}
+          onClear={() => setSelectedIds([])}
+          t={t}
+          action={
+            <Link
+              to="/certificate"
+              search={{ services: serializeServiceIds(selectedIds), ...branchSearch }}
+              className="btn-gold"
+            >
+              {t("cert.giftButton")}
+            </Link>
+          }
+        />
       </div>
     </main>
   );

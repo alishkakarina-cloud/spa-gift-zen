@@ -1,7 +1,9 @@
-import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import { AtmosphereGallery } from "@/components/AtmosphereGallery";
 import { CategoryCarousel } from "@/components/CategoryCarousel";
 import { Motif } from "@/components/Motif";
+import { SelectionSummary } from "@/components/SelectionSummary";
+import { ServiceCheckbox } from "@/components/ServiceCheckbox";
 import { formatPrice, serviceImage } from "@/data/catalog";
 import {
   SERVICE_GROUPS,
@@ -14,18 +16,26 @@ import {
  * Витрина каталога: атмосферная галерея, зациклённая карусель категорий и
  * вертикальный список услуг выбранной категории.
  *
- * Используется только на /catalog. Раздел сертификатов свою услугу выбирает
- * отдельным простым списком (ServicePicker) — витрина туда не попадает.
- * Единственный переход в сертификаты — кнопка «Подарить эту услугу» на
- * карточке, она уносит выбранную услугу в /certificate через ?service=.
+ * Используется только на /catalog. Услуги отмечаются чекбоксами и копятся в
+ * общем выборе — он живёт в самой странице, поэтому переключение категории
+ * набранное не сбрасывает. Переход в /certificate делает одна кнопка под
+ * сводкой, она уносит сразу весь список через ?services=.
  */
 export function ServiceCatalogBrowser({
   groupId,
   onGroupChange,
+  selectedIds,
+  onToggle,
+  onClear,
+  action,
   t,
 }: {
   groupId: CatalogGroup;
   onGroupChange: (group: CatalogGroup) => void;
+  selectedIds: ReadonlyArray<string>;
+  onToggle: (id: string) => void;
+  onClear: () => void;
+  action: ReactNode;
   t: (path: string) => string;
 }) {
   const activeGroup = SERVICE_GROUPS.find((g) => g.id === groupId)!;
@@ -55,11 +65,17 @@ export function ServiceCatalogBrowser({
           {t(activeGroup.noteKey)}
         </p>
       )}
+      <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
+
       <div className="mt-4 grid gap-3">
         {servicesInGroup(groupId).map((s) => {
             const image = serviceImage(s.id);
+            const active = selectedIds.includes(s.id);
             return (
-              <article key={s.id} className="surface flex gap-4 overflow-hidden p-3">
+              <label
+                key={s.id}
+                className={`surface flex cursor-pointer gap-4 overflow-hidden p-3 transition-colors ${active ? "border-gold" : "hover:border-gold/60"}`}
+              >
                 {image && (
                   <img
                     src={image}
@@ -84,18 +100,25 @@ export function ServiceCatalogBrowser({
                   <p className="text-cream/70 text-sm leading-relaxed">
                     {t(`services.${s.id}.description`)}
                   </p>
-                  <Link
-                    to="/certificate"
-                    search={{ service: s.id }}
-                    className="text-gold/85 hover:text-gold mt-1 self-start text-[0.65rem] tracking-[0.24em] uppercase transition-colors"
-                  >
-                    {t("catalog.giftThis")} →
-                  </Link>
                 </div>
-            </article>
+                <ServiceCheckbox
+                  checked={active}
+                  onChange={() => onToggle(s.id)}
+                  label={t(`services.${s.id}.name`)}
+                  className="self-center pr-1"
+                />
+            </label>
           );
         })}
       </div>
+
+      <SelectionSummary
+        ids={selectedIds}
+        onRemove={onToggle}
+        onClear={onClear}
+        t={t}
+        action={action}
+      />
     </div>
   );
 }

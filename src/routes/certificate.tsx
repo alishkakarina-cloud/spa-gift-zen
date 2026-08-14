@@ -10,11 +10,22 @@ import type { CatalogGroup } from "@/data/serviceGroups";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
 import logoLight from "@/assets/logo-on-dark.webp";
-import { MIN_AMOUNT, designs, fixedAmounts, formatPrice, services, type Service } from "@/data/catalog";
+import { MIN_AMOUNT, designs, fixedAmounts, formatPrice } from "@/data/catalog";
+import { SelectionSummary } from "@/components/SelectionSummary";
+import {
+  parseServiceIds,
+  selectedServices,
+  selectionTotal,
+  serializeServiceIds,
+  toggleServiceId,
+} from "@/data/selection";
 
 type CertificateSearch = {
-  /** Услуга, выбранная на /catalog или на главной — предзаполняет шаг 1. */
-  service?: string;
+  /**
+   * Услуги, отмеченные на /catalog или на главной, — id через запятую.
+   * Сертификат может содержать несколько программ, стоимость складывается.
+   */
+  services?: string;
   /** «Сумма» или «услуга» — какой из двух вариантов открыть на шаге 1. */
   kind?: "amount" | "service";
   /** Номинал, выбранный в коммерческом блоке главной. */
@@ -26,7 +37,16 @@ type CertificateSearch = {
 export const Route = createFileRoute("/certificate")({
   validateSearch: (search: Record<string, unknown>): CertificateSearch => {
     const out: CertificateSearch = {};
-    if (typeof search["service"] === "string") out.service = search["service"];
+    // `service` в единственном числе — прежний формат ссылок на одну услугу.
+    // Продолжаем его понимать, чтобы старые ссылки и закладки не сломались.
+    const rawServices =
+      typeof search["services"] === "string"
+        ? search["services"]
+        : typeof search["service"] === "string"
+          ? search["service"]
+          : "";
+    const ids = parseServiceIds(rawServices);
+    if (ids.length > 0) out.services = serializeServiceIds(ids);
     if (search["kind"] === "amount" || search["kind"] === "service") out.kind = search["kind"];
     const amount = Number(search["amount"]);
     if (Number.isFinite(amount) && amount > 0) out.amount = amount;
@@ -75,24 +95,23 @@ const formatCardCvv = (value: string) => value.replace(/\D/g, "").slice(0, 3);
 function CertificateFlow() {
   const { t, lang } = useLanguage();
   const {
-    service: presetServiceId,
+    services: presetServices,
     kind: presetKind,
     amount: presetAmount,
     branch: presetBranch,
   } = Route.useSearch();
   // Пришли с /catalog или из коммерческого блока главной — открываем шаг 1
-  // сразу на нужном варианте и с выбранной услугой либо номиналом.
-  const presetService = presetServiceId
-    ? (services.find((s) => s.id === presetServiceId) ?? null)
-    : null;
+  // сразу на нужном варианте и с отмеченными услугами либо номиналом.
+  const presetIds = parseServiceIds(presetServices);
+  const presetFirst = selectedServices(presetIds)[0] ?? null;
   const steps = translations[lang].cert.steps;
-  // Пришли с готовым выбором («Подарить» на карточке) — сразу к оформлению,
+  // Пришли с готовым выбором («Подарить» под сводкой) — сразу к оформлению,
   // а не обратно к экрану выбора.
-  const hasPreset = Boolean(presetService || presetAmount);
+  const hasPreset = Boolean(presetIds.length > 0 || presetAmount);
   const [step, setStep] = useState<Step>(hasPreset ? 3 : 1);
   const [kind, setKind] = useState<Kind>(presetKind ?? (presetAmount ? "amount" : "service"));
-  const [groupId, setGroupId] = useState<CatalogGroup>(presetService?.group ?? "massage");
-  const [serviceId, setServiceId] = useState<string | null>(presetService?.id ?? null);
+  const [groupId, setGroupId] = useState<CatalogGroup>(presetFirst?.group ?? "massage");
+  const [serviceIds, setServiceIds] = useState<string[]>(presetIds);
   const [amount, setAmount] = useState<number>(presetAmount ?? fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
   const [designId, setDesignId] = useState(designs[0]!.id);
@@ -100,7 +119,6 @@ function CertificateFlow() {
   const [buyerPhone, setBuyerPhone] = useState("");
   const [buyerEmail, setBuyerEmail] = useState("");
   const [forSelf, setForSelf] = useState(false);
-  const [branch, setBranch] = useState<Branch>(presetBranch ?? "petropavlovsk");
   const [sender, setSender] = useState("");
   const [recipientFirstName, setRecipientFirstName] = useState("");
   const [message, setMessage] = useState("");
@@ -114,15 +132,25 @@ function CertificateFlow() {
   const [saving, setSaving] = useState(false);
 
   const design = designs.find((d) => d.id === designId)!;
-  const service = services.find((s) => s.id === serviceId) ?? null;
+  const chosen = selectedServices(serviceIds);
   const effectiveAmount = customAmount ? Number(customAmount) : amount;
-  const total = kind === "service" ? (service?.price ?? 0) : effectiveAmount;
-  const valueLabel =
-    kind === "service" && service ? t(`services.${service.id}.name`) : formatPrice(total || 0);
+  const total = kind === "service" ? selectionTotal(serviceIds) : effectiveAmount;
+  // На бланке сертификата состав печатается списком названий; сертификат на
+  // сумму — одной строкой с номиналом.
+  const cardItems =
+    kind === "service" && chosen.length > 0
+      ? chosen.map((s) => t(`services.${s.id}.name`))
+      : undefined;
+  const valueLabel = formatPrice(total || 0);
   // «Покупаю для себя» — получатель и отправитель берутся из данных покупателя.
   const recipientFullName = (forSelf ? buyerName : recipientFirstName).trim();
   const senderName = (forSelf ? buyerName : sender).trim();
-  const branchLabel = t(BRANCHES.find((b) => b.id === branch)!.labelKey);
+  // Город приходит из сценария покупки и на этом шаге не меняется. Если
+  // пользователь попал сюда прямой ссылкой, минуя выбор, — не подставляем
+  // филиал молча, а честно показываем, что он не выбран.
+  const branch = presetBranch ?? null;
+  const branchInfo = branch ? BRANCHES.find((b) => b.id === branch) : undefined;
+  const branchLabel = branchInfo ? t(branchInfo.labelKey) : t("cert.branchNotChosen");
 
   /**
    * DEMO payload only — not a real Kaspi Pay payment request. A production
@@ -138,7 +166,7 @@ function CertificateFlow() {
   const [certificateNumber, setCertificateNumber] = useState<string | null>(null);
 
   const validateStep1 = () => {
-    if (kind === "service" && !service) return [t("cert.errServiceRequired")];
+    if (kind === "service" && chosen.length === 0) return [t("cert.errServiceRequired")];
     if (kind === "amount" && (!total || total < MIN_AMOUNT))
       return [t("cert.errMinAmount", { amount: formatPrice(MIN_AMOUNT) })];
     return [];
@@ -176,7 +204,7 @@ function CertificateFlow() {
             buyerContact: [buyerPhone, buyerEmail].filter(Boolean).join(" · ") || null,
             recipientName: recipientFullName || null,
             recipientContact: null,
-            branch: branchLabel,
+            branch: branchInfo ? branchLabel : null,
             paymentMethod: paymentMethod === "kaspi" ? "kaspi" : "freedom_pay",
           }),
         });
@@ -254,14 +282,32 @@ function CertificateFlow() {
                   <ServiceChooser
                     groupId={groupId}
                     onGroupChange={setGroupId}
-                    selectedId={serviceId}
-                    onPick={(id) => {
-                      // «Подарить» на карточке — выбор сразу уносит к оформлению.
-                      setServiceId(id);
+                    selectedIds={serviceIds}
+                    onToggle={(id) => {
+                      setServiceIds((ids) => toggleServiceId(ids, id));
                       setErrors([]);
-                      setStep(3);
                     }}
                     t={t}
+                  />
+                  {/* Сводка выбранного — та же, что в витрине; переход к
+                      оформлению делает кнопка внизу шага. */}
+                  <SelectionSummary
+                    ids={serviceIds}
+                    onRemove={(id) => setServiceIds((ids) => toggleServiceId(ids, id))}
+                    onClear={() => setServiceIds([])}
+                    t={t}
+                    action={
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setErrors([]);
+                          setStep(3);
+                        }}
+                        className="btn-gold"
+                      >
+                        {t("cert.giftButton")}
+                      </button>
+                    }
                   />
                 </div>
               ) : (
@@ -334,7 +380,7 @@ function CertificateFlow() {
                     onClick={() => setDesignId(d.id)}
                     className={`border p-1.5 text-left transition-colors ${designId === d.id ? "border-gold" : "border-border/40 hover:border-gold/60"}`}
                   >
-                    <CertificateCard design={d} valueLabel={valueLabel} compact />
+                    <CertificateCard design={d} valueLabel={valueLabel} items={cardItems} compact />
                     <span
                       className={`block px-3 py-3 text-[0.68rem] tracking-[0.28em] uppercase ${designId === d.id ? "text-gold" : "text-cream/65"}`}
                     >
@@ -439,21 +485,8 @@ function CertificateFlow() {
                 </div>
               )}
 
-              {/* Филиал */}
-              <p className="eyebrow mt-8">{t("cert.branchSection")}</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {BRANCHES.map((b) => (
-                  <button
-                    key={b.id}
-                    type="button"
-                    onClick={() => setBranch(b.id)}
-                    aria-pressed={branch === b.id}
-                    className={`surface rounded-md px-5 py-4 text-left text-sm transition-colors ${branch === b.id ? "border-gold bg-gold/10 text-gold" : "text-cream/75 hover:border-gold/60"}`}
-                  >
-                    {t(b.labelKey)}
-                  </button>
-                ))}
-              </div>
+              {/* Филиал здесь не выбирается: город указывается один раз в
+                  начале сценария, на главной. Ниже он только показан в сводке. */}
 
               {/* Сводка перед оплатой */}
               <p className="eyebrow mt-8">{t("cert.summarySection")}</p>
@@ -462,10 +495,19 @@ function CertificateFlow() {
                   k={t("cert.rowCertificate")}
                   v={kind === "service" ? t("cert.choiceServiceTitle") : t("cert.rowByAmount")}
                 />
-                <Row
-                  k={kind === "service" ? t("cert.rowProgram") : t("cert.rowNominal")}
-                  v={kind === "service" && service ? t(`services.${service.id}.name`) : formatPrice(total || 0)}
-                />
+                {kind === "service" ? (
+                  // Каждая программа — отдельной строкой со своей ценой,
+                  // чтобы покупатель видел, из чего сложился итог.
+                  chosen.map((s) => (
+                    <Row
+                      key={s.id}
+                      k={t(`services.${s.id}.name`)}
+                      v={formatPrice(s.price)}
+                    />
+                  ))
+                ) : (
+                  <Row k={t("cert.rowNominal")} v={formatPrice(total || 0)} />
+                )}
                 <Row k={t("cert.rowBranch")} v={branchLabel} />
                 <Row k={t("cert.rowTotal")} v={formatPrice(total || 0)} />
               </dl>
@@ -611,11 +653,12 @@ function CertificateFlow() {
                 <CertificateCard
                   design={design}
                   valueLabel={valueLabel}
+                  items={cardItems}
                   recipient={recipientFullName || undefined}
                   sender={senderName || undefined}
                   message={message || undefined}
                   number={certificateNumber ?? undefined}
-                  branch={branchLabel}
+                  branch={branchInfo ? branchLabel : undefined}
                   bookingNote={t("cert.bookingNote")}
                 />
               </div>
@@ -676,6 +719,7 @@ function CertificateFlow() {
           <CertificateCard
             design={design}
             valueLabel={valueLabel}
+            items={cardItems}
             recipient={recipientFullName || undefined}
             sender={sender || undefined}
             message={message || undefined}
