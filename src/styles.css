@@ -156,6 +156,25 @@
   }
 }
 
+/* Мягкое появление шага мастера оформления — переключение между шагами
+   раньше было мгновенным (просто смена условного блока). Кривая — тот же
+   easeOutExpo-подобный профиль, что и у раскрытия сумм ниже: быстрый старт,
+   плавное затухание в конце, без рывка. */
+@keyframes step-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility step-fade-in {
+  animation: step-fade-in 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* Лента услуг прокручивается свайпом, поэтому системная полоса только мешает. */
 @utility no-scrollbar {
   scrollbar-width: none;

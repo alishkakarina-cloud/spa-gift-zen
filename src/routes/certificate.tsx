@@ -264,7 +264,10 @@ function CertificateFlow() {
       </div>
 
       <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_380px] lg:items-start">
-        <section className="min-w-0">
+        {/* key={step} размонтирует и заново монтирует блок при смене шага —
+            это и запускает step-fade-in заново на каждом переходе, раньше
+            переключение шагов было мгновенным. */}
+        <section className="min-w-0 step-fade-in" key={step}>
           {step === 1 && (
             <div>
               <h1 className="font-display text-3xl">{t("cert.step1Title")}</h1>

@@ -175,7 +175,10 @@ function Index() {
                   </button>
 
                   <div
-                    className={`grid transition-all duration-500 ease-out ${
+                    // Тот же easeOutExpo-подобный профиль, что и у появления
+                    // шага в мастере оформления (step-fade-in) — раскрытие
+                    // ощущается частью одного и того же движения по сайту.
+                    className={`grid transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
                       amountsOpen
                         ? "mt-4 grid-rows-[1fr] opacity-100"
                         : "mt-0 grid-rows-[0fr] opacity-0"
