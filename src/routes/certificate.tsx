@@ -18,6 +18,8 @@ type CertificateSearch = {
   kind?: "amount" | "service";
   /** Номинал, выбранный в коммерческом блоке главной. */
   amount?: number;
+  /** Город, выбранный на главной, — подставляем в форму заказа. */
+  branch?: Branch;
 };
 
 export const Route = createFileRoute("/certificate")({
@@ -27,6 +29,8 @@ export const Route = createFileRoute("/certificate")({
     if (search["kind"] === "amount" || search["kind"] === "service") out.kind = search["kind"];
     const amount = Number(search["amount"]);
     if (Number.isFinite(amount) && amount > 0) out.amount = amount;
+    if (search["branch"] === "petropavlovsk" || search["branch"] === "kokshetau")
+      out.branch = search["branch"];
     return out;
   },
   head: () => ({
@@ -69,7 +73,12 @@ const formatCardCvv = (value: string) => value.replace(/\D/g, "").slice(0, 3);
 
 function CertificateFlow() {
   const { t, lang } = useLanguage();
-  const { service: presetServiceId, kind: presetKind, amount: presetAmount } = Route.useSearch();
+  const {
+    service: presetServiceId,
+    kind: presetKind,
+    amount: presetAmount,
+    branch: presetBranch,
+  } = Route.useSearch();
   // Пришли с /catalog или из коммерческого блока главной — открываем шаг 1
   // сразу на нужном варианте и с выбранной услугой либо номиналом.
   const presetService = presetServiceId
@@ -90,7 +99,7 @@ function CertificateFlow() {
   const [buyerPhone, setBuyerPhone] = useState("");
   const [buyerEmail, setBuyerEmail] = useState("");
   const [forSelf, setForSelf] = useState(false);
-  const [branch, setBranch] = useState<Branch>("petropavlovsk");
+  const [branch, setBranch] = useState<Branch>(presetBranch ?? "petropavlovsk");
   const [sender, setSender] = useState("");
   const [recipientFirstName, setRecipientFirstName] = useState("");
   const [message, setMessage] = useState("");

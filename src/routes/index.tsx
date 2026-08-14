@@ -13,7 +13,15 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { CertificateCard } from "@/components/CertificateCard";
 import { BranchesSection } from "@/components/BranchesSection";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { designs, fixedAmounts, formatPrice, serviceImage, services } from "@/data/catalog";
+import {
+  MIN_AMOUNT,
+  designs,
+  fixedAmounts,
+  formatPrice,
+  serviceImage,
+  services,
+} from "@/data/catalog";
+import { BRANCHES, type Branch } from "@/data/branches";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,7 +61,16 @@ const HIGHLIGHTS: ReadonlyArray<{ id: string; hit?: boolean }> = [
 
 function Index() {
   const { t } = useLanguage();
+  const [city, setCity] = useState<Branch>("petropavlovsk");
+  const [amountsOpen, setAmountsOpen] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<number>(fixedAmounts[0]!);
+  const [customAmount, setCustomAmount] = useState("");
+
+  const parsedCustom = Number(customAmount);
+  const effectiveAmount =
+    customAmount && Number.isFinite(parsedCustom) && parsedCustom >= MIN_AMOUNT
+      ? parsedCustom
+      : selectedAmount;
 
   const why = [
     { title: t("home.why1Title"), desc: t("home.why1Desc") },
@@ -69,7 +86,9 @@ function Index() {
 
   return (
     <main>
-      <section className="relative min-h-[92vh] overflow-hidden">
+      {/* Композиция намеренно плотная: экран не растягивается на всю высоту,
+          чтобы блок выбора сертификата был виден почти сразу. */}
+      <section className="relative overflow-hidden">
         <Ribbon side="left" />
         <LanguageSwitcher className="absolute top-5 right-5 z-20 sm:top-6 sm:right-6" />
         <img
@@ -91,8 +110,8 @@ function Index() {
           style={{ opacity: 0.2 }}
         />
 
-        <div className="relative mx-auto flex min-h-[92vh] max-w-6xl flex-col justify-center px-5 py-20 sm:px-6">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+        <div className="relative mx-auto flex max-w-6xl flex-col justify-center px-5 py-12 sm:px-6 sm:py-14 lg:py-16">
+          <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
             <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
               <img
                 src={logoLight}
@@ -101,31 +120,31 @@ function Index() {
                 height={778}
                 className="w-36 sm:w-44 lg:w-52"
               />
-              <Divider motif="waveCrown" className="mt-6 sm:mt-8" />
-              <h1 className="font-display mt-6 text-[1.9rem] leading-[1.15] sm:mt-8 sm:text-4xl lg:text-6xl">
+              <Divider motif="waveCrown" className="mt-4 sm:mt-5" />
+              <h1 className="font-display mt-4 text-[1.9rem] leading-[1.12] sm:mt-5 sm:text-4xl lg:text-5xl">
                 {t("home.heroTitle1")}
                 <br />
                 {t("home.heroTitle2")}
               </h1>
-              <p className="text-cream/75 mt-5 max-w-xl text-sm leading-relaxed sm:text-base">
+              <p className="text-cream/75 mt-3 max-w-xl text-sm leading-relaxed sm:mt-4">
                 {t("home.heroSubtitle")}
               </p>
 
               {/* Точка бессрочности №1 — заметный бейдж, не мелкий текст. */}
-              <div className="border-gold/45 bg-gold/10 mt-7 max-w-md rounded-lg border px-5 py-4 text-left">
-                <p className="text-gold font-display text-lg tracking-wide uppercase sm:text-xl">
+              <div className="border-gold/45 bg-gold/10 mt-4 max-w-md rounded-lg border px-4 py-3 text-left sm:mt-5">
+                <p className="text-gold font-display text-base tracking-wide uppercase sm:text-lg">
                   {t("home.heroBadgeTitle")}
                 </p>
-                <p className="text-cream/75 mt-2 text-sm leading-relaxed">
+                <p className="text-cream/75 mt-1.5 text-sm leading-relaxed">
                   {t("home.heroBadgeText")}
                 </p>
               </div>
 
-              <p className="text-cream/60 mt-5 text-[0.7rem] tracking-[0.24em] uppercase">
+              <p className="text-cream/60 mt-4 text-[0.7rem] tracking-[0.24em] uppercase">
                 {t("home.heroTimeLine")}
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-5 flex flex-col gap-3 sm:mt-6 sm:flex-row">
                 <a href="#certificates" className="btn-gold">
                   {t("home.heroCta")}
                 </a>
@@ -155,8 +174,29 @@ function Index() {
             {t("home.buyTitle")}
           </h2>
 
+          {/* Шаг 0 — город. Вынесен в начало сценария покупки, как на референсе,
+              а не спрятан внутри формы заказа. */}
+          <p className="eyebrow mt-8">{t("home.buyCityEyebrow")}</p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {BRANCHES.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => setCity(b.id)}
+                aria-pressed={city === b.id}
+                className={`rounded-md border px-5 py-3 text-sm transition-colors ${
+                  city === b.id
+                    ? "border-gold bg-gold/10 text-gold"
+                    : "border-border text-cream/75 hover:border-gold/60"
+                }`}
+              >
+                {t("home.buyCityPrefix")} {t(b.labelKey)}
+              </button>
+            ))}
+          </div>
+
           {/* Вариант 1 — сертификат на сумму */}
-          <div className="surface mt-8 rounded-lg p-6 sm:mt-10 sm:p-8">
+          <div className="surface mt-6 rounded-lg p-6 sm:mt-8 sm:p-8">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <h3 className="font-display text-xl sm:text-2xl">{t("home.buyAmountTitle")}</h3>
               {/* Точка бессрочности №2 */}
@@ -166,38 +206,80 @@ function Index() {
             </div>
             <p className="text-cream/70 mt-2 text-sm">{t("home.buyAmountText")}</p>
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              {fixedAmounts.map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => setSelectedAmount(a)}
-                  aria-pressed={selectedAmount === a}
-                  className={`rounded-md border px-5 py-3 text-sm transition-colors ${
-                    selectedAmount === a
-                      ? "border-gold bg-gold/10 text-gold"
-                      : "border-border text-cream/75 hover:border-gold/60"
+            {/* Номиналы раскрываются по клику. Анимация — через grid-rows,
+                чтобы высота считалась сама и переход был плавным. */}
+            <button
+              type="button"
+              onClick={() => setAmountsOpen((v) => !v)}
+              aria-expanded={amountsOpen}
+              className="border-gold/45 text-gold hover:bg-gold/10 mt-5 inline-flex items-center gap-2 rounded-md border px-5 py-3 text-sm transition-colors"
+            >
+              {t("home.buyAmountToggle")}
+              <span
+                className={`text-xs transition-transform duration-300 ${amountsOpen ? "rotate-45" : ""}`}
+                aria-hidden="true"
+              >
+                +
+              </span>
+            </button>
+
+            <div
+              className={`grid transition-all duration-500 ease-out ${
+                amountsOpen ? "mt-5 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0"
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div className="flex flex-wrap gap-3">
+                  {fixedAmounts.map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => {
+                        setSelectedAmount(a);
+                        setCustomAmount("");
+                      }}
+                      aria-pressed={!customAmount && selectedAmount === a}
+                      className={`rounded-md border px-5 py-3 text-sm transition-colors ${
+                        !customAmount && selectedAmount === a
+                          ? "border-gold bg-gold/10 text-gold"
+                          : "border-border text-cream/75 hover:border-gold/60"
+                      }`}
+                    >
+                      {formatPrice(a)}
+                    </button>
+                  ))}
+                </div>
+
+                <label
+                  className={`mt-4 block max-w-xs rounded-md border p-4 transition-colors ${
+                    customAmount ? "border-gold bg-gold/10" : "border-border"
                   }`}
                 >
-                  {formatPrice(a)}
-                </button>
-              ))}
-              <Link
-                to="/certificate"
-                search={{ kind: "amount" }}
-                className="border-border text-cream/75 hover:border-gold/60 rounded-md border px-5 py-3 text-sm transition-colors"
-              >
-                {t("home.buyAmountCustom")}
-              </Link>
-            </div>
+                  <span
+                    className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
+                  >
+                    {t("home.buyAmountCustom")}
+                  </span>
+                  <input
+                    type="number"
+                    min={MIN_AMOUNT}
+                    step={1000}
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    placeholder={String(MIN_AMOUNT)}
+                    className={`border-input focus:border-gold mt-2 w-full border bg-transparent px-4 py-3 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
+                  />
+                </label>
 
-            <Link
-              to="/certificate"
-              search={{ kind: "amount", amount: selectedAmount }}
-              className="btn-gold mt-7"
-            >
-              {t("home.buyGift")}
-            </Link>
+                <Link
+                  to="/certificate"
+                  search={{ kind: "amount", amount: effectiveAmount, branch: city }}
+                  className="btn-gold mt-6"
+                >
+                  {t("home.buyGift")}
+                </Link>
+              </div>
+            </div>
           </div>
 
           {/* Вариант 2 — сертификат на программу */}
@@ -255,7 +337,7 @@ function Index() {
                         <span className="text-gold text-sm">{formatPrice(service.price)}</span>
                         <Link
                           to="/certificate"
-                          search={{ service: id }}
+                          search={{ service: id, branch: city }}
                           className="border-gold/45 text-gold hover:bg-gold/10 rounded-md border px-4 py-2 text-[0.62rem] tracking-[0.2em] uppercase transition-colors"
                         >
                           {t("home.buyGift")}
