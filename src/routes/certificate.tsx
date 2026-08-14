@@ -6,6 +6,7 @@ import { Motif } from "@/components/Motif";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ServiceChooser } from "@/components/ServiceChooser";
 import { BRANCHES, type Branch } from "@/data/branches";
+import type { CatalogGroup } from "@/data/serviceGroups";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
 import logoLight from "@/assets/logo-on-dark.webp";
@@ -90,7 +91,7 @@ function CertificateFlow() {
   const hasPreset = Boolean(presetService || presetAmount);
   const [step, setStep] = useState<Step>(hasPreset ? 3 : 1);
   const [kind, setKind] = useState<Kind>(presetKind ?? (presetAmount ? "amount" : "service"));
-  const [groupId, setGroupId] = useState<Service["group"]>(presetService?.group ?? "massage");
+  const [groupId, setGroupId] = useState<CatalogGroup>(presetService?.group ?? "massage");
   const [serviceId, setServiceId] = useState<string | null>(presetService?.id ?? null);
   const [amount, setAmount] = useState<number>(presetAmount ?? fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");

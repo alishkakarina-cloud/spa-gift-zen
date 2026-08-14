@@ -13,6 +13,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { CertificateCard } from "@/components/CertificateCard";
 import { BranchesSection } from "@/components/BranchesSection";
 import { PromotionsSection } from "@/components/PromotionsSection";
+import { LoyaltySection } from "@/components/LoyaltySection";
 import { useLanguage } from "@/i18n/LanguageContext";
 import {
   MIN_AMOUNT,
@@ -512,6 +513,7 @@ function Index() {
 
       {/* Акции салонов — информационный блок перед контактами. */}
       <PromotionsSection t={t} />
+      <LoyaltySection t={t} />
 
       {/* Контакты филиалов, 2ГИС и Instagram — перед футером. */}
       <BranchesSection t={t} />

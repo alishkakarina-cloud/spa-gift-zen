@@ -2,8 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { AtmosphereGallery } from "@/components/AtmosphereGallery";
 import { CategoryCarousel } from "@/components/CategoryCarousel";
 import { Motif } from "@/components/Motif";
-import { formatPrice, serviceImage, services, type Service } from "@/data/catalog";
-import { SERVICE_GROUPS, serviceGroupCounts } from "@/data/serviceGroups";
+import { formatPrice, serviceImage } from "@/data/catalog";
+import {
+  SERVICE_GROUPS,
+  serviceGroupCounts,
+  servicesInGroup,
+  type CatalogGroup,
+} from "@/data/serviceGroups";
 
 /**
  * Витрина каталога: атмосферная галерея, зациклённая карусель категорий и
@@ -19,8 +24,8 @@ export function ServiceCatalogBrowser({
   onGroupChange,
   t,
 }: {
-  groupId: Service["group"];
-  onGroupChange: (group: Service["group"]) => void;
+  groupId: CatalogGroup;
+  onGroupChange: (group: CatalogGroup) => void;
   t: (path: string) => string;
 }) {
   const activeGroup = SERVICE_GROUPS.find((g) => g.id === groupId)!;
@@ -37,7 +42,7 @@ export function ServiceCatalogBrowser({
         <CategoryCarousel
           categories={serviceGroupCounts()}
           activeId={groupId}
-          onSelect={(id) => onGroupChange(id as Service["group"])}
+          onSelect={(id) => onGroupChange(id as CatalogGroup)}
           t={t}
           prevLabel={t("cert.railPrev")}
           nextLabel={t("cert.railNext")}
@@ -45,10 +50,13 @@ export function ServiceCatalogBrowser({
       </div>
 
       <h2 className="font-display mt-10 text-2xl">{t(activeGroup.labelKey)}</h2>
+      {activeGroup.noteKey && (
+        <p className="border-gold/35 bg-gold/5 text-cream/75 mt-3 rounded-md border px-4 py-3 text-sm leading-relaxed">
+          {t(activeGroup.noteKey)}
+        </p>
+      )}
       <div className="mt-4 grid gap-3">
-        {services
-          .filter((s) => s.group === groupId)
-          .map((s) => {
+        {servicesInGroup(groupId).map((s) => {
             const image = serviceImage(s.id);
             return (
               <article key={s.id} className="surface flex gap-4 overflow-hidden p-3">
@@ -84,9 +92,9 @@ export function ServiceCatalogBrowser({
                     {t("catalog.giftThis")} →
                   </Link>
                 </div>
-              </article>
-            );
-          })}
+            </article>
+          );
+        })}
       </div>
     </div>
   );

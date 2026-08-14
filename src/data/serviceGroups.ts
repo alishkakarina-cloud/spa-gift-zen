@@ -3,17 +3,20 @@ import type { Service } from "@/data/catalog";
 import { services } from "@/data/catalog";
 
 /**
- * Категории услуг в порядке показа — как в прайсе RaiThai
- * (raithai-spa.kamiqr.com). Общий источник для карусели категорий на
- * /catalog и внутри мастера оформления на /certificate, чтобы список,
- * мотивы и репрезентативные фото не расходились между страницами.
+ * «Для беременных» — не отдельный набор услуг, а подборка уже существующих
+ * позиций по флагу `pregnancySafe`, как на официальном меню RaiThai. Поэтому
+ * идентификатор категории шире, чем `Service["group"]`.
  */
+export type CatalogGroup = Service["group"] | "pregnancy";
+
 export const SERVICE_GROUPS: ReadonlyArray<{
-  id: Service["group"];
+  id: CatalogGroup;
   motif: MotifName;
   labelKey: string;
   /** Услуга, фото которой представляет категорию в карусели. */
   imageFrom: string | null;
+  /** Примечание под заголовком категории (например, предупреждения врача). */
+  noteKey?: string;
 }> = [
   {
     id: "massage",
@@ -34,12 +37,27 @@ export const SERVICE_GROUPS: ReadonlyArray<{
     labelKey: "cert.groupTravel",
     imageFrom: "journey-bali-1",
   },
-  // Обложкой берём общий план: на нём видно и мастера, и интерьер салона.
-  { id: "kids", motif: "flowerBurst", labelKey: "cert.groupKids", imageFrom: "kids-thai-60" },
+  { id: "kids", motif: "flowerBurst", labelKey: "cert.groupKids", imageFrom: "kids-oil-60" },
+  {
+    id: "pregnancy",
+    motif: "lotusBloom",
+    labelKey: "cert.groupPregnancy",
+    imageFrom: "mom-to-be-60",
+    noteKey: "cert.pregnancyNote",
+  },
+  {
+    id: "subscription",
+    motif: "diamondLattice",
+    labelKey: "cert.groupSubscription",
+    imageFrom: "subscription-wellness",
+  },
 ];
 
+/** Услуги категории: обычные — по группе, «Для беременных» — по флагу. */
+export const servicesInGroup = (group: CatalogGroup) =>
+  group === "pregnancy"
+    ? services.filter((s) => s.pregnancySafe)
+    : services.filter((s) => s.group === group);
+
 export const serviceGroupCounts = () =>
-  SERVICE_GROUPS.map((g) => ({
-    ...g,
-    count: services.filter((s) => s.group === g.id).length,
-  }));
+  SERVICE_GROUPS.map((g) => ({ ...g, count: servicesInGroup(g.id).length }));

@@ -6,7 +6,13 @@ export type Service = {
   duration: string;
   price: number;
   description: string;
-  group: "massage" | "complex" | "spa" | "travel" | "kids";
+  group: "massage" | "complex" | "spa" | "travel" | "kids" | "subscription";
+  /**
+   * Разрешено во время беременности — по разделу «Для беременных»
+   * официального меню RaiThai. Услуга при этом остаётся в своей категории,
+   * подборка собирается по флагу, без дублирования позиций.
+   */
+  pregnancySafe?: boolean;
 };
 
 export const services: Service[] = [
@@ -54,6 +60,7 @@ export const services: Service[] = [
     description:
       "Женский ритуал: хамам, пилинг, скраб, массаж лица, массаж на выбор 60 минут и тайский массаж ног.",
     group: "spa",
+    pregnancySafe: true,
   },
   {
     id: "king-of-thailand",
@@ -216,6 +223,7 @@ export const services: Service[] = [
     description:
       "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку со специальной подушкой.",
     group: "massage",
+    pregnancySafe: true,
   },
   {
     id: "mom-to-be-90",
@@ -225,6 +233,7 @@ export const services: Service[] = [
     description:
       "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку со специальной подушкой.",
     group: "massage",
+    pregnancySafe: true,
   },
   {
     id: "paraffin-hands",
@@ -278,6 +287,7 @@ export const services: Service[] = [
     description:
       "Хамам или сауна с ароматерапией, пилинг рукавичкой кесе, скрабирование, мытьё головы и чайная церемония.",
     group: "spa",
+    pregnancySafe: true,
   },
   {
     id: "thai-bath-2",
@@ -305,6 +315,7 @@ export const services: Service[] = [
     description:
       "Самая популярная программа Rai Thai: хамам, пилинг, скрабирование, мытьё головы, чайная церемония и расслабляющий oil-массаж 60 минут.",
     group: "spa",
+    pregnancySafe: true,
   },
   {
     id: "date-raithai",
@@ -478,6 +489,26 @@ export const services: Service[] = [
     description:
       "Для детей от 5 лет. Плавные движения с тёплым маслом снимают тревожность и переутомление, дарят здоровый сон.",
     group: "kids",
+  },
+
+  // SPA-абонементы — состав и цены с официального меню RaiThai.
+  {
+    id: "subscription-wellness",
+    name: "Абонемент «Оздоровительный курс»",
+    duration: "5 часов",
+    price: 90000,
+    description:
+      "5 часов любых массажей и чайная церемония после каждого посещения. Подходит для oil-массажа, традиционного тайского, балийского, «Ломи-Ломи» и локальных массажей. Срок действия — бессрочно.",
+    group: "subscription",
+  },
+  {
+    id: "subscription-recovery",
+    name: "Абонемент «Курс восстановления»",
+    duration: "10 часов + 2 в подарок",
+    price: 180000,
+    description:
+      "10 часов любых массажей, 2 часа в подарок, парафинотерапия для рук и чайная церемония после каждого посещения. Бессрочный, можно передать близкому человеку.",
+    group: "subscription",
   },
 ];
 

@@ -1,6 +1,11 @@
 import { CategoryCarousel } from "@/components/CategoryCarousel";
-import { formatPrice, serviceImage, services, type Service } from "@/data/catalog";
-import { SERVICE_GROUPS, serviceGroupCounts } from "@/data/serviceGroups";
+import { formatPrice, serviceImage } from "@/data/catalog";
+import {
+  SERVICE_GROUPS,
+  serviceGroupCounts,
+  servicesInGroup,
+  type CatalogGroup,
+} from "@/data/serviceGroups";
 
 /**
  * Выбор программы внутри оформления сертификата.
@@ -17,8 +22,8 @@ export function ServiceChooser({
   onPick,
   t,
 }: {
-  groupId: Service["group"];
-  onGroupChange: (group: Service["group"]) => void;
+  groupId: CatalogGroup;
+  onGroupChange: (group: CatalogGroup) => void;
   selectedId: string | null;
   onPick: (id: string) => void;
   t: (path: string) => string;
@@ -30,18 +35,21 @@ export function ServiceChooser({
       <CategoryCarousel
         categories={serviceGroupCounts()}
         activeId={groupId}
-        onSelect={(id) => onGroupChange(id as Service["group"])}
+        onSelect={(id) => onGroupChange(id as CatalogGroup)}
         t={t}
         prevLabel={t("cert.railPrev")}
         nextLabel={t("cert.railNext")}
       />
 
       <h2 className="font-display mt-8 text-xl sm:text-2xl">{t(activeGroup.labelKey)}</h2>
+      {activeGroup.noteKey && (
+        <p className="border-gold/35 bg-gold/5 text-cream/75 mt-3 rounded-md border px-4 py-3 text-sm leading-relaxed">
+          {t(activeGroup.noteKey)}
+        </p>
+      )}
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        {services
-          .filter((s) => s.group === groupId)
-          .map((s) => {
+        {servicesInGroup(groupId).map((s) => {
             const image = serviceImage(s.id);
             const active = selectedId === s.id;
             return (
@@ -87,9 +95,9 @@ export function ServiceChooser({
                     </button>
                   </div>
                 </div>
-              </article>
-            );
-          })}
+            </article>
+          );
+        })}
       </div>
     </div>
   );

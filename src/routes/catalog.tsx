@@ -4,8 +4,8 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ServiceCatalogBrowser } from "@/components/ServiceCatalogBrowser";
 import { useLanguage } from "@/i18n/LanguageContext";
 import logoLight from "@/assets/logo-on-dark.webp";
-import type { Service } from "@/data/catalog";
 import { BRANCHES, spaMenuPdfFor, type Branch } from "@/data/branches";
+import type { CatalogGroup } from "@/data/serviceGroups";
 
 export const Route = createFileRoute("/catalog")({
   head: () => ({
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/catalog")({
  */
 function CatalogPage() {
   const { t } = useLanguage();
-  const [groupId, setGroupId] = useState<Service["group"]>("massage");
+  const [groupId, setGroupId] = useState<CatalogGroup>("massage");
   // Город для SPA-меню. Пока файл общий, но выбор уже влияет на ссылку —
   // когда появятся отдельные PDF, менять придётся только пути в branches.ts.
   const [branch, setBranch] = useState<Branch | null>(null);
