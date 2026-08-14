@@ -122,15 +122,112 @@ function Index() {
                 {t("home.heroTimeLine")}
               </p>
 
-              {/* Сценарий покупки встроен прямо в hero: шаг «город» →
-                  шаг «сумма». Отдельной кнопки «Купить сертификат» больше нет —
-                  её роль выполняют сами шаги. */}
+              {/* Порядок сценария: сначала сумма (не требует города —
+                  город из «Подарить» уходит через branchSearch, если выбран,
+                  и необязателен, если нет), город — вторым, второстепенным
+                  уточнением, «Наши услуги» — последней. */}
               <div className="mt-6 w-full max-w-md lg:mt-7">
-                <p className="eyebrow text-center lg:text-left">{t("home.buyCityEyebrow")}</p>
-                {/* Кнопки с собственной непрозрачной заливкой: выбранная —
-                    сплошное золото с тёмной подписью (та же пара, что у
-                    btn-gold), невыбранная — карточный тёмно-зелёный. Иначе
-                    сквозь них просвечивает фото hero. */}
+                <div className="surface rounded-lg p-4 text-left sm:p-5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
+                    <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
+                      {t("home.buyEndless")}
+                    </span>
+                  </div>
+                  <p className="text-cream/70 mt-2 text-sm leading-relaxed">
+                    {t("home.buyAmountText")}
+                  </p>
+
+                  {/* Номиналы раскрываются по клику — через grid-rows, чтобы
+                      высота считалась сама и переход был плавным. Кнопка —
+                      btn-ghost, тот же стиль, что у «Наши услуги». */}
+                  <button
+                    type="button"
+                    onClick={() => setAmountsOpen((v) => !v)}
+                    aria-expanded={amountsOpen}
+                    className="btn-ghost mt-4 w-full gap-2 sm:w-auto"
+                  >
+                    {t("home.buyAmountToggle")}
+                    <span
+                      className={`text-xs transition-transform duration-300 ${amountsOpen ? "rotate-45" : ""}`}
+                      aria-hidden="true"
+                    >
+                      +
+                    </span>
+                  </button>
+
+                  <div
+                    className={`grid transition-all duration-500 ease-out ${
+                      amountsOpen
+                        ? "mt-4 grid-rows-[1fr] opacity-100"
+                        : "mt-0 grid-rows-[0fr] opacity-0"
+                    }`}
+                    inert={!amountsOpen}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="flex flex-wrap gap-2">
+                        {fixedAmounts.map((a) => (
+                          <button
+                            key={a}
+                            type="button"
+                            onClick={() => {
+                              setSelectedAmount(a);
+                              setCustomAmount("");
+                            }}
+                            aria-pressed={!customAmount && selectedAmount === a}
+                            className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
+                              !customAmount && selectedAmount === a
+                                ? "border-gold bg-gold text-primary-foreground"
+                                : "border-border bg-card text-cream hover:border-gold/60"
+                            }`}
+                          >
+                            {formatPrice(a)}
+                          </button>
+                        ))}
+                      </div>
+
+                      <label
+                        className={`bg-card mt-3 block rounded-md border p-3 transition-colors ${
+                          customAmount ? "border-gold" : "border-border"
+                        }`}
+                      >
+                        <span
+                          className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
+                        >
+                          {t("home.buyAmountCustom")}
+                        </span>
+                        <input
+                          type="number"
+                          min={MIN_AMOUNT}
+                          step={1000}
+                          value={customAmount}
+                          onChange={(e) => setCustomAmount(e.target.value)}
+                          placeholder={String(MIN_AMOUNT)}
+                          className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
+                        />
+                      </label>
+
+                      {/* Город необязателен здесь: если выбран — уйдёт через
+                          branchSearch, если нет — сертификат оформится без
+                          филиала, его можно будет уточнить в самой форме. */}
+                      <Link
+                        to="/certificate"
+                        search={{ kind: "amount", amount: effectiveAmount, ...branchSearch }}
+                        className="btn-gold mt-4"
+                      >
+                        {t("home.buyGift")}
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Город — второстепенное уточнение, не обязательный первый
+                    шаг. Если выбран, едет дальше в сертификат и в «Подарить»
+                    выше через branchSearch (пересчитывается при каждом
+                    рендере, порядок выбора — сумма/город — значения не имеет). */}
+                <p className="eyebrow mt-5 text-center lg:text-left">
+                  {t("home.buyCityEyebrow")}
+                </p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {BRANCHES.map((b) => (
                     <button
@@ -138,117 +235,11 @@ function Index() {
                       type="button"
                       onClick={() => setCity(b.id)}
                       aria-pressed={city === b.id}
-                      className={`rounded-md border px-4 py-3 text-sm transition-colors ${
-                        city === b.id
-                          ? "border-gold bg-gold text-primary-foreground"
-                          : "border-border bg-card text-cream hover:border-gold/70"
-                      }`}
+                      className={city === b.id ? "btn-gold" : "btn-ghost"}
                     >
                       {t("home.buyCityPrefix")} {t(b.labelKey)}
                     </button>
                   ))}
-                </div>
-
-                {/* Шаг с суммой появляется только после выбора города. */}
-                <div
-                  className={`grid transition-all duration-500 ease-out ${
-                    city ? "mt-5 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0"
-                  }`}
-                  inert={!city}
-                >
-                  <div className="overflow-hidden">
-                    <div className="surface rounded-lg p-4 text-left sm:p-5">
-                      <div className="flex flex-wrap items-baseline justify-between gap-2">
-                        <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
-                        <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
-                          {t("home.buyEndless")}
-                        </span>
-                      </div>
-                      <p className="text-cream/70 mt-2 text-sm leading-relaxed">
-                        {t("home.buyAmountText")}
-                      </p>
-
-                      {/* Номиналы раскрываются по клику — через grid-rows,
-                          чтобы высота считалась сама и переход был плавным. */}
-                      <button
-                        type="button"
-                        onClick={() => setAmountsOpen((v) => !v)}
-                        aria-expanded={amountsOpen}
-                        // Заливка --background, а не --card: золотая подпись на
-                        // карточном зелёном даёт 4.39:1, на фоновом — 4.98:1.
-                        className="border-gold/45 bg-background text-gold mt-4 inline-flex items-center gap-2 rounded-md border px-5 py-3 text-sm transition-colors hover:border-gold"
-                      >
-                        {t("home.buyAmountToggle")}
-                        <span
-                          className={`text-xs transition-transform duration-300 ${amountsOpen ? "rotate-45" : ""}`}
-                          aria-hidden="true"
-                        >
-                          +
-                        </span>
-                      </button>
-
-                      <div
-                        className={`grid transition-all duration-500 ease-out ${
-                          amountsOpen
-                            ? "mt-4 grid-rows-[1fr] opacity-100"
-                            : "mt-0 grid-rows-[0fr] opacity-0"
-                        }`}
-                        inert={!amountsOpen}
-                      >
-                        <div className="overflow-hidden">
-                          <div className="flex flex-wrap gap-2">
-                            {fixedAmounts.map((a) => (
-                              <button
-                                key={a}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedAmount(a);
-                                  setCustomAmount("");
-                                }}
-                                aria-pressed={!customAmount && selectedAmount === a}
-                                className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
-                                  !customAmount && selectedAmount === a
-                                    ? "border-gold bg-gold text-primary-foreground"
-                                    : "border-border bg-card text-cream hover:border-gold/60"
-                                }`}
-                              >
-                                {formatPrice(a)}
-                              </button>
-                            ))}
-                          </div>
-
-                          <label
-                            className={`bg-card mt-3 block rounded-md border p-3 transition-colors ${
-                              customAmount ? "border-gold" : "border-border"
-                            }`}
-                          >
-                            <span
-                              className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
-                            >
-                              {t("home.buyAmountCustom")}
-                            </span>
-                            <input
-                              type="number"
-                              min={MIN_AMOUNT}
-                              step={1000}
-                              value={customAmount}
-                              onChange={(e) => setCustomAmount(e.target.value)}
-                              placeholder={String(MIN_AMOUNT)}
-                              className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
-                            />
-                          </label>
-
-                          <Link
-                            to="/certificate"
-                            search={{ kind: "amount", amount: effectiveAmount, ...branchSearch }}
-                            className="btn-gold mt-4"
-                          >
-                            {t("home.buyGift")}
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 <Link to="/catalog" className="btn-ghost mt-5 w-full sm:w-auto">
