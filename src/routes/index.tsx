@@ -144,49 +144,51 @@ function Index() {
                   ))}
                 </div>
 
-                <div className="surface mt-5 rounded-lg p-4 text-left sm:p-5">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
-                    <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
-                      {t("home.buyEndless")}
-                    </span>
-                  </div>
-                  <p className="text-cream/70 mt-2 text-sm leading-relaxed">
-                    {t("home.buyAmountText")}
-                  </p>
-
-                  {/* Номиналы раскрываются по клику — через grid-rows, чтобы
-                      высота считалась сама и переход был плавным. До клика
-                      amountsOpen=false, панель номиналов свёрнута (grid-rows-[0fr]
-                      + inert), суммы не видны и не фокусируются. */}
-                  <button
-                    type="button"
-                    onClick={() => setAmountsOpen((v) => !v)}
-                    aria-expanded={amountsOpen}
-                    className="btn-ghost mt-4 w-full gap-2 sm:w-auto"
+                {/* Кнопка сама по себе — голая, в одном стиле с остальными
+                    тремя (btn-ghost). Заголовок, бейдж бессрочности,
+                    описание и номиналы раньше были видны сразу как часть
+                    статичной панели — теперь весь этот контент никуда не
+                    делся, просто переехал внутрь раскрывающегося блока и
+                    до клика не отображается (grid-rows-[0fr] + inert). */}
+                <button
+                  type="button"
+                  onClick={() => setAmountsOpen((v) => !v)}
+                  aria-expanded={amountsOpen}
+                  className="btn-ghost mt-5 w-full gap-2 sm:w-auto"
+                >
+                  {t("home.buyAmountToggle")}
+                  <span
+                    className={`text-xs transition-transform duration-300 ${amountsOpen ? "rotate-45" : ""}`}
+                    aria-hidden="true"
                   >
-                    {t("home.buyAmountToggle")}
-                    <span
-                      className={`text-xs transition-transform duration-300 ${amountsOpen ? "rotate-45" : ""}`}
-                      aria-hidden="true"
-                    >
-                      +
-                    </span>
-                  </button>
+                    +
+                  </span>
+                </button>
 
-                  <div
-                    // Тот же easeOutExpo-подобный профиль, что и у появления
-                    // шага в мастере оформления (step-fade-in) — раскрытие
-                    // ощущается частью одного и того же движения по сайту.
-                    className={`grid transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                      amountsOpen
-                        ? "mt-4 grid-rows-[1fr] opacity-100"
-                        : "mt-0 grid-rows-[0fr] opacity-0"
-                    }`}
-                    inert={!amountsOpen}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="flex flex-wrap gap-2">
+                <div
+                  // Тот же easeOutExpo-подобный профиль, что и у появления
+                  // шага в мастере оформления (step-fade-in) — раскрытие
+                  // ощущается частью одного и того же движения по сайту.
+                  className={`grid transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    amountsOpen
+                      ? "mt-4 grid-rows-[1fr] opacity-100"
+                      : "mt-0 grid-rows-[0fr] opacity-0"
+                  }`}
+                  inert={!amountsOpen}
+                >
+                  <div className="overflow-hidden">
+                    <div className="surface rounded-lg p-4 text-left sm:p-5">
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
+                        <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
+                          {t("home.buyEndless")}
+                        </span>
+                      </div>
+                      <p className="text-cream/70 mt-2 text-sm leading-relaxed">
+                        {t("home.buyAmountText")}
+                      </p>
+
+                      <div className="mt-4 flex flex-wrap gap-2">
                         {fixedAmounts.map((a) => (
                           <button
                             key={a}
