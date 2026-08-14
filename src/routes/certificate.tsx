@@ -5,6 +5,7 @@ import { CertificateCard } from "@/components/CertificateCard";
 import { Motif } from "@/components/Motif";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ServiceChooser } from "@/components/ServiceChooser";
+import { BRANCHES, type Branch } from "@/data/branches";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
 import logoLight from "@/assets/logo-on-dark.webp";
@@ -51,12 +52,6 @@ type Kind = "service" | "amount";
 /** 1 — выбор, 2 — дизайн, 3 — оформление со сводкой, 4 — оплата, 5 — готово. */
 type Step = 1 | 2 | 3 | 4 | 5;
 type PaymentMethod = "card" | "kaspi";
-type Branch = "petropavlovsk" | "kokshetau";
-
-const BRANCHES: ReadonlyArray<{ id: Branch; labelKey: string }> = [
-  { id: "petropavlovsk", labelKey: "whatsapp.petropavlovsk" },
-  { id: "kokshetau", labelKey: "whatsapp.kokshetau" },
-];
 
 const formatCardNumber = (value: string) =>
   value
