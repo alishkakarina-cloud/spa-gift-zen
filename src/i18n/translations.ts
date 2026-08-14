@@ -58,7 +58,7 @@ const ru = {
     buyAmountCustom: "Другая сумма от 20 000 ₸",
     buyAmountToggle: "Указать сумму",
     buyCityEyebrow: "Город",
-    buyCityPrefix: "Услуги",
+    buyCityPrefix: "Выбрать услуги",
     buyProgramTitle: "Сертификат на SPA-программу",
     buyProgramText: "Конкретная программа или массаж — подарок с готовым сценарием.",
     buyEndless: "Бессрочный сертификат",

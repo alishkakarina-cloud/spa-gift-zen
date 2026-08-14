@@ -63,7 +63,9 @@ const HIGHLIGHTS: ReadonlyArray<{ id: string; hit?: boolean }> = [
 
 function Index() {
   const { t } = useLanguage();
-  const [city, setCity] = useState<Branch>("petropavlovsk");
+  // Город не выбран по умолчанию: шаг с суммой раскрывается только после
+  // выбора, и на телефоне hero до первого касания остаётся коротким.
+  const [city, setCity] = useState<Branch | null>(null);
   const [amountsOpen, setAmountsOpen] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<number>(fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
@@ -73,6 +75,8 @@ function Index() {
     customAmount && Number.isFinite(parsedCustom) && parsedCustom >= MIN_AMOUNT
       ? parsedCustom
       : selectedAmount;
+  /** Город попадает в ссылку только когда выбран — `branch` необязателен. */
+  const branchSearch = city ? { branch: city } : {};
 
   const why = [
     { title: t("home.why1Title"), desc: t("home.why1Desc") },
@@ -146,11 +150,130 @@ function Index() {
                 {t("home.heroTimeLine")}
               </p>
 
-              <div className="mt-5 flex flex-col gap-3 sm:mt-6 sm:flex-row">
-                <a href="#certificates" className="btn-gold">
-                  {t("home.heroCta")}
-                </a>
-                <Link to="/catalog" className="btn-ghost">
+              {/* Сценарий покупки встроен прямо в hero: шаг «город» →
+                  шаг «сумма». Отдельной кнопки «Купить сертификат» больше нет —
+                  её роль выполняют сами шаги. */}
+              <div className="mt-6 w-full max-w-md lg:mt-7">
+                <p className="eyebrow text-center lg:text-left">{t("home.buyCityEyebrow")}</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {BRANCHES.map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => setCity(b.id)}
+                      aria-pressed={city === b.id}
+                      className={`rounded-md border px-4 py-3 text-sm transition-colors ${
+                        city === b.id
+                          ? "border-gold bg-gold/10 text-gold"
+                          : "border-gold/35 text-cream/80 hover:border-gold/70"
+                      }`}
+                    >
+                      {t("home.buyCityPrefix")} {t(b.labelKey)}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Шаг с суммой появляется только после выбора города. */}
+                <div
+                  className={`grid transition-all duration-500 ease-out ${
+                    city ? "mt-5 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0"
+                  }`}
+                  inert={!city}
+                >
+                  <div className="overflow-hidden">
+                    <div className="border-border rounded-lg border p-4 text-left sm:p-5">
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
+                        <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
+                          {t("home.buyEndless")}
+                        </span>
+                      </div>
+                      <p className="text-cream/70 mt-2 text-sm leading-relaxed">
+                        {t("home.buyAmountText")}
+                      </p>
+
+                      {/* Номиналы раскрываются по клику — через grid-rows,
+                          чтобы высота считалась сама и переход был плавным. */}
+                      <button
+                        type="button"
+                        onClick={() => setAmountsOpen((v) => !v)}
+                        aria-expanded={amountsOpen}
+                        className="border-gold/45 text-gold hover:bg-gold/10 mt-4 inline-flex items-center gap-2 rounded-md border px-5 py-3 text-sm transition-colors"
+                      >
+                        {t("home.buyAmountToggle")}
+                        <span
+                          className={`text-xs transition-transform duration-300 ${amountsOpen ? "rotate-45" : ""}`}
+                          aria-hidden="true"
+                        >
+                          +
+                        </span>
+                      </button>
+
+                      <div
+                        className={`grid transition-all duration-500 ease-out ${
+                          amountsOpen
+                            ? "mt-4 grid-rows-[1fr] opacity-100"
+                            : "mt-0 grid-rows-[0fr] opacity-0"
+                        }`}
+                        inert={!amountsOpen}
+                      >
+                        <div className="overflow-hidden">
+                          <div className="flex flex-wrap gap-2">
+                            {fixedAmounts.map((a) => (
+                              <button
+                                key={a}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedAmount(a);
+                                  setCustomAmount("");
+                                }}
+                                aria-pressed={!customAmount && selectedAmount === a}
+                                className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
+                                  !customAmount && selectedAmount === a
+                                    ? "border-gold bg-gold/10 text-gold"
+                                    : "border-border text-cream/75 hover:border-gold/60"
+                                }`}
+                              >
+                                {formatPrice(a)}
+                              </button>
+                            ))}
+                          </div>
+
+                          <label
+                            className={`mt-3 block rounded-md border p-3 transition-colors ${
+                              customAmount ? "border-gold bg-gold/10" : "border-border"
+                            }`}
+                          >
+                            <span
+                              className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
+                            >
+                              {t("home.buyAmountCustom")}
+                            </span>
+                            <input
+                              type="number"
+                              min={MIN_AMOUNT}
+                              step={1000}
+                              value={customAmount}
+                              onChange={(e) => setCustomAmount(e.target.value)}
+                              placeholder={String(MIN_AMOUNT)}
+                              className={`border-input focus:border-gold mt-2 w-full border bg-transparent px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
+                            />
+                          </label>
+
+                          <Link
+                            to="/certificate"
+                            search={{ kind: "amount", amount: effectiveAmount, ...branchSearch }}
+                            className="btn-gold mt-4"
+                          >
+                            {t("home.buyGift")}
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Link to="/catalog" className="btn-ghost mt-5 w-full sm:w-auto">
                   {t("home.heroCatalogCta")}
                 </Link>
               </div>
@@ -164,7 +287,7 @@ function Index() {
         </div>
       </section>
 
-      {/* ── Блок 2: главный коммерческий блок ─────────────────────────── */}
+      {/* ── Блок 2: второй способ подарить — сертификат на программу ──── */}
       <section id="certificates" className="relative overflow-hidden scroll-mt-6">
         <Divider motif="lotusBloom" className="pt-12 sm:pt-16 lg:pt-20" />
         <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-24">
@@ -172,122 +295,12 @@ function Index() {
             <Motif name="petalDiamond" className="text-gold h-7 w-7" />
             <p className="eyebrow">{t("home.buyEyebrow")}</p>
           </div>
-          <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
-            {t("home.buyTitle")}
-          </h2>
 
-          {/* Шаг 0 — город. Вынесен в начало сценария покупки, как на референсе,
-              а не спрятан внутри формы заказа. */}
-          <p className="eyebrow mt-8">{t("home.buyCityEyebrow")}</p>
-          <div className="mt-3 flex flex-wrap gap-3">
-            {BRANCHES.map((b) => (
-              <button
-                key={b.id}
-                type="button"
-                onClick={() => setCity(b.id)}
-                aria-pressed={city === b.id}
-                className={`rounded-md border px-5 py-3 text-sm transition-colors ${
-                  city === b.id
-                    ? "border-gold bg-gold/10 text-gold"
-                    : "border-border text-cream/75 hover:border-gold/60"
-                }`}
-              >
-                {t("home.buyCityPrefix")} {t(b.labelKey)}
-              </button>
-            ))}
-          </div>
-
-          {/* Вариант 1 — сертификат на сумму */}
-          <div className="surface mt-6 rounded-lg p-6 sm:mt-8 sm:p-8">
-            <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <h3 className="font-display text-xl sm:text-2xl">{t("home.buyAmountTitle")}</h3>
-              {/* Точка бессрочности №2 */}
-              <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.62rem] tracking-[0.2em] uppercase">
-                {t("home.buyEndless")}
-              </span>
-            </div>
-            <p className="text-cream/70 mt-2 text-sm">{t("home.buyAmountText")}</p>
-
-            {/* Номиналы раскрываются по клику. Анимация — через grid-rows,
-                чтобы высота считалась сама и переход был плавным. */}
-            <button
-              type="button"
-              onClick={() => setAmountsOpen((v) => !v)}
-              aria-expanded={amountsOpen}
-              className="border-gold/45 text-gold hover:bg-gold/10 mt-5 inline-flex items-center gap-2 rounded-md border px-5 py-3 text-sm transition-colors"
-            >
-              {t("home.buyAmountToggle")}
-              <span
-                className={`text-xs transition-transform duration-300 ${amountsOpen ? "rotate-45" : ""}`}
-                aria-hidden="true"
-              >
-                +
-              </span>
-            </button>
-
-            <div
-              className={`grid transition-all duration-500 ease-out ${
-                amountsOpen ? "mt-5 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0"
-              }`}
-            >
-              <div className="overflow-hidden">
-                <div className="flex flex-wrap gap-3">
-                  {fixedAmounts.map((a) => (
-                    <button
-                      key={a}
-                      type="button"
-                      onClick={() => {
-                        setSelectedAmount(a);
-                        setCustomAmount("");
-                      }}
-                      aria-pressed={!customAmount && selectedAmount === a}
-                      className={`rounded-md border px-5 py-3 text-sm transition-colors ${
-                        !customAmount && selectedAmount === a
-                          ? "border-gold bg-gold/10 text-gold"
-                          : "border-border text-cream/75 hover:border-gold/60"
-                      }`}
-                    >
-                      {formatPrice(a)}
-                    </button>
-                  ))}
-                </div>
-
-                <label
-                  className={`mt-4 block max-w-xs rounded-md border p-4 transition-colors ${
-                    customAmount ? "border-gold bg-gold/10" : "border-border"
-                  }`}
-                >
-                  <span
-                    className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
-                  >
-                    {t("home.buyAmountCustom")}
-                  </span>
-                  <input
-                    type="number"
-                    min={MIN_AMOUNT}
-                    step={1000}
-                    value={customAmount}
-                    onChange={(e) => setCustomAmount(e.target.value)}
-                    placeholder={String(MIN_AMOUNT)}
-                    className={`border-input focus:border-gold mt-2 w-full border bg-transparent px-4 py-3 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
-                  />
-                </label>
-
-                <Link
-                  to="/certificate"
-                  search={{ kind: "amount", amount: effectiveAmount, branch: city }}
-                  className="btn-gold mt-6"
-                >
-                  {t("home.buyGift")}
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Вариант 2 — сертификат на программу */}
-          <div className="mt-12 sm:mt-16">
-            <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <h3 className="font-display text-xl sm:text-2xl">{t("home.buyProgramTitle")}</h3>
+          <div>
+            <div className="mt-4 flex flex-wrap items-baseline justify-between gap-3 sm:mt-5">
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl">
+                {t("home.buyProgramTitle")}
+              </h2>
               <Link
                 to="/catalog"
                 className="text-gold/85 hover:text-gold text-[0.65rem] tracking-[0.24em] uppercase transition-colors"
@@ -339,7 +352,7 @@ function Index() {
                         <span className="text-gold text-sm">{formatPrice(service.price)}</span>
                         <Link
                           to="/certificate"
-                          search={{ service: id, branch: city }}
+                          search={{ service: id, ...branchSearch }}
                           className="border-gold/45 text-gold hover:bg-gold/10 rounded-md border px-4 py-2 text-[0.62rem] tracking-[0.2em] uppercase transition-colors"
                         >
                           {t("home.buyGift")}
