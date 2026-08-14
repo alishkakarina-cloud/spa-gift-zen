@@ -1,13 +1,21 @@
 import type { MotifName } from "@/components/Motif";
 import type { Service } from "@/data/catalog";
 import { services } from "@/data/catalog";
+import { PROMOTIONS } from "@/data/promotions";
 
 /**
  * «Для беременных» — не отдельный набор услуг, а подборка уже существующих
  * позиций по флагу `pregnancySafe`, как на официальном меню RaiThai. Поэтому
  * идентификатор категории шире, чем `Service["group"]`.
+ *
+ * «Акции и специальные предложения» на референсе (raithai-spa.kamiqr.com) —
+ * такая же по значимости категория верхнего уровня, как «Массажные
+ * процедуры» или «SPA-программы», поэтому она тоже здесь, а не только в
+ * отдельном блоке на главной. Но акция — не Service (нет цены/длительности,
+ * её нельзя подарить), поэтому это не позиция каталога, а особый пункт со
+ * своим рендером в ServiceCatalogBrowser.
  */
-export type CatalogGroup = Service["group"] | "pregnancy";
+export type CatalogGroup = Service["group"] | "pregnancy" | "promotions";
 
 export const SERVICE_GROUPS: ReadonlyArray<{
   id: CatalogGroup;
@@ -18,6 +26,15 @@ export const SERVICE_GROUPS: ReadonlyArray<{
   /** Примечание под заголовком категории (например, предупреждения врача). */
   noteKey?: string;
 }> = [
+  {
+    id: "promotions",
+    motif: "waveCrown",
+    labelKey: "cert.groupPromotions",
+    // На референсе у категории нет обложки — только текст. Своей фото под
+    // акции нет и придумывать её нельзя, поэтому карточка в карусели падает
+    // на иконку-мотив (см. CategoryCarousel: imageFrom: null).
+    imageFrom: null,
+  },
   {
     id: "massage",
     motif: "paisleyDrop",
@@ -61,4 +78,7 @@ export const servicesInGroup = (group: CatalogGroup) =>
     : services.filter((s) => s.group === group);
 
 export const serviceGroupCounts = () =>
-  SERVICE_GROUPS.map((g) => ({ ...g, count: servicesInGroup(g.id).length }));
+  SERVICE_GROUPS.map((g) => ({
+    ...g,
+    count: g.id === "promotions" ? PROMOTIONS.length : servicesInGroup(g.id).length,
+  }));

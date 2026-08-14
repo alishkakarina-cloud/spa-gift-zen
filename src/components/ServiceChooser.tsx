@@ -35,7 +35,10 @@ export function ServiceChooser({
   return (
     <div className="min-w-0">
       <CategoryCarousel
-        categories={serviceGroupCounts()}
+        // «Акции» сюда не попадают: это не Service, дарить акцию сертификатом
+        // нельзя — у неё нет ни цены, ни состава. Карусель выбора программы
+        // должна содержать только реально дариваемые категории.
+        categories={serviceGroupCounts().filter((g) => g.id !== "promotions")}
         activeId={groupId}
         onSelect={(id) => onGroupChange(id as CatalogGroup)}
         t={t}

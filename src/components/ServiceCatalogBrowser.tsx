@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { AtmosphereGallery } from "@/components/AtmosphereGallery";
 import { CategoryCarousel } from "@/components/CategoryCarousel";
 import { Motif } from "@/components/Motif";
+import { PromotionsGrid } from "@/components/PromotionsGrid";
 import { SelectionSummary } from "@/components/SelectionSummary";
 import { ServiceCheckbox } from "@/components/ServiceCheckbox";
 import { formatPrice, serviceImage } from "@/data/catalog";
@@ -65,60 +66,75 @@ export function ServiceCatalogBrowser({
           {t(activeGroup.noteKey)}
         </p>
       )}
-      <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
 
-      <div className="mt-4 grid gap-3">
-        {servicesInGroup(groupId).map((s) => {
-            const image = serviceImage(s.id);
-            const active = selectedIds.includes(s.id);
-            return (
-              <label
-                key={s.id}
-                className={`surface flex cursor-pointer gap-4 overflow-hidden p-3 transition-colors ${active ? "border-gold" : "hover:border-gold/60"}`}
-              >
-                {image && (
-                  <img
-                    src={image}
-                    alt=""
-                    width={720}
-                    height={720}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-24 w-24 shrink-0 rounded-md object-cover sm:h-28 sm:w-28"
-                  />
-                )}
-                <div className="flex min-w-0 flex-1 flex-col gap-1.5 py-1 pr-2">
-                  <div className="flex flex-wrap items-baseline justify-between gap-3">
-                    <h3 className="font-display text-lg">{t(`services.${s.id}.name`)}</h3>
-                    <span className="text-gold text-sm">{formatPrice(s.price)}</span>
-                  </div>
-                  {t(`services.${s.id}.duration`) && (
-                    <span className="text-cream/50 text-[0.65rem] tracking-[0.2em] uppercase">
-                      {t(`services.${s.id}.duration`)}
-                    </span>
-                  )}
-                  <p className="text-cream/70 text-sm leading-relaxed">
-                    {t(`services.${s.id}.description`)}
-                  </p>
-                </div>
-                <ServiceCheckbox
-                  checked={active}
-                  onChange={() => onToggle(s.id)}
-                  label={t(`services.${s.id}.name`)}
-                  className="self-center pr-1"
-                />
-            </label>
-          );
-        })}
-      </div>
+      {groupId === "promotions" ? (
+        // Акция — не Service: у неё нет цены и её нельзя подарить сертификатом,
+        // поэтому вместо чекбоксов и сводки — те же карточки условий, что и в
+        // блоке «Акции» на главной (PromotionsGrid, тот же компонент).
+        <>
+          <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
+            {t("promo.intro")}
+          </p>
+          <PromotionsGrid t={t} className="mt-6 grid gap-4 sm:grid-cols-2" />
+        </>
+      ) : (
+        <>
+          <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
 
-      <SelectionSummary
-        ids={selectedIds}
-        onRemove={onToggle}
-        onClear={onClear}
-        t={t}
-        action={action}
-      />
+          <div className="mt-4 grid gap-3">
+            {servicesInGroup(groupId).map((s) => {
+                const image = serviceImage(s.id);
+                const active = selectedIds.includes(s.id);
+                return (
+                  <label
+                    key={s.id}
+                    className={`surface flex cursor-pointer gap-4 overflow-hidden p-3 transition-colors ${active ? "border-gold" : "hover:border-gold/60"}`}
+                  >
+                    {image && (
+                      <img
+                        src={image}
+                        alt=""
+                        width={720}
+                        height={720}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-24 w-24 shrink-0 rounded-md object-cover sm:h-28 sm:w-28"
+                      />
+                    )}
+                    <div className="flex min-w-0 flex-1 flex-col gap-1.5 py-1 pr-2">
+                      <div className="flex flex-wrap items-baseline justify-between gap-3">
+                        <h3 className="font-display text-lg">{t(`services.${s.id}.name`)}</h3>
+                        <span className="text-gold text-sm">{formatPrice(s.price)}</span>
+                      </div>
+                      {t(`services.${s.id}.duration`) && (
+                        <span className="text-cream/50 text-[0.65rem] tracking-[0.2em] uppercase">
+                          {t(`services.${s.id}.duration`)}
+                        </span>
+                      )}
+                      <p className="text-cream/70 text-sm leading-relaxed">
+                        {t(`services.${s.id}.description`)}
+                      </p>
+                    </div>
+                    <ServiceCheckbox
+                      checked={active}
+                      onChange={() => onToggle(s.id)}
+                      label={t(`services.${s.id}.name`)}
+                      className="self-center pr-1"
+                    />
+                </label>
+              );
+            })}
+          </div>
+
+          <SelectionSummary
+            ids={selectedIds}
+            onRemove={onToggle}
+            onClear={onClear}
+            t={t}
+            action={action}
+          />
+        </>
+      )}
     </div>
   );
 }
