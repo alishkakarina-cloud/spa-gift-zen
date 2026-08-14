@@ -373,17 +373,7 @@ const ru = {
       description: "Традиционный тайский массаж 60 минут и oil-массаж 60 минут. Снятие мышечных блоков.",
     },
     "thai-bath-1": {
-      name: "Баня по-тайски, 1 персона",
-      duration: "60 мин",
-      description: "Хамам или сауна с ароматерапией, пилинг кесе, скрабирование, мытьё головы и чайная церемония.",
-    },
-    "thai-bath-2": {
-      name: "Баня по-тайски, 2 персоны",
-      duration: "60 мин",
-      description: "Хамам или сауна с ароматерапией, пилинг кесе, скрабирование, мытьё головы и чайная церемония.",
-    },
-    "thai-bath-3": {
-      name: "Баня по-тайски, 3 персоны",
+      name: "Баня по-тайски",
       duration: "60 мин",
       description: "Хамам или сауна с ароматерапией, пилинг кесе, скрабирование, мытьё головы и чайная церемония.",
     },
@@ -398,17 +388,7 @@ const ru = {
       description: "Программа для двоих: хамам, пилинг, скрабирование, пенное омовение, чайная церемония и арома-oil массаж.",
     },
     "paradise-recovery-1": {
-      name: "«Райское восстановление», 1 персона",
-      duration: "150 мин",
-      description: "Хамам, пилинг кесе, скрабирование, пенный массаж, мытьё головы, чайная церемония и oil-массаж 60 минут.",
-    },
-    "paradise-recovery-2": {
-      name: "«Райское восстановление», 2 персоны",
-      duration: "150 мин",
-      description: "Хамам, пилинг кесе, скрабирование, пенный массаж, мытьё головы, чайная церемония и oil-массаж 60 минут.",
-    },
-    "paradise-recovery-3": {
-      name: "«Райское восстановление», 3 персоны",
+      name: "«Райское восстановление»",
       duration: "150 мин",
       description: "Хамам, пилинг кесе, скрабирование, пенный массаж, мытьё головы, чайная церемония и oil-массаж 60 минут.",
     },
@@ -831,17 +811,7 @@ const kz = {
       description: "Дәстүрлі тай массажы 60 минут және oil-массаж 60 минут. Бұлшықет түйіндерін тарқатады.",
     },
     "thai-bath-1": {
-      name: "Тайша моншасы, 1 адам",
-      duration: "60 мин",
-      description: "Ароматерапиямен хамам немесе сауна, кесе пилингі, скраб, бас жуу және шәй рәсімі.",
-    },
-    "thai-bath-2": {
-      name: "Тайша моншасы, 2 адам",
-      duration: "60 мин",
-      description: "Ароматерапиямен хамам немесе сауна, кесе пилингі, скраб, бас жуу және шәй рәсімі.",
-    },
-    "thai-bath-3": {
-      name: "Тайша моншасы, 3 адам",
+      name: "Тайша моншасы",
       duration: "60 мин",
       description: "Ароматерапиямен хамам немесе сауна, кесе пилингі, скраб, бас жуу және шәй рәсімі.",
     },
@@ -856,17 +826,7 @@ const kz = {
       description: "Екеуге арналған бағдарлама: хамам, пилинг, скраб, көбікпен жуыну, шәй рәсімі және арома-oil массаж.",
     },
     "paradise-recovery-1": {
-      name: "«Жұмақтық қалпына келтіру», 1 адам",
-      duration: "150 мин",
-      description: "Хамам, кесе пилингі, скраб, көбік массажы, бас жуу, шәй рәсімі және 60 минуттық oil-массаж.",
-    },
-    "paradise-recovery-2": {
-      name: "«Жұмақтық қалпына келтіру», 2 адам",
-      duration: "150 мин",
-      description: "Хамам, кесе пилингі, скраб, көбік массажы, бас жуу, шәй рәсімі және 60 минуттық oil-массаж.",
-    },
-    "paradise-recovery-3": {
-      name: "«Жұмақтық қалпына келтіру», 3 адам",
+      name: "«Жұмақтық қалпына келтіру»",
       duration: "150 мин",
       description: "Хамам, кесе пилингі, скраб, көбік массажы, бас жуу, шәй рәсімі және 60 минуттық oil-массаж.",
     },
@@ -1234,17 +1194,7 @@ const en = {
       description: "A 60-minute traditional Thai massage plus a 60-minute oil massage. Releases muscle blocks.",
     },
     "thai-bath-1": {
-      name: "Thai bath ritual, 1 person",
-      duration: "60 min",
-      description: "Hammam or sauna with aromatherapy, kese peeling, body scrub, hair wash and a tea ceremony.",
-    },
-    "thai-bath-2": {
-      name: "Thai bath ritual, 2 people",
-      duration: "60 min",
-      description: "Hammam or sauna with aromatherapy, kese peeling, body scrub, hair wash and a tea ceremony.",
-    },
-    "thai-bath-3": {
-      name: "Thai bath ritual, 3 people",
+      name: "Thai bath ritual",
       duration: "60 min",
       description: "Hammam or sauna with aromatherapy, kese peeling, body scrub, hair wash and a tea ceremony.",
     },
@@ -1259,17 +1209,7 @@ const en = {
       description: "A program for two: hammam, peeling, scrub, foam bathing, tea ceremony and an aroma-oil massage.",
     },
     "paradise-recovery-1": {
-      name: "«Paradise Recovery», 1 person",
-      duration: "150 min",
-      description: "Hammam, kese peeling, scrub, foam massage, hair wash, tea ceremony and a 60-minute oil massage.",
-    },
-    "paradise-recovery-2": {
-      name: "«Paradise Recovery», 2 people",
-      duration: "150 min",
-      description: "Hammam, kese peeling, scrub, foam massage, hair wash, tea ceremony and a 60-minute oil massage.",
-    },
-    "paradise-recovery-3": {
-      name: "«Paradise Recovery», 3 people",
+      name: "«Paradise Recovery»",
       duration: "150 min",
       description: "Hammam, kese peeling, scrub, foam massage, hair wash, tea ceremony and a 60-minute oil massage.",
     },
