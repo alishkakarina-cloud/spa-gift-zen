@@ -109,10 +109,7 @@ function Index() {
           height={1350}
           className="absolute inset-0 h-full w-full object-cover"
         />
-        {/* Плотная фирменная заливка поверх фото: тёмно-зелёный --forest-deep
-            (37,48,39) из брендбука, а не почти чёрный, как было раньше —
-            иначе hero читается выцветшим и уходит от палитры. */}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(37,48,39,0.93),rgba(37,48,39,0.86)_45%,rgba(37,48,39,0.985))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,18,13,0.88),rgba(8,18,13,0.72)_45%,rgba(14,28,21,0.97))]" />
         <Motif
           name="lotusCrown"
           className="text-gold pointer-events-none absolute -top-10 -right-16 h-56 w-56 sm:-top-20 sm:-right-28 sm:h-[32rem] sm:w-[32rem] lg:h-[42rem] lg:w-[42rem]"
@@ -126,9 +123,7 @@ function Index() {
 
         <div className="relative mx-auto flex max-w-6xl flex-col justify-center px-5 py-12 sm:px-6 sm:py-14 lg:py-16">
           <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-            {/* Тёплый древесный блок за оффером — акцент к тёмно-зелёному
-                фону, чтобы hero не выглядел прозрачным. */}
-            <div className="hero-panel flex flex-col items-center rounded-xl px-5 py-8 text-center sm:px-8 sm:py-10 lg:items-start lg:text-left">
+            <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
               <img
                 src={logoLight}
                 alt="RaiThai Massage & Spa"
@@ -147,19 +142,16 @@ function Index() {
               </p>
 
               {/* Точка бессрочности №1 — заметный бейдж, не мелкий текст. */}
-              {/* Внутри древесной панели акценты берём не золотом, а фирменным
-                  бежевым --gold-soft: на тёплом фоне золото даёт 3.8:1, бежевый
-                  — 7:1, то есть проходит по контрасту. */}
-              <div className="border-gold-soft/45 bg-gold-soft/10 mt-4 max-w-md rounded-lg border px-4 py-3 text-left sm:mt-5">
-                <p className="text-gold-soft font-display text-base tracking-wide uppercase sm:text-lg">
+              <div className="border-gold/45 bg-gold/10 mt-4 max-w-md rounded-lg border px-4 py-3 text-left sm:mt-5">
+                <p className="text-gold font-display text-base tracking-wide uppercase sm:text-lg">
                   {t("home.heroBadgeTitle")}
                 </p>
-                <p className="text-cream/80 mt-1.5 text-sm leading-relaxed">
+                <p className="text-cream/75 mt-1.5 text-sm leading-relaxed">
                   {t("home.heroBadgeText")}
                 </p>
               </div>
 
-              <p className="text-cream/70 mt-4 text-[0.7rem] tracking-[0.24em] uppercase">
+              <p className="text-cream/60 mt-4 text-[0.7rem] tracking-[0.24em] uppercase">
                 {t("home.heroTimeLine")}
               </p>
 
@@ -167,11 +159,11 @@ function Index() {
                   шаг «сумма». Отдельной кнопки «Купить сертификат» больше нет —
                   её роль выполняют сами шаги. */}
               <div className="mt-6 w-full max-w-md lg:mt-7">
-                {/* Не утилита `eyebrow`: она жёстко задаёт золотой цвет, а на
-                    древесной панели нужен бежевый — иначе не хватает контраста. */}
-                <p className="text-gold-soft text-center text-[0.68rem] tracking-[0.34em] uppercase lg:text-left">
-                  {t("home.buyCityEyebrow")}
-                </p>
+                <p className="eyebrow text-center lg:text-left">{t("home.buyCityEyebrow")}</p>
+                {/* Кнопки с собственной непрозрачной заливкой: выбранная —
+                    сплошное золото с тёмной подписью (та же пара, что у
+                    btn-gold), невыбранная — карточный тёмно-зелёный. Иначе
+                    сквозь них просвечивает фото hero. */}
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {BRANCHES.map((b) => (
                     <button
@@ -181,8 +173,8 @@ function Index() {
                       aria-pressed={city === b.id}
                       className={`rounded-md border px-4 py-3 text-sm transition-colors ${
                         city === b.id
-                          ? "border-gold-soft bg-gold-soft/15 text-gold-soft"
-                          : "border-gold-soft/35 text-cream/85 hover:border-gold-soft/70"
+                          ? "border-gold bg-gold text-primary-foreground"
+                          : "border-border bg-card text-cream hover:border-gold/70"
                       }`}
                     >
                       {t("home.buyCityPrefix")} {t(b.labelKey)}
@@ -201,7 +193,7 @@ function Index() {
                     <div className="surface rounded-lg p-4 text-left sm:p-5">
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
                         <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
-                        <span className="border-gold-soft/45 text-gold-soft rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
+                        <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
                           {t("home.buyEndless")}
                         </span>
                       </div>
@@ -215,7 +207,9 @@ function Index() {
                         type="button"
                         onClick={() => setAmountsOpen((v) => !v)}
                         aria-expanded={amountsOpen}
-                        className="border-gold-soft/45 text-gold-soft hover:bg-gold-soft/10 mt-4 inline-flex items-center gap-2 rounded-md border px-5 py-3 text-sm transition-colors"
+                        // Заливка --background, а не --card: золотая подпись на
+                        // карточном зелёном даёт 4.39:1, на фоновом — 4.98:1.
+                        className="border-gold/45 bg-background text-gold mt-4 inline-flex items-center gap-2 rounded-md border px-5 py-3 text-sm transition-colors hover:border-gold"
                       >
                         {t("home.buyAmountToggle")}
                         <span
@@ -247,8 +241,8 @@ function Index() {
                                 aria-pressed={!customAmount && selectedAmount === a}
                                 className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
                                   !customAmount && selectedAmount === a
-                                    ? "border-gold-soft bg-gold-soft/15 text-gold-soft"
-                                    : "border-border text-cream/80 hover:border-gold-soft/60"
+                                    ? "border-gold bg-gold text-primary-foreground"
+                                    : "border-border bg-card text-cream hover:border-gold/60"
                                 }`}
                               >
                                 {formatPrice(a)}
@@ -257,12 +251,12 @@ function Index() {
                           </div>
 
                           <label
-                            className={`mt-3 block rounded-md border p-3 transition-colors ${
-                              customAmount ? "border-gold-soft bg-gold-soft/15" : "border-border"
+                            className={`bg-card mt-3 block rounded-md border p-3 transition-colors ${
+                              customAmount ? "border-gold" : "border-border"
                             }`}
                           >
                             <span
-                              className={`text-xs transition-colors ${customAmount ? "text-gold-soft" : "text-cream/70"}`}
+                              className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
                             >
                               {t("home.buyAmountCustom")}
                             </span>
@@ -273,7 +267,7 @@ function Index() {
                               value={customAmount}
                               onChange={(e) => setCustomAmount(e.target.value)}
                               placeholder={String(MIN_AMOUNT)}
-                              className={`border-input focus:border-gold-soft mt-2 w-full border bg-transparent px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold-soft text-gold-soft" : ""}`}
+                              className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
                             />
                           </label>
 
