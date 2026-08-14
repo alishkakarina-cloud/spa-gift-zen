@@ -50,6 +50,7 @@ export const SERVICE_GROUPS: ReadonlyArray<{
     motif: "diamondLattice",
     labelKey: "cert.groupSubscription",
     imageFrom: "subscription-wellness",
+    noteKey: "cert.subscriptionNote",
   },
 ];
 
