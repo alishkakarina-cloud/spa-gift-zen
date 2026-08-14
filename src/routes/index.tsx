@@ -15,17 +15,8 @@ import { BranchesSection } from "@/components/BranchesSection";
 import { PromotionsSection } from "@/components/PromotionsSection";
 import { LoyaltySection } from "@/components/LoyaltySection";
 import { useLanguage } from "@/i18n/LanguageContext";
-import {
-  MIN_AMOUNT,
-  designs,
-  fixedAmounts,
-  formatPrice,
-  serviceImage,
-  services,
-} from "@/data/catalog";
+import { MIN_AMOUNT, designs, fixedAmounts, formatPrice } from "@/data/catalog";
 import { BRANCHES, type Branch } from "@/data/branches";
-import { SelectionSummary } from "@/components/SelectionSummary";
-import { serializeServiceIds, toggleServiceId } from "@/data/selection";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -47,22 +38,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-/**
- * Программы, которые показываем прямо на главной. Полный каталог живёт на
- * /catalog — здесь только витрина коротких путей до покупки.
- * `hit` — бейдж «Хит» из ТЗ; состав и цены услуг берутся из каталога.
- */
-const HIGHLIGHTS: ReadonlyArray<{ id: string; hit?: boolean }> = [
-  { id: "reload", hit: true },
-  { id: "queen-of-thailand", hit: true },
-  { id: "oil-absolute-calm", hit: true },
-  { id: "king-of-thailand" },
-  { id: "thai-bath-1" },
-  { id: "journey-thailand-1" },
-  { id: "journey-bali-1" },
-  { id: "journey-malaysia-1" },
-];
-
 function Index() {
   const { t } = useLanguage();
   // Город не выбран по умолчанию: шаг с суммой раскрывается только после
@@ -71,8 +46,6 @@ function Index() {
   const [amountsOpen, setAmountsOpen] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<number>(fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
-  // Сертификат может содержать несколько программ — отмеченные копятся здесь.
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const parsedCustom = Number(customAmount);
   const effectiveAmount =
@@ -88,11 +61,6 @@ function Index() {
     { title: t("home.why3Title"), desc: t("home.why3Desc") },
     { title: t("home.why4Title"), desc: t("home.why4Desc") },
   ];
-
-  const highlights = HIGHLIGHTS.map((h) => ({
-    ...h,
-    service: services.find((s) => s.id === h.id)!,
-  })).filter((h) => h.service);
 
   return (
     <main>
@@ -293,108 +261,6 @@ function Index() {
             <div className="mx-auto w-full max-w-md lg:max-w-none">
               <CertificateCard design={designs[0]!} valueLabel={formatPrice(50000)} compact />
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Блок 2: второй способ подарить — сертификат на программу ──── */}
-      <section id="certificates" className="relative overflow-hidden scroll-mt-6">
-        <Divider motif="lotusBloom" className="pt-12 sm:pt-16 lg:pt-20" />
-        <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-24">
-          <div className="flex items-center gap-3">
-            <Motif name="petalDiamond" className="text-gold h-7 w-7" />
-            <p className="eyebrow">{t("home.buyEyebrow")}</p>
-          </div>
-
-          <div>
-            <div className="mt-4 flex flex-wrap items-baseline justify-between gap-3 sm:mt-5">
-              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl">
-                {t("home.buyProgramTitle")}
-              </h2>
-              <Link
-                to="/catalog"
-                className="text-gold/85 hover:text-gold text-[0.65rem] tracking-[0.24em] uppercase transition-colors"
-              >
-                {t("home.buyAllServices")} →
-              </Link>
-            </div>
-            <p className="text-cream/70 mt-2 max-w-xl text-sm">{t("home.buyProgramText")}</p>
-            <p className="text-cream/55 mt-2 text-sm">{t("cert.selectHint")}</p>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {highlights.map(({ id, hit, service }) => {
-                const image = serviceImage(id);
-                const active = selectedIds.includes(id);
-                return (
-                  // Кнопка вместо label+чекбокса: клик по всей карточке уже
-                  // переключал выбор, галочку в углу фото убрали — состояние
-                  // показывают рамка карточки и подпись «Выбрать/Выбрано» снизу.
-                  <button
-                    type="button"
-                    key={id}
-                    onClick={() => setSelectedIds((ids) => toggleServiceId(ids, id))}
-                    aria-pressed={active}
-                    className={`surface flex cursor-pointer flex-col overflow-hidden rounded-lg text-left transition-colors ${active ? "border-gold" : "hover:border-gold/60"}`}
-                  >
-                    <div className="relative">
-                      {image && (
-                        <img
-                          src={image}
-                          alt=""
-                          width={720}
-                          height={720}
-                          loading="lazy"
-                          decoding="async"
-                          className="aspect-[4/3] w-full object-cover"
-                        />
-                      )}
-                      {hit && (
-                        <span className="bg-gold text-primary-foreground absolute top-3 left-3 rounded-full px-3 py-1 text-[0.6rem] tracking-[0.2em] uppercase">
-                          {t("home.buyHit")}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-1 flex-col gap-2 p-5">
-                      <h4 className="font-display text-lg leading-tight">
-                        {t(`services.${id}.name`)}
-                      </h4>
-                      {t(`services.${id}.duration`) && (
-                        <span className="text-cream/45 text-[0.62rem] tracking-[0.2em] uppercase">
-                          {t(`services.${id}.duration`)}
-                        </span>
-                      )}
-                      <p className="text-cream/70 line-clamp-2 text-sm leading-relaxed">
-                        {t(`services.${id}.description`)}
-                      </p>
-                      <div className="mt-auto flex items-center justify-between gap-3 pt-3">
-                        <span className="text-gold text-sm">{formatPrice(service.price)}</span>
-                        <span
-                          className={`text-[0.62rem] tracking-[0.2em] uppercase transition-colors ${active ? "text-gold" : "text-cream/45"}`}
-                        >
-                          {active ? t("cert.selectionChosen") : t("cert.selectionChoose")}
-                        </span>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <SelectionSummary
-              ids={selectedIds}
-              onRemove={(id) => setSelectedIds((ids) => toggleServiceId(ids, id))}
-              onClear={() => setSelectedIds([])}
-              t={t}
-              action={
-                <Link
-                  to="/certificate"
-                  search={{ services: serializeServiceIds(selectedIds), ...branchSearch }}
-                  className="btn-gold"
-                >
-                  {t("home.buyGift")}
-                </Link>
-              }
-            />
           </div>
         </div>
       </section>
