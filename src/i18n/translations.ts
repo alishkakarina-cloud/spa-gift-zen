@@ -475,6 +475,13 @@ const ru = {
     kokshetau: "Кокшетау",
     petropavlovsk: "Петропавловск",
   },
+  branches: {
+    eyebrow: "Контакты",
+    title: "Наши салоны",
+    openMap: "Открыть в 2ГИС",
+    hours: "Режим работы",
+    instagramTitle: "Мы в Instagram",
+  },
   catalog: {
     title: "Наши услуги",
     subtitle:

@@ -11,6 +11,7 @@ import { Divider } from "@/components/Divider";
 import { Ribbon } from "@/components/Ribbon";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { CertificateCard } from "@/components/CertificateCard";
+import { BranchesSection } from "@/components/BranchesSection";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { designs, fixedAmounts, formatPrice, serviceImage, services } from "@/data/catalog";
 
@@ -425,6 +426,9 @@ function Index() {
           </Link>
         </div>
       </section>
+
+      {/* Контакты филиалов, 2ГИС и Instagram — перед футером. */}
+      <BranchesSection t={t} />
 
       <footer className="relative overflow-hidden">
         <Motif
