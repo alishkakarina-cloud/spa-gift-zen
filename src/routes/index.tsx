@@ -12,6 +12,7 @@ import { Ribbon } from "@/components/Ribbon";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { CertificateCard } from "@/components/CertificateCard";
 import { BranchesSection } from "@/components/BranchesSection";
+import { PromotionsSection } from "@/components/PromotionsSection";
 import { useLanguage } from "@/i18n/LanguageContext";
 import {
   MIN_AMOUNT,
@@ -508,6 +509,9 @@ function Index() {
           </Link>
         </div>
       </section>
+
+      {/* Акции салонов — информационный блок перед контактами. */}
+      <PromotionsSection t={t} />
 
       {/* Контакты филиалов, 2ГИС и Instagram — перед футером. */}
       <BranchesSection t={t} />
