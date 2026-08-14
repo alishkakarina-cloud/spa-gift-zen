@@ -105,10 +105,14 @@ function CertificateFlow() {
   const presetIds = parseServiceIds(presetServices);
   const presetFirst = selectedServices(presetIds)[0] ?? null;
   const steps = translations[lang].cert.steps;
-  // Пришли с готовым выбором («Подарить» под сводкой) — сразу к оформлению,
-  // а не обратно к экрану выбора.
+  // Пришли с готовым выбором («Подарить» под сводкой) — пропускаем только
+  // экран выбора услуги/суммы (шаг 1), а не весь путь целиком. Шаг 2
+  // (дизайн сертификата) пользователь должен увидеть всегда — раньше здесь
+  // стояло `? 3 : 1`, и так как почти все ссылки на сайте уже несут
+  // предвыбор (из hero, каталога, карточек услуг), шаг дизайна фактически
+  // никогда не показывался.
   const hasPreset = Boolean(presetIds.length > 0 || presetAmount);
-  const [step, setStep] = useState<Step>(hasPreset ? 3 : 1);
+  const [step, setStep] = useState<Step>(hasPreset ? 2 : 1);
   const [kind, setKind] = useState<Kind>(presetKind ?? (presetAmount ? "amount" : "service"));
   const [groupId, setGroupId] = useState<CatalogGroup>(presetFirst?.group ?? "massage");
   const [serviceIds, setServiceIds] = useState<string[]>(presetIds);
@@ -301,7 +305,7 @@ function CertificateFlow() {
                         type="button"
                         onClick={() => {
                           setErrors([]);
-                          setStep(3);
+                          setStep(2);
                         }}
                         className="btn-gold"
                       >
