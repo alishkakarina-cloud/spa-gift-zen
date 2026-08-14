@@ -380,11 +380,15 @@ function CertificateFlow() {
               </p>
               <div className="mt-8 grid gap-5 sm:grid-cols-2">
                 {designs.map((d) => (
+                  // Рамка идёт впритык к фото — раньше между border и картинкой
+                  // был зазор p-1.5, из-за него казалось, что фото обрезано
+                  // не по рамке. overflow-hidden + один и тот же радиус на
+                  // кнопке и на карточке — скругление рамки и фото совпадают.
                   <button
                     key={d.id}
                     type="button"
                     onClick={() => setDesignId(d.id)}
-                    className={`w-full border p-1.5 text-left transition-colors ${designId === d.id ? "border-gold" : "border-border/40 hover:border-gold/60"}`}
+                    className={`w-full overflow-hidden rounded-2xl border text-left transition-colors ${designId === d.id ? "border-gold" : "border-border/40 hover:border-gold/60"}`}
                   >
                     <CertificateCard design={d} valueLabel={valueLabel} items={cardItems} compact />
                     <span

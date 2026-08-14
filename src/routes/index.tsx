@@ -10,12 +10,11 @@ import { Motif } from "@/components/Motif";
 import { Divider } from "@/components/Divider";
 import { Ribbon } from "@/components/Ribbon";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { CertificateCard } from "@/components/CertificateCard";
 import { BranchesSection } from "@/components/BranchesSection";
 import { PromotionsSection } from "@/components/PromotionsSection";
 import { LoyaltySection } from "@/components/LoyaltySection";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { MIN_AMOUNT, designs, fixedAmounts, formatPrice } from "@/data/catalog";
+import { MIN_AMOUNT, fixedAmounts, formatPrice } from "@/data/catalog";
 import { BRANCHES, type Branch } from "@/data/branches";
 
 export const Route = createFileRoute("/")({
@@ -82,15 +81,19 @@ function Index() {
           className="text-gold pointer-events-none absolute -top-10 -right-16 h-56 w-56 sm:-top-20 sm:-right-28 sm:h-[32rem] sm:w-[32rem] lg:h-[42rem] lg:w-[42rem]"
           style={{ opacity: 0.22 }}
         />
+        {/* Раньше мотив просвечивал сквозь прозрачную btn-ghost кнопку города
+            (в hero заметно длиннее ряда стало после переноса кнопок и убранного
+            мокапа сертификата) — сдвинут глубже в угол и уменьшен, чтобы
+            гарантированно не задевать колонку кнопок ни на одной ширине экрана. */}
         <Motif
           name="palmFrond"
-          className="text-gold-soft pointer-events-none absolute -bottom-12 -left-10 h-40 w-40 sm:-bottom-24 sm:-left-20 sm:h-80 sm:w-80 lg:h-[28rem] lg:w-[28rem]"
-          style={{ opacity: 0.2 }}
+          className="text-gold-soft pointer-events-none absolute -bottom-24 -left-16 h-32 w-32 sm:-bottom-36 sm:-left-28 sm:h-56 sm:w-56 lg:-bottom-48 lg:-left-40 lg:h-64 lg:w-64"
+          style={{ opacity: 0.16 }}
         />
 
         <div className="relative mx-auto flex max-w-6xl flex-col justify-center px-5 py-12 sm:px-6 sm:py-14 lg:py-16">
-          <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-            <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+          <div className="flex justify-center">
+            <div className="flex max-w-2xl flex-col items-center text-center lg:items-start lg:text-left">
               <img
                 src={logoLight}
                 alt="RaiThai Massage & Spa"
@@ -122,12 +125,26 @@ function Index() {
                 {t("home.heroTimeLine")}
               </p>
 
-              {/* Порядок сценария: сначала сумма (не требует города —
-                  город из «Подарить» уходит через branchSearch, если выбран,
-                  и необязателен, если нет), город — вторым, второстепенным
-                  уточнением, «Наши услуги» — последней. */}
+              {/* Финальный порядок сценария: город → сумма → «Наши услуги».
+                  Город — необязательное уточнение (едет в сертификат через
+                  branchSearch, если выбран), поэтому он не блокирует сумму. */}
               <div className="mt-6 w-full max-w-md lg:mt-7">
-                <div className="surface rounded-lg p-4 text-left sm:p-5">
+                <p className="eyebrow text-center lg:text-left">{t("home.buyCityEyebrow")}</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {BRANCHES.map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => setCity(b.id)}
+                      aria-pressed={city === b.id}
+                      className={city === b.id ? "btn-gold" : "btn-ghost"}
+                    >
+                      {t("home.buyCityPrefix")} {t(b.labelKey)}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="surface mt-5 rounded-lg p-4 text-left sm:p-5">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
                     <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
@@ -139,8 +156,9 @@ function Index() {
                   </p>
 
                   {/* Номиналы раскрываются по клику — через grid-rows, чтобы
-                      высота считалась сама и переход был плавным. Кнопка —
-                      btn-ghost, тот же стиль, что у «Наши услуги». */}
+                      высота считалась сама и переход был плавным. До клика
+                      amountsOpen=false, панель номиналов свёрнута (grid-rows-[0fr]
+                      + inert), суммы не видны и не фокусируются. */}
                   <button
                     type="button"
                     onClick={() => setAmountsOpen((v) => !v)}
@@ -207,9 +225,6 @@ function Index() {
                         />
                       </label>
 
-                      {/* Город необязателен здесь: если выбран — уйдёт через
-                          branchSearch, если нет — сертификат оформится без
-                          филиала, его можно будет уточнить в самой форме. */}
                       <Link
                         to="/certificate"
                         search={{ kind: "amount", amount: effectiveAmount, ...branchSearch }}
@@ -221,36 +236,10 @@ function Index() {
                   </div>
                 </div>
 
-                {/* Город — второстепенное уточнение, не обязательный первый
-                    шаг. Если выбран, едет дальше в сертификат и в «Подарить»
-                    выше через branchSearch (пересчитывается при каждом
-                    рендере, порядок выбора — сумма/город — значения не имеет). */}
-                <p className="eyebrow mt-5 text-center lg:text-left">
-                  {t("home.buyCityEyebrow")}
-                </p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  {BRANCHES.map((b) => (
-                    <button
-                      key={b.id}
-                      type="button"
-                      onClick={() => setCity(b.id)}
-                      aria-pressed={city === b.id}
-                      className={city === b.id ? "btn-gold" : "btn-ghost"}
-                    >
-                      {t("home.buyCityPrefix")} {t(b.labelKey)}
-                    </button>
-                  ))}
-                </div>
-
                 <Link to="/catalog" className="btn-ghost mt-5 w-full sm:w-auto">
                   {t("home.heroCatalogCta")}
                 </Link>
               </div>
-            </div>
-
-            {/* Мокап сертификата — та же карточка, что получает покупатель. */}
-            <div className="mx-auto w-full max-w-md lg:max-w-none">
-              <CertificateCard design={designs[0]!} valueLabel={formatPrice(50000)} compact />
             </div>
           </div>
         </div>
