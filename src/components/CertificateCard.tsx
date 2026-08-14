@@ -25,6 +25,10 @@ type Props = {
   sender?: string | undefined;
   message?: string | undefined;
   number?: string | undefined;
+  /** Филиал, в котором действует сертификат. */
+  branch?: string | undefined;
+  /** Как записаться на процедуру — печатается на самом сертификате. */
+  bookingNote?: string | undefined;
   compact?: boolean | undefined;
 };
 
@@ -35,6 +39,8 @@ export function CertificateCard({
   sender,
   message,
   number,
+  branch,
+  bookingNote,
   compact = false,
 }: Props) {
   const { t } = useLanguage();
@@ -139,9 +145,26 @@ export function CertificateCard({
           </p>
         )}
 
-        <div className="mt-2 flex flex-col items-end text-[0.56rem] tracking-[0.24em] uppercase opacity-90">
-          {number && <span className="text-right">№ {number}</span>}
-          <span className="text-right">{t("cert.cardValidity")}</span>
+        {(branch || bookingNote) && !compact && (
+          <div className="mt-1 flex flex-col gap-1 text-[0.62rem] leading-relaxed opacity-85">
+            {branch && (
+              <span>
+                {t("cert.cardBranch")}: {branch}
+              </span>
+            )}
+            {bookingNote && <span>{bookingNote}</span>}
+          </div>
+        )}
+
+        <div className="mt-2 flex flex-wrap items-end justify-between gap-2 text-[0.56rem] tracking-[0.24em] uppercase">
+          {/* Бессрочность — заметная пометка, а не мелкая сноска. */}
+          <span
+            className="rounded-full border px-3 py-1 font-medium"
+            style={{ borderColor: design.accent, color: design.accent }}
+          >
+            {t("cert.cardValidity")}
+          </span>
+          {number && <span className="text-right opacity-90">№ {number}</span>}
         </div>
       </div>
     </div>

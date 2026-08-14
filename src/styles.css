@@ -133,6 +133,29 @@
   border: 1px solid var(--color-border);
 }
 
+/* Печать сертификата: на лист уходит только сама карточка, на всю ширину
+   страницы и с сохранением фоновых заливок (иначе принтер съедает текстуру
+   и золото). Поля подобраны так, чтобы карточка ложилась и на A4, и на A5. */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .print-sheet {
+    margin: 0 !important;
+  }
+
+  .print-sheet,
+  .print-sheet * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
 /* Лента услуг прокручивается свайпом, поэтому системная полоса только мешает. */
 @utility no-scrollbar {
   scrollbar-width: none;

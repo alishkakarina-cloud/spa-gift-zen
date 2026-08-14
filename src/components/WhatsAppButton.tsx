@@ -62,9 +62,11 @@ export function WhatsAppButton() {
         aria-expanded={open}
         aria-label={t("whatsapp.label")}
         title={t("whatsapp.label")}
-        className="bg-gold text-forest-deep flex h-14 w-14 items-center justify-center rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-transform hover:scale-105"
+        /* Вторичный канал: приглушённая кнопка, чтобы не спорить по весу
+           с основным CTA «Купить сертификат» / «Подарить». */
+        className="border-gold/40 bg-forest-deep/90 text-gold/85 hover:border-gold hover:text-gold flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur transition-colors"
       >
-        <WhatsAppIcon className="h-7 w-7" />
+        <WhatsAppIcon className="h-5 w-5" />
       </button>
     </div>
   );
