@@ -34,8 +34,7 @@ export const SERVICE_GROUPS: ReadonlyArray<{
     labelKey: "cert.groupTravel",
     imageFrom: "journey-bali-1",
   },
-  // Детскую линию ещё не снимали — карточка идёт с фирменным мотивом.
-  { id: "kids", motif: "flowerBurst", labelKey: "cert.groupKids", imageFrom: null },
+  { id: "kids", motif: "flowerBurst", labelKey: "cert.groupKids", imageFrom: "kids-oil-60" },
 ];
 
 export const serviceGroupCounts = () =>
