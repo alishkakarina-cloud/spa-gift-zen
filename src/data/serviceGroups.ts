@@ -2,6 +2,12 @@ import type { MotifName } from "@/components/Motif";
 import type { Service } from "@/data/catalog";
 import { services } from "@/data/catalog";
 import { PROMOTIONS } from "@/data/promotions";
+// Обложки категорий с официального меню RaiThai (raithai-spa.kamiqr.com) —
+// это фото самой категории, а не какой-то одной услуги внутри неё, поэтому
+// они лежат отдельно от src/assets/services и не участвуют в галерее услуг.
+import travelCover from "@/assets/categories/travel.webp";
+import pregnancyCover from "@/assets/categories/pregnancy.webp";
+import promotionsCover from "@/assets/categories/promotions.webp";
 
 /**
  * «Для беременных» — не отдельный набор услуг, а подборка уже существующих
@@ -23,6 +29,8 @@ export const SERVICE_GROUPS: ReadonlyArray<{
   labelKey: string;
   /** Услуга, фото которой представляет категорию в карусели. */
   imageFrom: string | null;
+  /** Собственная обложка категории — приоритетнее imageFrom (см. CategoryCarousel). */
+  coverImage?: string;
   /** Примечание под заголовком категории (например, предупреждения врача). */
   noteKey?: string;
 }> = [
@@ -30,10 +38,8 @@ export const SERVICE_GROUPS: ReadonlyArray<{
     id: "promotions",
     motif: "waveCrown",
     labelKey: "cert.groupPromotions",
-    // На референсе у категории нет обложки — только текст. Своей фото под
-    // акции нет и придумывать её нельзя, поэтому карточка в карусели падает
-    // на иконку-мотив (см. CategoryCarousel: imageFrom: null).
     imageFrom: null,
+    coverImage: promotionsCover,
   },
   {
     id: "massage",
@@ -53,6 +59,7 @@ export const SERVICE_GROUPS: ReadonlyArray<{
     motif: "templeArch",
     labelKey: "cert.groupTravel",
     imageFrom: "journey-bali-1",
+    coverImage: travelCover,
   },
   { id: "kids", motif: "flowerBurst", labelKey: "cert.groupKids", imageFrom: "kids-oil-60" },
   {
@@ -60,6 +67,7 @@ export const SERVICE_GROUPS: ReadonlyArray<{
     motif: "lotusBloom",
     labelKey: "cert.groupPregnancy",
     imageFrom: "mom-to-be-60",
+    coverImage: pregnancyCover,
     noteKey: "cert.pregnancyNote",
   },
   {

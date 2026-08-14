@@ -8,6 +8,12 @@ export type CategoryCard = {
   motif: MotifName;
   /** Услуга-донор: её фото представляет категорию. null — фото ещё нет. */
   imageFrom: string | null;
+  /**
+   * Собственная обложка категории (не фото конкретной услуги) — например
+   * снимок с официального меню, который не должен появляться на карточке
+   * какой-то одной программы. Имеет приоритет над `imageFrom`.
+   */
+  coverImage?: string;
   count: number;
 };
 
@@ -71,7 +77,7 @@ export function CategoryCarousel({
         className="no-scrollbar -mx-5 flex gap-4 overflow-x-auto px-5 pb-2 sm:mx-0 sm:px-0"
       >
         {loop.map((c, i) => {
-          const image = c.imageFrom ? serviceImage(c.imageFrom) : undefined;
+          const image = c.coverImage ?? (c.imageFrom ? serviceImage(c.imageFrom) : undefined);
           const active = c.id === activeId;
           return (
             <button
