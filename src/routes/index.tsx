@@ -403,7 +403,7 @@ function Index() {
           </p>
           {/* Город из hero едет и сюда: филиал на форме оформления больше не
               выбирается, он приходит только из сценария покупки. */}
-          <Link to="/certificate" search={branchSearch} className="btn-ghost mt-8 sm:mt-9">
+          <Link to="/certificate" search={branchSearch} className="btn-beige mt-8 sm:mt-9">
             {t("home.ctaButton")}
           </Link>
         </div>

@@ -1,6 +1,6 @@
 import type { MotifName } from "@/components/Motif";
 import type { Service } from "@/data/catalog";
-import { services } from "@/data/catalog";
+import { groupServiceFamilies, services } from "@/data/catalog";
 import { PROMOTIONS } from "@/data/promotions";
 // Обложки категорий с официального меню RaiThai (raithai-spa.kamiqr.com) —
 // это фото самой категории, а не какой-то одной услуги внутри неё, поэтому
@@ -85,8 +85,14 @@ export const servicesInGroup = (group: CatalogGroup) =>
     ? services.filter((s) => s.pregnancySafe)
     : services.filter((s) => s.group === group);
 
+/**
+ * Счётчик на плитке категории — по карточкам, которые реально увидит
+ * пользователь. Услуги с несколькими длительностями теперь одна карточка,
+ * поэтому считаем сгруппированные семьи, а не плоские позиции в данных.
+ */
 export const serviceGroupCounts = () =>
   SERVICE_GROUPS.map((g) => ({
     ...g,
-    count: g.id === "promotions" ? PROMOTIONS.length : servicesInGroup(g.id).length,
+    count:
+      g.id === "promotions" ? PROMOTIONS.length : groupServiceFamilies(servicesInGroup(g.id)).length,
   }));

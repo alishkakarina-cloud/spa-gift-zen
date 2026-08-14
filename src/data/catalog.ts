@@ -234,6 +234,26 @@ export const services: Service[] = [
     pregnancySafe: true,
   },
   {
+    id: "mom-to-be-120",
+    name: "Массаж для будущих мам, 120 минут",
+    duration: "120 мин",
+    price: 34500,
+    description:
+      "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку со специальной подушкой.",
+    group: "massage",
+    pregnancySafe: true,
+  },
+  {
+    id: "mom-to-be-160",
+    name: "Массаж для будущих мам, 160 минут",
+    duration: "160 мин",
+    price: 48000,
+    description:
+      "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку со специальной подушкой.",
+    group: "massage",
+    pregnancySafe: true,
+  },
+  {
     id: "paraffin-hands",
     name: "Парафинотерапия для рук",
     duration: "",
@@ -471,6 +491,15 @@ export const services: Service[] = [
     group: "kids",
   },
   {
+    id: "kids-thai-120",
+    name: "Детский тайский массаж «Тайская сказка», 120 минут",
+    duration: "120 мин",
+    price: 35000,
+    description:
+      "Для детей от 5 лет. Мягкая пассивная гимнастика в хлопковой пижаме: снимает гипертонус и формирует осанку.",
+    group: "kids",
+  },
+  {
     id: "kids-oil-60",
     name: "Детский oil-массаж, 60 минут",
     duration: "60 мин",
@@ -484,6 +513,15 @@ export const services: Service[] = [
     name: "Детский oil-массаж, 90 минут",
     duration: "90 мин",
     price: 26500,
+    description:
+      "Для детей от 5 лет. Плавные движения с тёплым маслом снимают тревожность и переутомление, дарят здоровый сон.",
+    group: "kids",
+  },
+  {
+    id: "kids-oil-120",
+    name: "Детский oil-массаж, 120 минут",
+    duration: "120 мин",
+    price: 35000,
     description:
       "Для детей от 5 лет. Плавные движения с тёплым маслом снимают тревожность и переутомление, дарят здоровый сон.",
     group: "kids",
@@ -512,6 +550,57 @@ export const services: Service[] = [
 
 export const fixedAmounts = [20000, 30000, 50000, 75000, 100000];
 export const MIN_AMOUNT = 20000;
+
+/**
+ * Услуга с несколькими длительностями (60/90/120 минут — как в прайсе) —
+ * одна карточка на все варианты. В `services` они как были раздельными
+ * позициями, так и остаются (сумма/выбор сертификата работает с id
+ * конкретной длительности) — группировка нужна только для отображения.
+ */
+export type ServiceFamily = {
+  /** Общий ключ семьи — id 60-минутного варианта без суффикса. */
+  familyKey: string;
+  /** Отсортированы по возрастанию длительности. */
+  variants: Service[];
+  group: Service["group"];
+  pregnancySafe?: boolean;
+};
+
+const DURATION_SUFFIX = /-(60|90|120|160)$/;
+const durationMinutes = (d: string) => parseInt(d, 10) || 0;
+
+/**
+ * Группирует список услуг по общему id без суффикса длительности:
+ * "oil-absolute-calm" + "-90" + "-120" → одна семья из 3 вариантов;
+ * "balinese-60" + "-90" + "-120" → та же логика, суффикс есть и у 60 мин.
+ * Порядок семей — по первому появлению в исходном списке. Название и
+ * описание для отображения берутся из переводов по id первого варианта
+ * (см. `familyNameSuffix` в i18n) — тут только группировка данных.
+ */
+export const groupServiceFamilies = (list: ReadonlyArray<Service>): ServiceFamily[] => {
+  const order: string[] = [];
+  const byKey = new Map<string, Service[]>();
+  for (const s of list) {
+    const key = s.id.replace(DURATION_SUFFIX, "");
+    if (!byKey.has(key)) {
+      byKey.set(key, []);
+      order.push(key);
+    }
+    byKey.get(key)!.push(s);
+  }
+  return order.map((key) => {
+    const variants = [...byKey.get(key)!].sort(
+      (a, b) => durationMinutes(a.duration) - durationMinutes(b.duration),
+    );
+    const base = variants[0]!;
+    return {
+      familyKey: key,
+      variants,
+      group: base.group,
+      ...(base.pregnancySafe ? { pregnancySafe: base.pregnancySafe } : {}),
+    };
+  });
+};
 
 import standardDesignPhoto from "@/assets/cert-designs/standard.webp";
 import forHerDesignPhoto from "@/assets/cert-designs/for-her.webp";

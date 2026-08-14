@@ -209,6 +209,33 @@
   }
 }
 
+/* Заливка --color-gold-soft — тот самый «фирменный бежевый» из брендбука
+   (см. --gold-soft в :root ниже), а не новый цвет. Тёмный текст того же
+   оттенка, что и на btn-gold, — контраст на светлом бежевом фоне. */
+@utility btn-beige {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: 1px solid var(--color-gold-soft);
+  background-color: var(--color-gold-soft);
+  color: var(--color-primary-foreground);
+  padding: 1rem 2.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+
+  &:hover {
+    background-color: transparent;
+    color: var(--color-gold-soft);
+  }
+}
+
 @utility btn-ghost {
   display: inline-flex;
   align-items: center;

@@ -1,5 +1,6 @@
 import { CategoryCarousel } from "@/components/CategoryCarousel";
-import { formatPrice, serviceImage } from "@/data/catalog";
+import { ServiceFamilyCard } from "@/components/ServiceFamilyCard";
+import { groupServiceFamilies } from "@/data/catalog";
 import {
   SERVICE_GROUPS,
   serviceGroupCounts,
@@ -55,56 +56,15 @@ export function ServiceChooser({
       <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        {servicesInGroup(groupId).map((s) => {
-            const image = serviceImage(s.id);
-            const active = selectedIds.includes(s.id);
-            return (
-              // Кнопка вместо label+чекбокса: клик по всей карточке уже
-              // переключал выбор, поэтому визуальную галочку в углу фото
-              // убрали — состояние показывают рамка карточки и подпись
-              // «Выбрать/Выбрано» снизу, функция клика не потерялась.
-              <button
-                type="button"
-                key={s.id}
-                onClick={() => onToggle(s.id)}
-                aria-pressed={active}
-                className={`surface flex cursor-pointer flex-col overflow-hidden rounded-lg text-left transition-colors ${active ? "border-gold" : "hover:border-gold/60"}`}
-              >
-                {image && (
-                  <img
-                    src={image}
-                    alt=""
-                    width={720}
-                    height={720}
-                    loading="lazy"
-                    decoding="async"
-                    className="aspect-[4/3] w-full object-cover"
-                  />
-                )}
-                <div className="flex flex-1 flex-col gap-2 p-5">
-                  <h3 className="font-display text-lg leading-tight">
-                    {t(`services.${s.id}.name`)}
-                  </h3>
-                  {t(`services.${s.id}.duration`) && (
-                    <span className="text-cream/45 text-[0.62rem] tracking-[0.2em] uppercase">
-                      {t(`services.${s.id}.duration`)}
-                    </span>
-                  )}
-                  <p className="text-cream/70 line-clamp-2 text-sm leading-relaxed">
-                    {t(`services.${s.id}.description`)}
-                  </p>
-                  <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-3">
-                    <span className="text-gold text-sm">{formatPrice(s.price)}</span>
-                    <span
-                      className={`text-[0.62rem] tracking-[0.2em] uppercase transition-colors ${active ? "text-gold" : "text-cream/45"}`}
-                    >
-                      {active ? t("cert.selectionChosen") : t("cert.selectionChoose")}
-                    </span>
-                  </div>
-                </div>
-            </button>
-          );
-        })}
+        {groupServiceFamilies(servicesInGroup(groupId)).map((family) => (
+          <ServiceFamilyCard
+            key={family.familyKey}
+            family={family}
+            selectedIds={selectedIds}
+            onToggle={onToggle}
+            t={t}
+          />
+        ))}
       </div>
     </div>
   );
