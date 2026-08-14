@@ -1,5 +1,4 @@
 import { CategoryCarousel } from "@/components/CategoryCarousel";
-import { ServiceCheckbox } from "@/components/ServiceCheckbox";
 import { formatPrice, serviceImage } from "@/data/catalog";
 import {
   SERVICE_GROUPS,
@@ -60,29 +59,28 @@ export function ServiceChooser({
             const image = serviceImage(s.id);
             const active = selectedIds.includes(s.id);
             return (
-              <label
+              // Кнопка вместо label+чекбокса: клик по всей карточке уже
+              // переключал выбор, поэтому визуальную галочку в углу фото
+              // убрали — состояние показывают рамка карточки и подпись
+              // «Выбрать/Выбрано» снизу, функция клика не потерялась.
+              <button
+                type="button"
                 key={s.id}
-                className={`surface flex cursor-pointer flex-col overflow-hidden rounded-lg transition-colors ${active ? "border-gold" : "hover:border-gold/60"}`}
+                onClick={() => onToggle(s.id)}
+                aria-pressed={active}
+                className={`surface flex cursor-pointer flex-col overflow-hidden rounded-lg text-left transition-colors ${active ? "border-gold" : "hover:border-gold/60"}`}
               >
-                <div className="relative">
-                  {image && (
-                    <img
-                      src={image}
-                      alt=""
-                      width={720}
-                      height={720}
-                      loading="lazy"
-                      decoding="async"
-                      className="aspect-[4/3] w-full object-cover"
-                    />
-                  )}
-                  <ServiceCheckbox
-                    checked={active}
-                    onChange={() => onToggle(s.id)}
-                    label={t(`services.${s.id}.name`)}
-                    className="absolute top-3 right-3"
+                {image && (
+                  <img
+                    src={image}
+                    alt=""
+                    width={720}
+                    height={720}
+                    loading="lazy"
+                    decoding="async"
+                    className="aspect-[4/3] w-full object-cover"
                   />
-                </div>
+                )}
                 <div className="flex flex-1 flex-col gap-2 p-5">
                   <h3 className="font-display text-lg leading-tight">
                     {t(`services.${s.id}.name`)}
@@ -104,7 +102,7 @@ export function ServiceChooser({
                     </span>
                   </div>
                 </div>
-            </label>
+            </button>
           );
         })}
       </div>

@@ -25,7 +25,6 @@ import {
 } from "@/data/catalog";
 import { BRANCHES, type Branch } from "@/data/branches";
 import { SelectionSummary } from "@/components/SelectionSummary";
-import { ServiceCheckbox } from "@/components/ServiceCheckbox";
 import { serializeServiceIds, toggleServiceId } from "@/data/selection";
 
 export const Route = createFileRoute("/")({
@@ -327,9 +326,15 @@ function Index() {
                 const image = serviceImage(id);
                 const active = selectedIds.includes(id);
                 return (
-                  <label
+                  // Кнопка вместо label+чекбокса: клик по всей карточке уже
+                  // переключал выбор, галочку в углу фото убрали — состояние
+                  // показывают рамка карточки и подпись «Выбрать/Выбрано» снизу.
+                  <button
+                    type="button"
                     key={id}
-                    className={`surface flex cursor-pointer flex-col overflow-hidden rounded-lg transition-colors ${active ? "border-gold" : "hover:border-gold/60"}`}
+                    onClick={() => setSelectedIds((ids) => toggleServiceId(ids, id))}
+                    aria-pressed={active}
+                    className={`surface flex cursor-pointer flex-col overflow-hidden rounded-lg text-left transition-colors ${active ? "border-gold" : "hover:border-gold/60"}`}
                   >
                     <div className="relative">
                       {image && (
@@ -348,12 +353,6 @@ function Index() {
                           {t("home.buyHit")}
                         </span>
                       )}
-                      <ServiceCheckbox
-                        checked={active}
-                        onChange={() => setSelectedIds((ids) => toggleServiceId(ids, id))}
-                        label={t(`services.${id}.name`)}
-                        className="absolute top-3 right-3"
-                      />
                     </div>
                     <div className="flex flex-1 flex-col gap-2 p-5">
                       <h4 className="font-display text-lg leading-tight">
@@ -376,7 +375,7 @@ function Index() {
                         </span>
                       </div>
                     </div>
-                  </label>
+                  </button>
                 );
               })}
             </div>
