@@ -9,13 +9,15 @@ import logoLight from "@/assets/logo-on-dark.webp";
 import { Motif } from "@/components/Motif";
 import { Divider } from "@/components/Divider";
 import { Ribbon } from "@/components/Ribbon";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { BranchesSection } from "@/components/BranchesSection";
+import { BranchesSection, InstagramLinks } from "@/components/BranchesSection";
 import { PromotionsSection } from "@/components/PromotionsSection";
 import { LoyaltySection } from "@/components/LoyaltySection";
+import { ServiceCatalogBrowser } from "@/components/ServiceCatalogBrowser";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { MIN_AMOUNT, fixedAmounts, formatPrice } from "@/data/catalog";
-import { BRANCHES, type Branch } from "@/data/branches";
+import { BRANCHES, spaMenuPdfFor, type Branch } from "@/data/branches";
+import type { CatalogGroup } from "@/data/serviceGroups";
+import { serializeServiceIds, toggleServiceId } from "@/data/selection";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -54,6 +56,14 @@ function Index() {
   /** Город попадает в ссылку только когда выбран — `branch` необязателен. */
   const branchSearch = city ? { branch: city } : {};
 
+  // Витрина услуг — перенесена сюда с бывшей /catalog (теперь якорная секция
+  // #services на главной, по структуре layan.kz, где прайс живёт прямо на
+  // главной, а не отдельной страницей).
+  const [servicesGroupId, setServicesGroupId] = useState<CatalogGroup>("massage");
+  const [menuBranch, setMenuBranch] = useState<Branch | null>(null);
+  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
+  const menuBranchSearch = menuBranch ? { branch: menuBranch } : {};
+
   const why = [
     { title: t("home.why1Title"), desc: t("home.why1Desc") },
     { title: t("home.why2Title"), desc: t("home.why2Desc") },
@@ -67,7 +77,6 @@ function Index() {
           чтобы блок выбора сертификата был виден почти сразу. */}
       <section className="relative overflow-hidden">
         <Ribbon side="left" />
-        <LanguageSwitcher className="absolute top-5 right-5 z-20 sm:top-6 sm:right-6" />
         <img
           src={heroPhoto}
           alt="Интерьер RaiThai Massage & Spa — тёмно-зелёные стены, авторская картина, полосатый ковёр"
@@ -241,9 +250,9 @@ function Index() {
                   </div>
                 </div>
 
-                <Link to="/catalog" className="btn-ghost mt-5 w-full sm:w-auto">
+                <a href="#services" className="btn-ghost mt-5 w-full sm:w-auto">
                   {t("home.heroCatalogCta")}
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -326,6 +335,82 @@ function Index() {
         </div>
       </section>
 
+      {/* ── Услуги (бывшая /catalog) — якорная секция #services, по образцу
+          layan.kz: полный прайс показан прямо на главной, а не отдельной
+          страницей. Ссылка «Наши услуги» в hero ведёт сюда якорем. ──────── */}
+      <section id="services" className="relative overflow-hidden">
+        <Divider motif="swirlLeaf" className="pt-12 sm:pt-16 lg:pt-20" />
+        <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-24">
+          <div className="flex items-center gap-3">
+            <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
+            <p className="eyebrow">{t("catalog.title")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
+            {t("catalog.title")}
+          </h2>
+          <p className="text-cream/65 mt-3 max-w-lg text-sm leading-relaxed">
+            {t("catalog.subtitle")}
+          </p>
+
+          {/* Коротко об услугах + полное меню файлом — тот же блок, что был
+              на /catalog, между «О нас» и списком услуг, как и на layan.kz
+              (там PDF-меню тоже стоит перед прайсом). */}
+          <div className="surface mt-8 rounded-lg p-6 sm:p-8">
+            <h3 className="font-display text-xl sm:text-2xl">{t("catalog.menuTitle")}</h3>
+            <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
+              {t("catalog.menuText")}
+            </p>
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <span className="text-cream/45 text-[0.62rem] tracking-[0.2em] uppercase">
+                {t("catalog.menuCity")}
+              </span>
+              {BRANCHES.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => setMenuBranch(menuBranch === b.id ? null : b.id)}
+                  aria-pressed={menuBranch === b.id}
+                  className={`rounded-md border px-3 py-1.5 text-xs transition-colors ${
+                    menuBranch === b.id
+                      ? "border-gold bg-gold/10 text-gold"
+                      : "border-border text-cream/70 hover:border-gold/60"
+                  }`}
+                >
+                  {t(b.labelKey)}
+                </button>
+              ))}
+            </div>
+
+            <a href={spaMenuPdfFor(menuBranch)} download className="btn-ghost mt-5 text-[0.62rem]">
+              {t("catalog.menuButton")}
+            </a>
+          </div>
+
+          <div className="mt-10">
+            <ServiceCatalogBrowser
+              groupId={servicesGroupId}
+              onGroupChange={setServicesGroupId}
+              selectedIds={selectedServiceIds}
+              onToggle={(id) => setSelectedServiceIds((ids) => toggleServiceId(ids, id))}
+              onClear={() => setSelectedServiceIds([])}
+              t={t}
+              action={
+                <Link
+                  to="/certificate"
+                  search={{
+                    services: serializeServiceIds(selectedServiceIds),
+                    ...menuBranchSearch,
+                  }}
+                  className="btn-gold"
+                >
+                  {t("cert.giftButton")}
+                </Link>
+              }
+            />
+          </div>
+        </div>
+      </section>
+
       {/* ── Блок «Ритуал» — оставлен как был ──────────────────────────── */}
       <section className="relative overflow-hidden">
         <Divider motif="templeArch" className="pt-12 sm:pt-16 lg:pt-20" />
@@ -354,31 +439,6 @@ function Index() {
             <p className="text-cream/70 mt-4 max-w-lg text-sm leading-relaxed sm:mt-5">
               {t("home.ritualText")}
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Блок 4: FAQ (точка бессрочности №4) ───────────────────────── */}
-      <section className="relative overflow-hidden">
-        <Divider motif="dottedWave" className="pt-12 sm:pt-16 lg:pt-20" />
-        <div className="relative mx-auto max-w-3xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-24">
-          <div className="flex items-center gap-3">
-            <Motif name="waveCrown" className="text-gold h-7 w-9" />
-            <p className="eyebrow">{t("home.faqEyebrow")}</p>
-          </div>
-          <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
-            {t("home.faqTitle")}
-          </h2>
-          <div className="border-border mt-8 border-t">
-            <details className="border-border group border-b" open>
-              <summary className="font-display marker:content-none flex cursor-pointer items-center justify-between gap-4 py-5 text-lg">
-                {t("home.faq1Q")}
-                <span className="text-gold text-sm transition-transform group-open:rotate-45">
-                  +
-                </span>
-              </summary>
-              <p className="text-cream/70 pb-5 text-sm leading-relaxed">{t("home.faq1A")}</p>
-            </details>
           </div>
         </div>
       </section>
@@ -413,16 +473,22 @@ function Index() {
       <PromotionsSection t={t} />
       <LoyaltySection t={t} />
 
-      {/* Контакты филиалов, 2ГИС и Instagram — перед футером. */}
+      {/* Контакты филиалов и 2ГИС — «Наши салоны», перед футером, как и на
+          layan.kz. */}
       <BranchesSection t={t} />
 
+      {/* Футер по составу блоков layan.kz (Instagram → лого → контакты → CTA
+          → копирайт), но без слотов под юр.документы и платёжные иконки —
+          таких данных у нас пока нет, придумывать их не будем. */}
       <footer className="relative overflow-hidden">
         <Motif
           name="dottedWave"
           className="text-gold pointer-events-none absolute top-0 left-1/2 h-24 w-40 -translate-x-1/2 sm:h-40 sm:w-64"
           style={{ opacity: 0.12 }}
         />
-        <div className="text-cream/50 relative mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 px-5 py-10 text-center text-xs sm:py-16">
+        <div className="text-cream/50 relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-5 py-10 text-center text-xs sm:py-16">
+          <InstagramLinks t={t} />
+
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
@@ -431,6 +497,33 @@ function Index() {
             loading="lazy"
             className="h-12 w-auto opacity-70 sm:h-14"
           />
+
+          <div>
+            <p className="text-cream/45 text-[0.62rem] tracking-[0.24em] uppercase">
+              {t("footer.contactsTitle")}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              {BRANCHES.map((b) => (
+                <a
+                  key={b.id}
+                  href={b.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cream/70 hover:text-gold transition-colors"
+                >
+                  {t(b.labelKey)}: WhatsApp
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <Link to="/certificate" className="btn-gold">
+            {t("cert.giftButton")}
+          </Link>
+
+          <p className="text-cream/40">
+            © {new Date().getFullYear()} Rai Thai Spa. {t("footer.rights")}
+          </p>
         </div>
       </footer>
     </main>

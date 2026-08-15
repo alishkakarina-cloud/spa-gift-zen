@@ -3,13 +3,12 @@ import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
 import { Motif } from "@/components/Motif";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Divider } from "@/components/Divider";
 import { ServiceChooser } from "@/components/ServiceChooser";
 import { BRANCHES, type Branch } from "@/data/branches";
 import type { CatalogGroup } from "@/data/serviceGroups";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
-import logoLight from "@/assets/logo-on-dark.webp";
 import { MIN_AMOUNT, designs, fixedAmounts, formatPrice } from "@/data/catalog";
 import { SelectionSummary } from "@/components/SelectionSummary";
 import {
@@ -236,25 +235,11 @@ function CertificateFlow() {
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-      <header className="flex items-center justify-between gap-4">
-        <Link to="/" aria-label={t("cert.backHomeLink")}>
-          <img
-            src={logoLight}
-            alt="RaiThai Massage & Spa"
-            width={900}
-            height={778}
-            className="h-12 w-auto"
-          />
-        </Link>
-        <div className="flex items-center gap-4">
-          <span className="hidden text-[0.65rem] tracking-[0.28em] text-cream/50 uppercase sm:inline">
-            {t("cert.stepOf", { step, name: steps[step - 1]! })}
-          </span>
-          <LanguageSwitcher />
-        </div>
-      </header>
+      <p className="text-right text-[0.65rem] tracking-[0.28em] text-cream/50 uppercase">
+        {t("cert.stepOf", { step, name: steps[step - 1]! })}
+      </p>
 
-      <div className="mt-6 flex gap-1">
+      <div className="mt-3 flex gap-1">
         {steps.map((s, i) => (
           <span
             key={s}
@@ -752,6 +737,30 @@ function CertificateFlow() {
           </div>
         </aside>
       </div>
+
+      {/* FAQ перенесён сюда с главной — по структуре layan.kz вопросы о
+          сертификате живут рядом со страницей покупки, а не на главной. */}
+      <section className="relative overflow-hidden print:hidden">
+        <Divider motif="dottedWave" className="pt-16 sm:pt-20" />
+        <div className="relative mx-auto max-w-3xl px-0 pt-10 pb-16 sm:pt-12 sm:pb-20">
+          <div className="flex items-center gap-3">
+            <Motif name="waveCrown" className="text-gold h-7 w-9" />
+            <p className="eyebrow">{t("home.faqEyebrow")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl">{t("home.faqTitle")}</h2>
+          <div className="border-border mt-8 border-t">
+            <details className="border-border group border-b" open>
+              <summary className="font-display marker:content-none flex cursor-pointer items-center justify-between gap-4 py-5 text-lg">
+                {t("home.faq1Q")}
+                <span className="text-gold text-sm transition-transform group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <p className="text-cream/70 pb-5 text-sm leading-relaxed">{t("home.faq1A")}</p>
+            </details>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

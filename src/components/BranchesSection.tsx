@@ -11,9 +11,8 @@ import { BRANCHES, instagramLinkFor, mapLinkFor } from "@/data/branches";
  */
 export function BranchesSection({ t }: { t: (path: string) => string }) {
   return (
-    <>
-      <section className="relative overflow-hidden">
-        <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-20">
+    <section className="relative overflow-hidden">
+      <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-20">
           <div className="flex items-center gap-3">
             <Motif name="templeArch" className="text-gold h-7 w-7" />
             <p className="eyebrow">{t("branches.eyebrow")}</p>
@@ -71,39 +70,44 @@ export function BranchesSection({ t }: { t: (path: string) => string }) {
               </article>
             ))}
           </div>
-        </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      <section className="relative overflow-hidden">
-        <div className="relative mx-auto max-w-6xl px-5 pb-16 sm:px-6 sm:pb-20">
-          <div className="surface rounded-lg p-6 sm:p-8">
-            <div className="flex items-center gap-3">
-              <Instagram className="text-gold h-5 w-5" aria-hidden="true" />
-              <h2 className="font-display text-xl sm:text-2xl">{t("branches.instagramTitle")}</h2>
-            </div>
-            <div className="mt-5 flex flex-wrap gap-3">
-              {BRANCHES.map((b) => (
-                <a
-                  key={b.id}
-                  href={instagramLinkFor(b)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="border-border hover:border-gold/60 text-cream/80 hover:text-gold flex items-center gap-2.5 rounded-md border px-4 py-3 text-sm transition-colors"
-                >
-                  <Instagram className="text-gold h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span>
-                    @{b.instagram}
-                    <span className="text-cream/45 block text-[0.6rem] tracking-[0.2em] uppercase">
-                      {t(b.labelKey)}
-                    </span>
-                  </span>
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
+/**
+ * «Мы в Instagram» — раньше был вторым блоком BranchesSection перед обычным
+ * <footer>. Вынесен отдельно и переехал внутрь <footer> на главной — на
+ * layan.kz Instagram-ссылки живут именно внутри футера, а не отдельной
+ * секцией перед ним.
+ */
+export function InstagramLinks({ t }: { t: (path: string) => string }) {
+  return (
+    <div className="surface w-full rounded-lg p-6 sm:p-8">
+      <div className="flex items-center gap-3">
+        <Instagram className="text-gold h-5 w-5" aria-hidden="true" />
+        <h2 className="font-display text-xl sm:text-2xl">{t("branches.instagramTitle")}</h2>
+      </div>
+      <div className="mt-5 flex flex-wrap gap-3">
+        {BRANCHES.map((b) => (
+          <a
+            key={b.id}
+            href={instagramLinkFor(b)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border-border hover:border-gold/60 text-cream/80 hover:text-gold flex items-center gap-2.5 rounded-md border px-4 py-3 text-sm transition-colors"
+          >
+            <Instagram className="text-gold h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>
+              @{b.instagram}
+              <span className="text-cream/45 block text-[0.6rem] tracking-[0.2em] uppercase">
+                {t(b.labelKey)}
+              </span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
   );
 }
 

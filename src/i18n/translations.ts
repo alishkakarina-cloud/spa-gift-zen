@@ -528,6 +528,10 @@ const ru = {
     hours: "Режим работы",
     instagramTitle: "Мы в Instagram",
   },
+  footer: {
+    contactsTitle: "Контакты",
+    rights: "Все права защищены.",
+  },
   catalog: {
     title: "Наши услуги",
     subtitle:
