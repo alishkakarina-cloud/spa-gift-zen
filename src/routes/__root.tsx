@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -122,16 +123,24 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  // /admin — отдельный внутренний инструмент, не часть публичного сайта:
+  // клиентская шапка (контакт/лого/CTA) и плавающая кнопка WhatsApp там не
+  // нужны и будут только мешать администратору.
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
 
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        {/* Общая шапка на всех страницах — по образцу layan.kz, где один и тот
-            же header (контакт/лого/CTA) закреплён на каждой странице сайта. */}
-        <SiteHeader />
+        {!isAdmin && (
+          /* Общая шапка на всех страницах сайта — по образцу layan.kz, где
+             один и тот же header (контакт/лого/CTA) закреплён на каждой
+             странице. */
+          <SiteHeader />
+        )}
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
-        <WhatsAppButton />
+        {!isAdmin && <WhatsAppButton />}
       </LanguageProvider>
     </QueryClientProvider>
   );

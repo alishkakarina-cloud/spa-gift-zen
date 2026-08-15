@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { toPng } from "html-to-image";
 import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
 import { Motif } from "@/components/Motif";
@@ -128,6 +129,7 @@ function CertificateFlow() {
   const [forSelf, setForSelf] = useState(false);
   const [sender, setSender] = useState("");
   const [recipientFirstName, setRecipientFirstName] = useState("");
+  const [recipientLastName, setRecipientLastName] = useState("");
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
   const [cardNumber, setCardNumber] = useState("");
@@ -150,7 +152,10 @@ function CertificateFlow() {
       : undefined;
   const valueLabel = formatPrice(total || 0);
   // «Покупаю для себя» — получатель и отправитель берутся из данных покупателя.
-  const recipientFullName = (forSelf ? buyerName : recipientFirstName).trim();
+  // У получателя — имя и фамилия (оба поля), у покупателя — только имя.
+  const recipientFullName = (
+    forSelf ? buyerName : `${recipientFirstName} ${recipientLastName}`.trim()
+  ).trim();
   const senderName = (forSelf ? buyerName : sender).trim();
   // Город приходит из сценария покупки и на этом шаге не меняется. Если
   // пользователь попал сюда прямой ссылкой, минуя выбор, — не подставляем
@@ -172,6 +177,90 @@ function CertificateFlow() {
   // Issued only once payment is confirmed (see `next`), not on page load.
   const [certificateNumber, setCertificateNumber] = useState<string | null>(null);
 
+  // Карточка сертификата на шаге 5 — узел, с которого рендерим PNG для
+  // скачивания на телефон и для «Отправить в WhatsApp» (тот же файл, чтобы
+  // не собирать картинку дважды по-разному).
+  const certificateCardRef = useRef<HTMLDivElement>(null);
+  const [preparingImage, setPreparingImage] = useState<"download" | "whatsapp" | null>(null);
+
+  const certificateFileName = `raithai-sertifikat-${certificateNumber ?? "spa"}.png`;
+
+  /**
+   * pixelRatio: 2 — карточка компактная (457×915 у.е.), без масштабирования
+   * картинка получалась бы слишком мелкой для печати/шаринга. cacheBust
+   * нужен, т.к. фон дизайна — imported-ассет с хэшем в имени, без него
+   * html-to-image иногда кэширует старый кадр между разными дизайнами.
+   */
+  const renderCertificatePng = async () => {
+    if (!certificateCardRef.current) return null;
+    return toPng(certificateCardRef.current, {
+      pixelRatio: 2,
+      cacheBust: true,
+      backgroundColor: "#f4efe6",
+    });
+  };
+
+  const downloadCertificateImage = async () => {
+    setPreparingImage("download");
+    try {
+      const dataUrl = await renderCertificatePng();
+      if (!dataUrl) return;
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = certificateFileName;
+      a.click();
+    } catch (err) {
+      console.error("Failed to render certificate image:", err);
+      setErrors([t("cert.errImageFailed")]);
+    } finally {
+      setPreparingImage(null);
+    }
+  };
+
+  /**
+   * Веб-версии WhatsApp (в отличие от мобильного приложения) нельзя передать
+   * готовый файл через wa.me-ссылку — там принимается только текст. Поэтому
+   * поведение по устройствам разное:
+   *  - Есть Web Share API с поддержкой файлов (большинство мобильных
+   *    браузеров, включая мобильный Safari/Chrome) — открывается системный
+   *    шаринг, где WhatsApp обычно есть в списке получателей, картинка
+   *    уходит как вложение.
+   *  - Нет поддержки файлового Web Share (десктоп) — картинка скачивается
+   *    на диск, а следом открывается wa.me с текстом-подсказкой, чтобы
+   *    пользователь сам прикрепил уже скачанный файл в чате.
+   */
+  const shareCertificateToWhatsApp = async () => {
+    setPreparingImage("whatsapp");
+    try {
+      const dataUrl = await renderCertificatePng();
+      if (!dataUrl) return;
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], certificateFileName, { type: "image/png" });
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], text: t("cert.whatsappShareText") });
+        return;
+      }
+
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = certificateFileName;
+      a.click();
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(t("cert.whatsappShareText"))}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    } catch (err) {
+      // AbortError — пользователь сам закрыл системное окно шаринга, это не ошибка.
+      if (err instanceof Error && err.name === "AbortError") return;
+      console.error("Failed to share certificate:", err);
+      setErrors([t("cert.errImageFailed")]);
+    } finally {
+      setPreparingImage(null);
+    }
+  };
+
   const validateStep1 = () => {
     if (kind === "service" && chosen.length === 0) return [t("cert.errServiceRequired")];
     if (kind === "amount" && (!total || total < MIN_AMOUNT))
@@ -186,6 +275,7 @@ function CertificateFlow() {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(buyerEmail)) e.push(t("cert.errBuyerEmailRequired"));
     if (!forSelf) {
       if (!recipientFirstName.trim()) e.push(t("cert.errRecipientRequired"));
+      if (!recipientLastName.trim()) e.push(t("cert.errRecipientLastNameRequired"));
       if (!sender.trim()) e.push(t("cert.errSenderRequired"));
     }
     return e;
@@ -207,12 +297,25 @@ function CertificateFlow() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             amount: total,
+            certificateType: kind,
             buyerName,
             buyerContact: [buyerPhone, buyerEmail].filter(Boolean).join(" · ") || null,
             recipientName: recipientFullName || null,
             recipientContact: null,
             branch: branchInfo ? branchLabel : null,
             paymentMethod: paymentMethod === "kaspi" ? "kaspi" : "freedom_pay",
+            designId,
+            message: message.trim() || null,
+            // Состав сертификата на момент покупки — раньше нигде не
+            // сохранялся, хотя форма его собирает (chosen).
+            services:
+              kind === "service" && chosen.length > 0
+                ? chosen.map((s) => ({
+                    id: s.id,
+                    name: t(`services.${s.id}.name`),
+                    price: s.price,
+                  }))
+                : null,
           }),
         });
         if (!response.ok) throw new Error("save_failed");
@@ -426,7 +529,7 @@ function CertificateFlow() {
                     value={buyerName}
                     onChange={(e) => setBuyerName(e.target.value)}
                     maxLength={80}
-                    autoComplete="name"
+                    autoComplete="given-name"
                     className="input"
                   />
                 </Field>
@@ -485,15 +588,23 @@ function CertificateFlow() {
                         className="input"
                       />
                     </Field>
-                    <Field label={t("cert.senderLabel")}>
+                    <Field label={t("cert.recipientLastNameLabel")}>
                       <input
-                        value={sender}
-                        onChange={(e) => setSender(e.target.value)}
+                        value={recipientLastName}
+                        onChange={(e) => setRecipientLastName(e.target.value)}
                         maxLength={60}
                         className="input"
                       />
                     </Field>
                   </div>
+                  <Field label={t("cert.senderLabel")}>
+                    <input
+                      value={sender}
+                      onChange={(e) => setSender(e.target.value)}
+                      maxLength={60}
+                      className="input"
+                    />
+                  </Field>
                   <Field label={t("cert.messageLabel")}>
                     {/* Арка на бланке маленькая — 400 символов туда физически
                         не помещались бы даже мелким кеглем. 140 укладывается
@@ -675,8 +786,9 @@ function CertificateFlow() {
                 })}
               </p>
 
-              {/* Готовый сертификат — он же уходит на печать. */}
-              <div className="print-sheet mt-8">
+              {/* Готовый сертификат — он же уходит на печать и на нём же
+                  строится PNG для скачивания/WhatsApp (certificateCardRef). */}
+              <div className="print-sheet mt-8" ref={certificateCardRef}>
                 <CertificateCard
                   design={design}
                   valueLabel={valueLabel}
@@ -691,8 +803,23 @@ function CertificateFlow() {
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3 print:hidden">
-                <button type="button" onClick={() => window.print()} className="btn-gold">
-                  {t("cert.downloadButton")}
+                <button
+                  type="button"
+                  onClick={downloadCertificateImage}
+                  disabled={preparingImage !== null}
+                  className="btn-gold disabled:opacity-60"
+                >
+                  {preparingImage === "download" ? t("cert.preparingButton") : t("cert.downloadButton")}
+                </button>
+                <button
+                  type="button"
+                  onClick={shareCertificateToWhatsApp}
+                  disabled={preparingImage !== null}
+                  className="btn-beige disabled:opacity-60"
+                >
+                  {preparingImage === "whatsapp"
+                    ? t("cert.preparingButton")
+                    : t("cert.whatsappShareButton")}
                 </button>
                 <Link to="/" className="btn-ghost">
                   {t("cert.backHomeLink")}

@@ -12,7 +12,22 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CatalogRouteImport } from './routes/catalog'
 import { Route as CertificateRouteImport } from './routes/certificate'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminMenuRouteImport } from './routes/admin/menu'
+import { Route as AdminServicesRouteImport } from './routes/admin/services'
+import { Route as ApiMenuPdfRouteImport } from './routes/api/menu-pdf'
+import { Route as AdminOrdersIdRouteImport } from './routes/admin/orders/$id'
+import { Route as ApiAdminCertificatesRouteImport } from './routes/api/admin/certificates'
+import { Route as ApiAdminLoginRouteImport } from './routes/api/admin/login'
+import { Route as ApiAdminLogoutRouteImport } from './routes/api/admin/logout'
+import { Route as ApiAdminMeRouteImport } from './routes/api/admin/me'
+import { Route as ApiAdminMenuRouteImport } from './routes/api/admin/menu'
+import { Route as ApiAdminServicesRouteImport } from './routes/api/admin/services'
 import { Route as ApiCertificatesCreateRouteImport } from './routes/api/certificates/create'
+import { Route as ApiAdminCertificatesIdRouteImport } from './routes/api/admin/certificates.$id'
+import { Route as ApiAdminCertificatesExportRouteImport } from './routes/api/admin/certificates.export'
+import { Route as ApiAdminServicesIdRouteImport } from './routes/api/admin/services.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,44 +44,234 @@ const CertificateRoute = CertificateRouteImport.update({
   path: '/certificate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMenuRoute = AdminMenuRouteImport.update({
+  id: '/admin/menu',
+  path: '/admin/menu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminServicesRoute = AdminServicesRouteImport.update({
+  id: '/admin/services',
+  path: '/admin/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMenuPdfRoute = ApiMenuPdfRouteImport.update({
+  id: '/api/menu-pdf',
+  path: '/api/menu-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminOrdersIdRoute = AdminOrdersIdRouteImport.update({
+  id: '/admin/orders/$id',
+  path: '/admin/orders/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminCertificatesRoute = ApiAdminCertificatesRouteImport.update({
+  id: '/api/admin/certificates',
+  path: '/api/admin/certificates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminLoginRoute = ApiAdminLoginRouteImport.update({
+  id: '/api/admin/login',
+  path: '/api/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminLogoutRoute = ApiAdminLogoutRouteImport.update({
+  id: '/api/admin/logout',
+  path: '/api/admin/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminMeRoute = ApiAdminMeRouteImport.update({
+  id: '/api/admin/me',
+  path: '/api/admin/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminMenuRoute = ApiAdminMenuRouteImport.update({
+  id: '/api/admin/menu',
+  path: '/api/admin/menu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminServicesRoute = ApiAdminServicesRouteImport.update({
+  id: '/api/admin/services',
+  path: '/api/admin/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCertificatesCreateRoute = ApiCertificatesCreateRouteImport.update({
   id: '/api/certificates/create',
   path: '/api/certificates/create',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminCertificatesIdRoute = ApiAdminCertificatesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminCertificatesRoute,
+} as any)
+const ApiAdminCertificatesExportRoute =
+  ApiAdminCertificatesExportRouteImport.update({
+    id: '/export',
+    path: '/export',
+    getParentRoute: () => ApiAdminCertificatesRoute,
+  } as any)
+const ApiAdminServicesIdRoute = ApiAdminServicesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminServicesRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/catalog': typeof CatalogRoute
   '/certificate': typeof CertificateRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/menu': typeof AdminMenuRoute
+  '/admin/services': typeof AdminServicesRoute
+  '/api/menu-pdf': typeof ApiMenuPdfRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/orders/$id': typeof AdminOrdersIdRoute
+  '/api/admin/certificates': typeof ApiAdminCertificatesRouteWithChildren
+  '/api/admin/login': typeof ApiAdminLoginRoute
+  '/api/admin/logout': typeof ApiAdminLogoutRoute
+  '/api/admin/me': typeof ApiAdminMeRoute
+  '/api/admin/menu': typeof ApiAdminMenuRoute
+  '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
+  '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
+  '/api/admin/services/$id': typeof ApiAdminServicesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/catalog': typeof CatalogRoute
   '/certificate': typeof CertificateRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/menu': typeof AdminMenuRoute
+  '/admin/services': typeof AdminServicesRoute
+  '/api/menu-pdf': typeof ApiMenuPdfRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/orders/$id': typeof AdminOrdersIdRoute
+  '/api/admin/certificates': typeof ApiAdminCertificatesRouteWithChildren
+  '/api/admin/login': typeof ApiAdminLoginRoute
+  '/api/admin/logout': typeof ApiAdminLogoutRoute
+  '/api/admin/me': typeof ApiAdminMeRoute
+  '/api/admin/menu': typeof ApiAdminMenuRoute
+  '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
+  '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
+  '/api/admin/services/$id': typeof ApiAdminServicesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/catalog': typeof CatalogRoute
   '/certificate': typeof CertificateRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/menu': typeof AdminMenuRoute
+  '/admin/services': typeof AdminServicesRoute
+  '/api/menu-pdf': typeof ApiMenuPdfRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/orders/$id': typeof AdminOrdersIdRoute
+  '/api/admin/certificates': typeof ApiAdminCertificatesRouteWithChildren
+  '/api/admin/login': typeof ApiAdminLoginRoute
+  '/api/admin/logout': typeof ApiAdminLogoutRoute
+  '/api/admin/me': typeof ApiAdminMeRoute
+  '/api/admin/menu': typeof ApiAdminMenuRoute
+  '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
+  '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
+  '/api/admin/services/$id': typeof ApiAdminServicesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/catalog' | '/certificate' | '/api/certificates/create'
+  fullPaths:
+    | '/'
+    | '/catalog'
+    | '/certificate'
+    | '/admin/login'
+    | '/admin/menu'
+    | '/admin/services'
+    | '/api/menu-pdf'
+    | '/admin/'
+    | '/admin/orders/$id'
+    | '/api/admin/certificates'
+    | '/api/admin/login'
+    | '/api/admin/logout'
+    | '/api/admin/me'
+    | '/api/admin/menu'
+    | '/api/admin/services'
+    | '/api/certificates/create'
+    | '/api/admin/certificates/$id'
+    | '/api/admin/certificates/export'
+    | '/api/admin/services/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/catalog' | '/certificate' | '/api/certificates/create'
+  to:
+    | '/'
+    | '/catalog'
+    | '/certificate'
+    | '/admin/login'
+    | '/admin/menu'
+    | '/admin/services'
+    | '/api/menu-pdf'
+    | '/admin'
+    | '/admin/orders/$id'
+    | '/api/admin/certificates'
+    | '/api/admin/login'
+    | '/api/admin/logout'
+    | '/api/admin/me'
+    | '/api/admin/menu'
+    | '/api/admin/services'
+    | '/api/certificates/create'
+    | '/api/admin/certificates/$id'
+    | '/api/admin/certificates/export'
+    | '/api/admin/services/$id'
   id:
-    '__root__' | '/' | '/catalog' | '/certificate' | '/api/certificates/create'
+    | '__root__'
+    | '/'
+    | '/catalog'
+    | '/certificate'
+    | '/admin/login'
+    | '/admin/menu'
+    | '/admin/services'
+    | '/api/menu-pdf'
+    | '/admin/'
+    | '/admin/orders/$id'
+    | '/api/admin/certificates'
+    | '/api/admin/login'
+    | '/api/admin/logout'
+    | '/api/admin/me'
+    | '/api/admin/menu'
+    | '/api/admin/services'
+    | '/api/certificates/create'
+    | '/api/admin/certificates/$id'
+    | '/api/admin/certificates/export'
+    | '/api/admin/services/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CatalogRoute: typeof CatalogRoute
   CertificateRoute: typeof CertificateRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminMenuRoute: typeof AdminMenuRoute
+  AdminServicesRoute: typeof AdminServicesRoute
+  ApiMenuPdfRoute: typeof ApiMenuPdfRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminOrdersIdRoute: typeof AdminOrdersIdRoute
+  ApiAdminCertificatesRoute: typeof ApiAdminCertificatesRouteWithChildren
+  ApiAdminLoginRoute: typeof ApiAdminLoginRoute
+  ApiAdminLogoutRoute: typeof ApiAdminLogoutRoute
+  ApiAdminMeRoute: typeof ApiAdminMeRoute
+  ApiAdminMenuRoute: typeof ApiAdminMenuRoute
+  ApiAdminServicesRoute: typeof ApiAdminServicesRouteWithChildren
   ApiCertificatesCreateRoute: typeof ApiCertificatesCreateRoute
 }
 
@@ -93,6 +298,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CertificateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/menu': {
+      id: '/admin/menu'
+      path: '/admin/menu'
+      fullPath: '/admin/menu'
+      preLoaderRoute: typeof AdminMenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/services': {
+      id: '/admin/services'
+      path: '/admin/services'
+      fullPath: '/admin/services'
+      preLoaderRoute: typeof AdminServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/menu-pdf': {
+      id: '/api/menu-pdf'
+      path: '/api/menu-pdf'
+      fullPath: '/api/menu-pdf'
+      preLoaderRoute: typeof ApiMenuPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/orders/$id': {
+      id: '/admin/orders/$id'
+      path: '/admin/orders/$id'
+      fullPath: '/admin/orders/$id'
+      preLoaderRoute: typeof AdminOrdersIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/certificates': {
+      id: '/api/admin/certificates'
+      path: '/api/admin/certificates'
+      fullPath: '/api/admin/certificates'
+      preLoaderRoute: typeof ApiAdminCertificatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/login': {
+      id: '/api/admin/login'
+      path: '/api/admin/login'
+      fullPath: '/api/admin/login'
+      preLoaderRoute: typeof ApiAdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/logout': {
+      id: '/api/admin/logout'
+      path: '/api/admin/logout'
+      fullPath: '/api/admin/logout'
+      preLoaderRoute: typeof ApiAdminLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/me': {
+      id: '/api/admin/me'
+      path: '/api/admin/me'
+      fullPath: '/api/admin/me'
+      preLoaderRoute: typeof ApiAdminMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/menu': {
+      id: '/api/admin/menu'
+      path: '/api/admin/menu'
+      fullPath: '/api/admin/menu'
+      preLoaderRoute: typeof ApiAdminMenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/services': {
+      id: '/api/admin/services'
+      path: '/api/admin/services'
+      fullPath: '/api/admin/services'
+      preLoaderRoute: typeof ApiAdminServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/certificates/create': {
       id: '/api/certificates/create'
       path: '/api/certificates/create'
@@ -100,13 +389,70 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCertificatesCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/certificates/$id': {
+      id: '/api/admin/certificates/$id'
+      path: '/$id'
+      fullPath: '/api/admin/certificates/$id'
+      preLoaderRoute: typeof ApiAdminCertificatesIdRouteImport
+      parentRoute: typeof ApiAdminCertificatesRoute
+    }
+    '/api/admin/certificates/export': {
+      id: '/api/admin/certificates/export'
+      path: '/export'
+      fullPath: '/api/admin/certificates/export'
+      preLoaderRoute: typeof ApiAdminCertificatesExportRouteImport
+      parentRoute: typeof ApiAdminCertificatesRoute
+    }
+    '/api/admin/services/$id': {
+      id: '/api/admin/services/$id'
+      path: '/$id'
+      fullPath: '/api/admin/services/$id'
+      preLoaderRoute: typeof ApiAdminServicesIdRouteImport
+      parentRoute: typeof ApiAdminServicesRoute
+    }
   }
 }
+
+interface ApiAdminCertificatesRouteChildren {
+  ApiAdminCertificatesIdRoute: typeof ApiAdminCertificatesIdRoute
+  ApiAdminCertificatesExportRoute: typeof ApiAdminCertificatesExportRoute
+}
+
+const ApiAdminCertificatesRouteChildren: ApiAdminCertificatesRouteChildren = {
+  ApiAdminCertificatesIdRoute: ApiAdminCertificatesIdRoute,
+  ApiAdminCertificatesExportRoute: ApiAdminCertificatesExportRoute,
+}
+
+const ApiAdminCertificatesRouteWithChildren =
+  ApiAdminCertificatesRoute._addFileChildren(ApiAdminCertificatesRouteChildren)
+
+interface ApiAdminServicesRouteChildren {
+  ApiAdminServicesIdRoute: typeof ApiAdminServicesIdRoute
+}
+
+const ApiAdminServicesRouteChildren: ApiAdminServicesRouteChildren = {
+  ApiAdminServicesIdRoute: ApiAdminServicesIdRoute,
+}
+
+const ApiAdminServicesRouteWithChildren =
+  ApiAdminServicesRoute._addFileChildren(ApiAdminServicesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CatalogRoute: CatalogRoute,
   CertificateRoute: CertificateRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminMenuRoute: AdminMenuRoute,
+  AdminServicesRoute: AdminServicesRoute,
+  ApiMenuPdfRoute: ApiMenuPdfRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminOrdersIdRoute: AdminOrdersIdRoute,
+  ApiAdminCertificatesRoute: ApiAdminCertificatesRouteWithChildren,
+  ApiAdminLoginRoute: ApiAdminLoginRoute,
+  ApiAdminLogoutRoute: ApiAdminLogoutRoute,
+  ApiAdminMeRoute: ApiAdminMeRoute,
+  ApiAdminMenuRoute: ApiAdminMenuRoute,
+  ApiAdminServicesRoute: ApiAdminServicesRouteWithChildren,
   ApiCertificatesCreateRoute: ApiCertificatesCreateRoute,
 }
 export const routeTree = rootRouteImport

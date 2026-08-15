@@ -41,19 +41,14 @@ export const instagramLinkFor = (branch: BranchInfo) =>
   `https://instagram.com/${branch.instagram}`;
 
 /**
- * PDF со SPA-меню по филиалам.
+ * PDF со SPA-меню.
  *
- * Сейчас у салонов один общий файл, поэтому оба города ведут на него. Когда
- * появятся отдельные меню для Петропавловска и Кокшетау — достаточно положить
- * их в `public/menu/` и поменять пути здесь, логика кнопки не меняется.
+ * Ссылка ведёт не напрямую на статический файл, а на серверный редирект
+ * (см. src/routes/api/menu-pdf.ts): он отдаёт файл, загруженный админом в
+ * /admin/menu, если он есть, иначе — тот же статический
+ * /menu/spa-menu.pdf, что и раньше. Так администратор может заменить меню
+ * без участия разработчика и без релиза, а если он этого не делал —
+ * поведение кнопки не отличается от прежнего.
  */
-export const SPA_MENU_PDF: Record<Branch, string> = {
-  petropavlovsk: "/menu/spa-menu.pdf",
-  kokshetau: "/menu/spa-menu.pdf",
-};
-
-/** Меню для случая, когда город ещё не выбран. */
-export const DEFAULT_SPA_MENU_PDF = "/menu/spa-menu.pdf";
-
 export const spaMenuPdfFor = (branch?: Branch | null) =>
-  branch ? SPA_MENU_PDF[branch] : DEFAULT_SPA_MENU_PDF;
+  `/api/menu-pdf${branch ? `?branch=${branch}` : ""}`;

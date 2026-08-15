@@ -2,15 +2,22 @@ import { createFileRoute } from "@tanstack/react-router";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
 type PaymentMethod = "kaspi" | "freedom_pay";
+type CertificateType = "service" | "amount";
+
+type ServiceLine = { id: string; name: string; price: number };
 
 type CreateCertificateBody = {
   amount: number;
+  certificateType: CertificateType;
   buyerName: string;
   buyerContact?: string | null;
   recipientName?: string | null;
   recipientContact?: string | null;
   branch?: string | null;
   paymentMethod: PaymentMethod;
+  designId?: string | null;
+  message?: string | null;
+  services?: ReadonlyArray<ServiceLine> | null;
 };
 
 const generateCertificateNumber = () => {
@@ -38,16 +45,28 @@ async function findUniqueCertificateNumber(
   throw new Error("could_not_generate_unique_certificate_number");
 }
 
+function isValidServiceLine(v: unknown): v is ServiceLine {
+  if (!v || typeof v !== "object") return false;
+  const s = v as Record<string, unknown>;
+  return typeof s["id"] === "string" && typeof s["name"] === "string" && typeof s["price"] === "number";
+}
+
 function isValidBody(body: unknown): body is CreateCertificateBody {
   if (!body || typeof body !== "object") return false;
   const b = body as Record<string, unknown>;
-  return (
-    typeof b["amount"] === "number" &&
-    (b["amount"] as number) >= 0 &&
-    typeof b["buyerName"] === "string" &&
-    (b["buyerName"] as string).trim().length > 0 &&
-    (b["paymentMethod"] === "kaspi" || b["paymentMethod"] === "freedom_pay")
-  );
+  if (
+    typeof b["amount"] !== "number" ||
+    (b["amount"] as number) < 0 ||
+    (b["certificateType"] !== "service" && b["certificateType"] !== "amount") ||
+    typeof b["buyerName"] !== "string" ||
+    (b["buyerName"] as string).trim().length === 0 ||
+    (b["paymentMethod"] !== "kaspi" && b["paymentMethod"] !== "freedom_pay")
+  ) {
+    return false;
+  }
+  if (b["services"] != null && !Array.isArray(b["services"])) return false;
+  if (Array.isArray(b["services"]) && !b["services"].every(isValidServiceLine)) return false;
+  return true;
 }
 
 export const Route = createFileRoute("/api/certificates/create")({
@@ -90,20 +109,25 @@ export const Route = createFileRoute("/api/certificates/create")({
             .insert({
               certificate_number: certificateNumber,
               amount: body.amount,
+              certificate_type: body.certificateType,
               buyer_name: body.buyerName.trim(),
               buyer_contact: body.buyerContact?.trim() || null,
               recipient_name: body.recipientName?.trim() || null,
               recipient_contact: body.recipientContact?.trim() || null,
               branch: body.branch?.trim() || null,
               payment_method: body.paymentMethod,
-              // See chat/README notes: neither payment method has a real
-              // gateway confirmation wired up yet, so "paid" here means the
-              // same thing the old client-only mock meant — the user reached
-              // and clicked through the confirmation step, not that a payment
-              // provider actually verified funds moved. Swap this once the
-              // real Kaspi Pay / Freedom Pay confirmation (webhook or status
-              // poll) lands, and only insert/mark 'paid' from that trusted path.
-              payment_status: "paid",
+              design_id: body.designId?.trim() || null,
+              message: body.message?.trim() || null,
+              services: body.services && body.services.length > 0 ? body.services : null,
+              // Ни Kaspi Pay, ни Freedom Pay ещё не подключены (это отдельная
+              // будущая задача) — "paid" здесь означало бы то же, что и
+              // раньше означал клиентский мок: пользователь дошёл до кнопки
+              // "Оплатить" и нажал её, а не то, что платёжный провайдер
+              // подтвердил поступление денег. sandbox_paid — честная пометка
+              // тестового платежа, чтобы её можно было отличить от настоящей
+              // 'paid', когда реальный шлюз (webhook/статус-полл) появится.
+              payment_status: "sandbox_paid",
+              status: "active",
             })
             .select("id, certificate_number")
             .single();

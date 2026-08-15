@@ -372,6 +372,42 @@ function Index() {
         </div>
       </section>
 
+      {/* ── «Как это работает» — 3 шага из ТЗ, текст дословно. Стоит сразу
+          после тизера сертификата: логично идёт следующим — сначала «два
+          варианта подарка», потом «как именно это оформляется». ──────── */}
+      <section className="relative overflow-hidden">
+        <Divider motif="waveCrown" className="pt-12 sm:pt-16 lg:pt-20" />
+        <div className="relative mx-auto max-w-5xl px-5 pt-10 pb-16 text-center sm:px-6 sm:pt-12 sm:pb-24">
+          <div className="flex items-center justify-center gap-3">
+            <Motif name="petalDiamond" className="text-gold h-7 w-7" />
+            <p className="eyebrow">{t("home.howEyebrow")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
+            {t("home.howTitle")}
+          </h2>
+
+          <div className="mt-10 grid gap-8 sm:mt-12 sm:grid-cols-3 sm:gap-10">
+            {[
+              { n: "1", title: t("home.how1Title"), desc: t("home.how1Desc") },
+              { n: "2", title: t("home.how2Title"), desc: t("home.how2Desc") },
+              { n: "3", title: t("home.how3Title"), desc: t("home.how3Desc") },
+            ].map((step) => (
+              <div key={step.n} className="flex flex-col items-center">
+                <span className="border-gold text-gold font-display flex h-12 w-12 items-center justify-center rounded-full border text-lg">
+                  {step.n}
+                </span>
+                <p className="font-display mt-4 text-lg">{step.title}</p>
+                <p className="text-cream/70 mt-2 max-w-xs text-sm leading-relaxed">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <Link to="/certificate" className="btn-gold mt-10 sm:mt-12">
+            {t("home.howButton")}
+          </Link>
+        </div>
+      </section>
+
       {/* ── Информационные блоки — опущены ниже каталога и сертификат-тизера
           (были выше, сразу после hero; теперь после продуктовой части, как
           и попросили). Блок 3: почему RAI THAI SPA ─────────────────────── */}
