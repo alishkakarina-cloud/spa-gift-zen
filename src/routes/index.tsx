@@ -193,9 +193,11 @@ function Index() {
                     единственный из трёх табов, чей реальный контент
                     физически помещается прямо здесь, как и на layan.kz.
                     Для городских табов реальный контент — это список услуг,
-                    который живёт в #services, а не второй раз здесь. */}
+                    который живёт в #services, а не второй раз здесь.
+                    panel-reveal — раньше появлялась мгновенно, без анимации;
+                    тайминг снят с layan.kz (см. styles.css). */}
                 {heroTab === "amount" && (
-                  <div className="surface mt-4 rounded-lg p-4 text-left sm:p-5">
+                  <div className="surface panel-reveal mt-4 rounded-lg p-4 text-left sm:p-5">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
                       <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">

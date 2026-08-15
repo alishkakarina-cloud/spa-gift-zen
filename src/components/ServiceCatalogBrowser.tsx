@@ -60,48 +60,53 @@ export function ServiceCatalogBrowser({
         />
       </div>
 
-      <h2 className="font-display mt-10 text-2xl">{t(activeGroup.labelKey)}</h2>
-      {activeGroup.noteKey && (
-        <p className="border-gold/35 bg-gold/5 text-cream/75 mt-3 rounded-md border px-4 py-3 text-sm leading-relaxed">
-          {t(activeGroup.noteKey)}
-        </p>
-      )}
-
-      {groupId === "promotions" ? (
-        // Акция — не Service: у неё нет цены и её нельзя подарить сертификатом,
-        // поэтому вместо чекбоксов и сводки — те же карточки условий, что и в
-        // блоке «Акции» на главной (PromotionsGrid, тот же компонент).
-        <>
-          <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
-            {t("promo.intro")}
+      {/* key={groupId} — при смене категории блок перемонтируется, поэтому
+          panel-reveal (см. styles.css, тайминг снят с layan.kz) проигрывается
+          заново на каждое переключение. Раньше список менялся мгновенно. */}
+      <div key={groupId} className="panel-reveal">
+        <h2 className="font-display mt-10 text-2xl">{t(activeGroup.labelKey)}</h2>
+        {activeGroup.noteKey && (
+          <p className="border-gold/35 bg-gold/5 text-cream/75 mt-3 rounded-md border px-4 py-3 text-sm leading-relaxed">
+            {t(activeGroup.noteKey)}
           </p>
-          <PromotionsGrid t={t} className="mt-6 grid gap-4 sm:grid-cols-2" />
-        </>
-      ) : (
-        <>
-          <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
+        )}
 
-          <div className="mt-4 grid gap-3">
-            {groupServiceFamilies(servicesInGroup(groupId)).map((family) => (
-              <ServiceFamilyRow
-                key={family.familyKey}
-                family={family}
-                selectedIds={selectedIds}
-                onToggle={onToggle}
-                t={t}
-              />
-            ))}
-          </div>
+        {groupId === "promotions" ? (
+          // Акция — не Service: у неё нет цены и её нельзя подарить сертификатом,
+          // поэтому вместо чекбоксов и сводки — те же карточки условий, что и в
+          // блоке «Акции» на главной (PromotionsGrid, тот же компонент).
+          <>
+            <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
+              {t("promo.intro")}
+            </p>
+            <PromotionsGrid t={t} className="mt-6 grid gap-4 sm:grid-cols-2" />
+          </>
+        ) : (
+          <>
+            <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
 
-          <SelectionSummary
-            ids={selectedIds}
-            onRemove={onToggle}
-            onClear={onClear}
-            t={t}
-            action={action}
-          />
-        </>
-      )}
+            <div className="mt-4 grid gap-3">
+              {groupServiceFamilies(servicesInGroup(groupId)).map((family) => (
+                <ServiceFamilyRow
+                  key={family.familyKey}
+                  family={family}
+                  selectedIds={selectedIds}
+                  onToggle={onToggle}
+                  t={t}
+                />
+              ))}
+            </div>
+
+            <SelectionSummary
+              ids={selectedIds}
+              onRemove={onToggle}
+              onClear={onClear}
+              t={t}
+              action={action}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }

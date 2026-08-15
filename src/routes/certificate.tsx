@@ -774,9 +774,15 @@ function CertificateFlow() {
           <div className="border-border mt-8 border-t">
             {/* Полный список из официального ТЗ (блок 18) — 9 вопросов,
                 дословно. Первый открыт по умолчанию, как и раньше при одном
-                вопросе; остальные — обычный аккордеон <details>. */}
+                вопросе; остальные — обычный аккордеон <details>.
+                faq-accordion — плавное появление ответа при раскрытии (см.
+                styles.css); раньше ответ показывался без анимации. */}
             {FAQ_NUMBERS.map((n) => (
-              <details key={n} className="border-border group border-b" open={n === 1}>
+              <details
+                key={n}
+                className="border-border faq-accordion group border-b"
+                open={n === 1}
+              >
                 <summary className="font-display marker:content-none flex cursor-pointer items-center justify-between gap-4 py-5 text-lg">
                   {t(`home.faq${n}Q`)}
                   <span className="text-gold text-sm transition-transform group-open:rotate-45">

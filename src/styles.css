@@ -175,6 +175,48 @@
   animation: step-fade-in 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Раскрытие панели под табами (сумма в hero, смена категории в каталоге) —
+   раньше содержимое просто появлялось/менялось мгновенно. Тайминг и кривая
+   сняты с layan.kz (/buy-certificate, компонент AnimatedContent, вариант
+   "slide-up"): fade + сдвиг снизу вверх, обычный ease, 0.4s. */
+@keyframes panel-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility panel-reveal {
+  animation: panel-reveal 0.4s ease;
+}
+
+/* Раскрытие ответа в аккордеоне FAQ — у native <details> нет плавного
+   появления по умолчанию. На layan.kz аккордеона для FAQ нет (у них
+   статичная сетка карточек), поэтому ориентир общий по сайту — тот же
+   0.2s ease, что у них на hover/выборе интерактивных элементов. Класс
+   вешается на сам <details>, а не на ответ, — та же схема nesting, что и
+   у &:hover / &::-webkit-scrollbar выше. */
+@keyframes faq-answer-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility faq-accordion {
+  &[open] p {
+    animation: faq-answer-in 0.2s ease;
+  }
+}
+
 /* Лента услуг прокручивается свайпом, поэтому системная полоса только мешает. */
 @utility no-scrollbar {
   scrollbar-width: none;
