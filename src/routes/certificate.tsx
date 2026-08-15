@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
@@ -117,6 +117,19 @@ function CertificateFlow() {
   // никогда не показывался.
   const hasPreset = Boolean(presetIds.length > 0 || presetAmount);
   const [step, setStep] = useState<Step>(hasPreset ? 2 : 1);
+
+  /**
+   * Переключение шага (next/back) — это setStep, а не переход по роуту, URL
+   * не меняется. Встроенный scrollRestoration роутера тут ни при чём: он
+   * реагирует только на навигацию между страницами (там всё уже работает
+   * штатно), а между шагами скролл раньше оставался как есть. Из-за этого
+   * при переходе с длинного шага 1 (полный список услуг) на короткий шаг 2/3
+   * браузер зажимал scrollY у нижней границы новой, более короткой страницы —
+   * пользователя визуально бросало к футеру/FAQ, а не к началу формы.
+   */
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
   const [kind, setKind] = useState<Kind>(presetKind ?? (presetAmount ? "amount" : "service"));
   const [groupId, setGroupId] = useState<CatalogGroup>(presetFirst?.group ?? "massage");
   const [serviceIds, setServiceIds] = useState<string[]>(presetIds);
