@@ -264,7 +264,116 @@ function Index() {
         </div>
       </section>
 
-      {/* ── Блок 3: почему RAI THAI SPA ───────────────────────────────── */}
+      {/* ── Услуги (бывшая /catalog) — якорная секция #services, по образцу
+          layan.kz: полный прайс показан прямо на главной, а не отдельной
+          страницей. Ссылка «Наши услуги» в hero ведёт сюда якорем.
+          Поднято сразу после hero — каталог должен идти выше информационных
+          блоков (не после них), это отдельно попросили поправить. ──────── */}
+      <section id="services" className="relative overflow-hidden">
+        <Divider motif="swirlLeaf" className="pt-12 sm:pt-16 lg:pt-20" />
+        <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-24">
+          <div className="flex items-center gap-3">
+            <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
+            <p className="eyebrow">{t("catalog.title")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
+            {t("catalog.title")}
+          </h2>
+          <p className="text-cream/65 mt-3 max-w-lg text-sm leading-relaxed">
+            {t("catalog.subtitle")}
+          </p>
+
+          {/* Коротко об услугах + полное меню файлом — тот же блок, что был
+              на /catalog, перед списком услуг, как и на layan.kz (там
+              PDF-меню тоже стоит перед прайсом). */}
+          <div className="surface mt-8 rounded-lg p-6 sm:p-8">
+            <h3 className="font-display text-xl sm:text-2xl">{t("catalog.menuTitle")}</h3>
+            <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
+              {t("catalog.menuText")}
+            </p>
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <span className="text-cream/45 text-[0.62rem] tracking-[0.2em] uppercase">
+                {t("catalog.menuCity")}
+              </span>
+              {BRANCHES.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => setMenuBranch(menuBranch === b.id ? null : b.id)}
+                  aria-pressed={menuBranch === b.id}
+                  className={`rounded-md border px-3 py-1.5 text-xs transition-colors ${
+                    menuBranch === b.id
+                      ? "border-gold bg-gold/10 text-gold"
+                      : "border-border text-cream/70 hover:border-gold/60"
+                  }`}
+                >
+                  {t(b.labelKey)}
+                </button>
+              ))}
+            </div>
+
+            <a href={spaMenuPdfFor(menuBranch)} download className="btn-ghost mt-5 text-[0.62rem]">
+              {t("catalog.menuButton")}
+            </a>
+          </div>
+
+          <div className="mt-10">
+            <ServiceCatalogBrowser
+              groupId={servicesGroupId}
+              onGroupChange={setServicesGroupId}
+              selectedIds={selectedServiceIds}
+              onToggle={(id) => setSelectedServiceIds((ids) => toggleServiceId(ids, id))}
+              onClear={() => setSelectedServiceIds([])}
+              t={t}
+              action={
+                <Link
+                  to="/certificate"
+                  search={{
+                    services: serializeServiceIds(selectedServiceIds),
+                    ...menuBranchSearch,
+                  }}
+                  className="btn-gold"
+                >
+                  {t("cert.giftButton")}
+                </Link>
+              }
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Сертификат-тизер — следующий логический шаг после каталога, как
+          на layan.kz (Услуги → тизер сертификата → салоны). Раньше стоял
+          в самом низу страницы, после «Ритуала». ──────────────────────── */}
+      <section className="border-border relative overflow-hidden border-b">
+        <Divider motif="flowerBurst" className="pt-12 sm:pt-16 lg:pt-20" />
+        <Motif
+          name="lotusBloom"
+          className="text-gold pointer-events-none absolute top-1/2 left-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 sm:h-96 sm:w-96 lg:h-[36rem] lg:w-[36rem]"
+          style={{ opacity: 0.2 }}
+        />
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-5 pt-10 pb-16 text-center sm:px-6 sm:pt-14 sm:pb-24 lg:pb-28">
+          <div className="flex items-center gap-3">
+            <Motif name="lotusBloom" className="text-gold h-7 w-7 sm:h-9 sm:w-9" />
+            <p className="eyebrow">{t("home.ctaEyebrow")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
+            {t("home.ctaTitle")}
+          </h2>
+          <p className="text-cream/70 mt-4 max-w-xl text-sm leading-relaxed">
+            {t("home.ctaText")}
+          </p>
+          {/* Город из hero едет и сюда: филиал на форме оформления больше не
+              выбирается, он приходит только из сценария покупки. */}
+          <Link to="/certificate" search={branchSearch} className="btn-beige mt-8 sm:mt-9">
+            {t("home.ctaButton")}
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Информационные блоки — опущены ниже каталога и сертификат-тизера
+          (были выше, сразу после hero; теперь после продуктовой части, как
+          и попросили). Блок 3: почему RAI THAI SPA ─────────────────────── */}
       <section className="relative overflow-hidden">
         <Divider motif="swirlLeaf" className="pt-12 sm:pt-16 lg:pt-20" />
         <Motif
@@ -340,82 +449,6 @@ function Index() {
         </div>
       </section>
 
-      {/* ── Услуги (бывшая /catalog) — якорная секция #services, по образцу
-          layan.kz: полный прайс показан прямо на главной, а не отдельной
-          страницей. Ссылка «Наши услуги» в hero ведёт сюда якорем. ──────── */}
-      <section id="services" className="relative overflow-hidden">
-        <Divider motif="swirlLeaf" className="pt-12 sm:pt-16 lg:pt-20" />
-        <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-24">
-          <div className="flex items-center gap-3">
-            <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
-            <p className="eyebrow">{t("catalog.title")}</p>
-          </div>
-          <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
-            {t("catalog.title")}
-          </h2>
-          <p className="text-cream/65 mt-3 max-w-lg text-sm leading-relaxed">
-            {t("catalog.subtitle")}
-          </p>
-
-          {/* Коротко об услугах + полное меню файлом — тот же блок, что был
-              на /catalog, между «О нас» и списком услуг, как и на layan.kz
-              (там PDF-меню тоже стоит перед прайсом). */}
-          <div className="surface mt-8 rounded-lg p-6 sm:p-8">
-            <h3 className="font-display text-xl sm:text-2xl">{t("catalog.menuTitle")}</h3>
-            <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
-              {t("catalog.menuText")}
-            </p>
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              <span className="text-cream/45 text-[0.62rem] tracking-[0.2em] uppercase">
-                {t("catalog.menuCity")}
-              </span>
-              {BRANCHES.map((b) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  onClick={() => setMenuBranch(menuBranch === b.id ? null : b.id)}
-                  aria-pressed={menuBranch === b.id}
-                  className={`rounded-md border px-3 py-1.5 text-xs transition-colors ${
-                    menuBranch === b.id
-                      ? "border-gold bg-gold/10 text-gold"
-                      : "border-border text-cream/70 hover:border-gold/60"
-                  }`}
-                >
-                  {t(b.labelKey)}
-                </button>
-              ))}
-            </div>
-
-            <a href={spaMenuPdfFor(menuBranch)} download className="btn-ghost mt-5 text-[0.62rem]">
-              {t("catalog.menuButton")}
-            </a>
-          </div>
-
-          <div className="mt-10">
-            <ServiceCatalogBrowser
-              groupId={servicesGroupId}
-              onGroupChange={setServicesGroupId}
-              selectedIds={selectedServiceIds}
-              onToggle={(id) => setSelectedServiceIds((ids) => toggleServiceId(ids, id))}
-              onClear={() => setSelectedServiceIds([])}
-              t={t}
-              action={
-                <Link
-                  to="/certificate"
-                  search={{
-                    services: serializeServiceIds(selectedServiceIds),
-                    ...menuBranchSearch,
-                  }}
-                  className="btn-gold"
-                >
-                  {t("cert.giftButton")}
-                </Link>
-              }
-            />
-          </div>
-        </div>
-      </section>
-
       {/* ── Блок «Ритуал» — оставлен как был ──────────────────────────── */}
       <section className="relative overflow-hidden">
         <Divider motif="templeArch" className="pt-12 sm:pt-16 lg:pt-20" />
@@ -445,32 +478,6 @@ function Index() {
               {t("home.ritualText")}
             </p>
           </div>
-        </div>
-      </section>
-
-      <section className="border-border relative overflow-hidden border-b">
-        <Divider motif="flowerBurst" className="pt-12 sm:pt-16 lg:pt-20" />
-        <Motif
-          name="lotusBloom"
-          className="text-gold pointer-events-none absolute top-1/2 left-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 sm:h-96 sm:w-96 lg:h-[36rem] lg:w-[36rem]"
-          style={{ opacity: 0.2 }}
-        />
-        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-5 pt-10 pb-16 text-center sm:px-6 sm:pt-14 sm:pb-24 lg:pb-28">
-          <div className="flex items-center gap-3">
-            <Motif name="lotusBloom" className="text-gold h-7 w-7 sm:h-9 sm:w-9" />
-            <p className="eyebrow">{t("home.ctaEyebrow")}</p>
-          </div>
-          <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
-            {t("home.ctaTitle")}
-          </h2>
-          <p className="text-cream/70 mt-4 max-w-xl text-sm leading-relaxed">
-            {t("home.ctaText")}
-          </p>
-          {/* Город из hero едет и сюда: филиал на форме оформления больше не
-              выбирается, он приходит только из сценария покупки. */}
-          <Link to="/certificate" search={branchSearch} className="btn-beige mt-8 sm:mt-9">
-            {t("home.ctaButton")}
-          </Link>
         </div>
       </section>
 
