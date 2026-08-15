@@ -41,10 +41,12 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useLanguage();
-  // Город не выбран по умолчанию: шаг с суммой раскрывается только после
-  // выбора, и на телефоне hero до первого касания остаётся коротким.
-  const [city, setCity] = useState<Branch | null>(null);
-  const [amountsOpen, setAmountsOpen] = useState(false);
+  // Единый 3-позиционный переключатель hero — по образцу layan.kz
+  // (/buy-certificate, шаг 1: «Выбрать услуги (город A)» / «(город Б)» /
+  // «Указать сумму», ровно одна активная панель, по умолчанию открыт первый
+  // таб). Раньше городские кнопки были независимым toggle без раскрытия, а
+  // сумма — отдельным аккордеоном; это и было структурным расхождением.
+  const [heroTab, setHeroTab] = useState<Branch | "amount">("kokshetau");
   const [selectedAmount, setSelectedAmount] = useState<number>(fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
 
@@ -53,8 +55,15 @@ function Index() {
     customAmount && Number.isFinite(parsedCustom) && parsedCustom >= MIN_AMOUNT
       ? parsedCustom
       : selectedAmount;
+  const heroBranch = heroTab === "amount" ? null : heroTab;
   /** Город попадает в ссылку только когда выбран — `branch` необязателен. */
-  const branchSearch = city ? { branch: city } : {};
+  const branchSearch = heroBranch ? { branch: heroBranch } : {};
+
+  // Порядок в hero — конкретно Кокшетау → Петропавловск (по референсу),
+  // отдельно от порядка BRANCHES в данных (он используется в других местах
+  // сайта и его трогать не нужно).
+  const heroBranches: Branch[] = ["kokshetau", "petropavlovsk"];
+  const branchById = (id: Branch) => BRANCHES.find((b) => b.id === id)!;
 
   // Витрина услуг — перенесена сюда с бывшей /catalog (теперь якорная секция
   // #services на главной, по структуре layan.kz, где прайс живёт прямо на
@@ -134,59 +143,41 @@ function Index() {
                 {t("home.heroTimeLine")}
               </p>
 
-              {/* Финальный порядок сценария: город → сумма → «Наши услуги».
-                  Город — необязательное уточнение (едет в сертификат через
-                  branchSearch, если выбран), поэтому он не блокирует сумму. */}
+              {/* Единый 3-позиционный переключатель — по механике layan.kz
+                  (/buy-certificate, шаг 1): три равноправных таба в одном
+                  ряду, ровно один активен, под ним — ровно одна панель.
+                  По умолчанию открыт первый таб (Кокшетау), без клика. */}
               <div className="mt-6 w-full max-w-md lg:mt-7">
                 <p className="eyebrow text-center lg:text-left">{t("home.buyCityEyebrow")}</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  {BRANCHES.map((b) => (
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  {heroBranches.map((id) => (
                     <button
-                      key={b.id}
+                      key={id}
                       type="button"
-                      onClick={() => setCity(b.id)}
-                      aria-pressed={city === b.id}
-                      className={city === b.id ? "btn-gold" : "btn-ghost"}
+                      onClick={() => setHeroTab(id)}
+                      aria-pressed={heroTab === id}
+                      className={heroTab === id ? "btn-gold" : "btn-ghost"}
                     >
-                      {t("home.buyCityPrefix")} {t(b.labelKey)}
+                      {t(branchById(id).labelKey)}
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    onClick={() => setHeroTab("amount")}
+                    aria-pressed={heroTab === "amount"}
+                    className={heroTab === "amount" ? "btn-gold" : "btn-ghost"}
+                  >
+                    {t("home.buyAmountToggle")}
+                  </button>
                 </div>
 
-                {/* Кнопка сама по себе — голая, в одном стиле с остальными
-                    тремя (btn-ghost). Заголовок, бейдж бессрочности,
-                    описание и номиналы раньше были видны сразу как часть
-                    статичной панели — теперь весь этот контент никуда не
-                    делся, просто переехал внутрь раскрывающегося блока и
-                    до клика не отображается (grid-rows-[0fr] + inert). */}
-                <button
-                  type="button"
-                  onClick={() => setAmountsOpen((v) => !v)}
-                  aria-expanded={amountsOpen}
-                  className="btn-ghost mt-5 w-full gap-2 sm:w-auto"
-                >
-                  {t("home.buyAmountToggle")}
-                  <span
-                    className={`text-xs transition-transform duration-300 ${amountsOpen ? "rotate-45" : ""}`}
-                    aria-hidden="true"
-                  >
-                    +
-                  </span>
-                </button>
-
-                <div
-                  // Тот же easeOutExpo-подобный профиль, что и у появления
-                  // шага в мастере оформления (step-fade-in) — раскрытие
-                  // ощущается частью одного и того же движения по сайту.
-                  className={`grid transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                    amountsOpen
-                      ? "mt-4 grid-rows-[1fr] opacity-100"
-                      : "mt-0 grid-rows-[0fr] opacity-0"
-                  }`}
-                  inert={!amountsOpen}
-                >
-                  <div className="overflow-hidden">
-                    <div className="surface rounded-lg p-4 text-left sm:p-5">
+                {/* Ровно одна панель под рядом табов — как у layan.kz, где
+                    смена таба мгновенно меняет контент одной и той же зоны,
+                    без перехода и без раскрытия/схлопывания нескольких
+                    блоков одновременно. */}
+                <div className="surface mt-4 rounded-lg p-4 text-left sm:p-5">
+                  {heroTab === "amount" ? (
+                    <>
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
                         <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
                         <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
@@ -246,13 +237,27 @@ function Index() {
                       >
                         {t("home.buyGift")}
                       </Link>
-                    </div>
-                  </div>
+                    </>
+                  ) : (
+                    // Городской таб: своего отдельного прайса по филиалам у
+                    // нас нет (в отличие от layan.kz, где Астана и Караганда
+                    // показывают физически разные списки услуг) — единый
+                    // каталог уже собран в секции #services, поэтому панель
+                    // ведёт туда с уже подставленным филиалом, а не дублирует
+                    // весь категорийный браузер второй раз внутри hero.
+                    <>
+                      <p className="font-display text-lg">
+                        {t("home.buyCityPrefix")} {t(branchById(heroTab).labelKey)}
+                      </p>
+                      <p className="text-cream/70 mt-2 text-sm leading-relaxed">
+                        {t("catalog.subtitle")}
+                      </p>
+                      <a href="#services" className="btn-gold mt-4">
+                        {t("home.heroCatalogCta")}
+                      </a>
+                    </>
+                  )}
                 </div>
-
-                <a href="#services" className="btn-ghost mt-5 w-full sm:w-auto">
-                  {t("home.heroCatalogCta")}
-                </a>
               </div>
             </div>
           </div>

@@ -235,18 +235,39 @@ function CertificateFlow() {
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-      <p className="text-right text-[0.65rem] tracking-[0.28em] text-cream/50 uppercase">
-        {t("cert.stepOf", { step, name: steps[step - 1]! })}
-      </p>
-
-      <div className="mt-3 flex gap-1">
-        {steps.map((s, i) => (
-          <span
-            key={s}
-            className={`h-px flex-1 ${i < step ? "bg-gold" : "bg-border"}`}
-          />
-        ))}
-      </div>
+      {/* Список всех шагов сразу, а не полоска-прогресс — по механике
+          layan.kz (/buy-certificate): пройденные шаги схлопнуты до подписи
+          без номера, активный показывает номер и раскрыт, будущие показывают
+          номер и подпись. */}
+      <ol className="border-border mt-2 divide-y divide-border border-y text-sm">
+        {steps.map((s, i) => {
+          const n = i + 1;
+          const done = n < step;
+          const active = n === step;
+          return (
+            <li key={s} className="flex items-baseline gap-3 py-3">
+              {!done && (
+                <span
+                  className={`font-display shrink-0 text-base ${active ? "text-gold" : "text-cream/40"}`}
+                >
+                  {n}
+                </span>
+              )}
+              <span
+                className={
+                  active
+                    ? "font-display text-gold text-base"
+                    : done
+                      ? "text-cream/55"
+                      : "text-cream/40"
+                }
+              >
+                {s}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
 
       <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_380px] lg:items-start">
         {/* key={step} размонтирует и заново монтирует блок при смене шага —
