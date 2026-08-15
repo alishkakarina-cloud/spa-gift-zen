@@ -78,6 +78,8 @@ type Step = 1 | 2 | 3 | 4 | 5;
 type PaymentMethod = "card" | "kaspi";
 /** Арка на бланке маленькая — длинный текст туда физически не влезает. */
 const MESSAGE_MAX_LENGTH = 140;
+/** FAQ из официального ТЗ (блок 18) — 9 вопросов, ключи home.faq1Q..faq9A. */
+const FAQ_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 
 const formatCardNumber = (value: string) =>
   value
@@ -770,15 +772,20 @@ function CertificateFlow() {
           </div>
           <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl">{t("home.faqTitle")}</h2>
           <div className="border-border mt-8 border-t">
-            <details className="border-border group border-b" open>
-              <summary className="font-display marker:content-none flex cursor-pointer items-center justify-between gap-4 py-5 text-lg">
-                {t("home.faq1Q")}
-                <span className="text-gold text-sm transition-transform group-open:rotate-45">
-                  +
-                </span>
-              </summary>
-              <p className="text-cream/70 pb-5 text-sm leading-relaxed">{t("home.faq1A")}</p>
-            </details>
+            {/* Полный список из официального ТЗ (блок 18) — 9 вопросов,
+                дословно. Первый открыт по умолчанию, как и раньше при одном
+                вопросе; остальные — обычный аккордеон <details>. */}
+            {FAQ_NUMBERS.map((n) => (
+              <details key={n} className="border-border group border-b" open={n === 1}>
+                <summary className="font-display marker:content-none flex cursor-pointer items-center justify-between gap-4 py-5 text-lg">
+                  {t(`home.faq${n}Q`)}
+                  <span className="text-gold text-sm transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="text-cream/70 pb-5 text-sm leading-relaxed">{t(`home.faq${n}A`)}</p>
+              </details>
+            ))}
           </div>
         </div>
       </section>
