@@ -73,6 +73,23 @@ function Index() {
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
   const menuBranchSearch = menuBranch ? { branch: menuBranch } : {};
 
+  /**
+   * Городской таб hero: своего отдельного прайса по филиалам у нас нет (в
+   * отличие от layan.kz, где Астана и Караганда показывают физически разные
+   * списки услуг прямо под табами) — единый каталог уже собран в секции
+   * #services. Раньше клик по табу только подсвечивал кнопку, а под ней
+   * рисовалась карточка-заглушка «Выбрать услуги [город]» с описанием и
+   * отдельной кнопкой — то есть у пользователя было ДВА клика вместо
+   * одного, и лишняя карточка, которой на референсе нет вообще. Теперь клик
+   * по табу сразу и подсвечивает его, и ведёт к реальному контенту (плавный
+   * скролл к #services с подставленным филиалом) — без промежуточного шага.
+   */
+  const selectHeroBranch = (id: Branch) => {
+    setHeroTab(id);
+    setMenuBranch(id);
+    document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const why = [
     { title: t("home.why1Title"), desc: t("home.why1Desc") },
     { title: t("home.why2Title"), desc: t("home.why2Desc") },
@@ -143,10 +160,11 @@ function Index() {
                 {t("home.heroTimeLine")}
               </p>
 
-              {/* Единый 3-позиционный переключатель — по механике layan.kz
-                  (/buy-certificate, шаг 1): три равноправных таба в одном
-                  ряду, ровно один активен, под ним — ровно одна панель.
-                  По умолчанию открыт первый таб (Кокшетау), без клика. */}
+              {/* Три равноправных таба в одном ряду — по механике layan.kz
+                  (/buy-certificate, шаг 1). По умолчанию активен первый
+                  (Кокшетау), без клика. Городские табы сразу ведут к
+                  реальному контенту (скролл к #services) — без
+                  промежуточной карточки-заглушки, которой на референсе нет. */}
               <div className="mt-6 w-full max-w-md lg:mt-7">
                 <p className="eyebrow text-center lg:text-left">{t("home.buyCityEyebrow")}</p>
                 <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -154,7 +172,7 @@ function Index() {
                     <button
                       key={id}
                       type="button"
-                      onClick={() => setHeroTab(id)}
+                      onClick={() => selectHeroBranch(id)}
                       aria-pressed={heroTab === id}
                       className={heroTab === id ? "btn-gold" : "btn-ghost"}
                     >
@@ -171,93 +189,74 @@ function Index() {
                   </button>
                 </div>
 
-                {/* Ровно одна панель под рядом табов — как у layan.kz, где
-                    смена таба мгновенно меняет контент одной и той же зоны,
-                    без перехода и без раскрытия/схлопывания нескольких
-                    блоков одновременно. */}
-                <div className="surface mt-4 rounded-lg p-4 text-left sm:p-5">
-                  {heroTab === "amount" ? (
-                    <>
-                      <div className="flex flex-wrap items-baseline justify-between gap-2">
-                        <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
-                        <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
-                          {t("home.buyEndless")}
-                        </span>
-                      </div>
-                      <p className="text-cream/70 mt-2 text-sm leading-relaxed">
-                        {t("home.buyAmountText")}
-                      </p>
+                {/* Панель показывается только для «Указать сумму» — это
+                    единственный из трёх табов, чей реальный контент
+                    физически помещается прямо здесь, как и на layan.kz.
+                    Для городских табов реальный контент — это список услуг,
+                    который живёт в #services, а не второй раз здесь. */}
+                {heroTab === "amount" && (
+                  <div className="surface mt-4 rounded-lg p-4 text-left sm:p-5">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className="font-display text-lg">{t("home.buyAmountTitle")}</p>
+                      <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.55rem] tracking-[0.2em] uppercase">
+                        {t("home.buyEndless")}
+                      </span>
+                    </div>
+                    <p className="text-cream/70 mt-2 text-sm leading-relaxed">
+                      {t("home.buyAmountText")}
+                    </p>
 
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {fixedAmounts.map((a) => (
-                          <button
-                            key={a}
-                            type="button"
-                            onClick={() => {
-                              setSelectedAmount(a);
-                              setCustomAmount("");
-                            }}
-                            aria-pressed={!customAmount && selectedAmount === a}
-                            className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
-                              !customAmount && selectedAmount === a
-                                ? "border-gold bg-gold text-primary-foreground"
-                                : "border-border bg-card text-cream hover:border-gold/60"
-                            }`}
-                          >
-                            {formatPrice(a)}
-                          </button>
-                        ))}
-                      </div>
-
-                      <label
-                        className={`bg-card mt-3 block rounded-md border p-3 transition-colors ${
-                          customAmount ? "border-gold" : "border-border"
-                        }`}
-                      >
-                        <span
-                          className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {fixedAmounts.map((a) => (
+                        <button
+                          key={a}
+                          type="button"
+                          onClick={() => {
+                            setSelectedAmount(a);
+                            setCustomAmount("");
+                          }}
+                          aria-pressed={!customAmount && selectedAmount === a}
+                          className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
+                            !customAmount && selectedAmount === a
+                              ? "border-gold bg-gold text-primary-foreground"
+                              : "border-border bg-card text-cream hover:border-gold/60"
+                          }`}
                         >
-                          {t("home.buyAmountCustom")}
-                        </span>
-                        <input
-                          type="number"
-                          min={MIN_AMOUNT}
-                          step={1000}
-                          value={customAmount}
-                          onChange={(e) => setCustomAmount(e.target.value)}
-                          placeholder={String(MIN_AMOUNT)}
-                          className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
-                        />
-                      </label>
+                          {formatPrice(a)}
+                        </button>
+                      ))}
+                    </div>
 
-                      <Link
-                        to="/certificate"
-                        search={{ kind: "amount", amount: effectiveAmount, ...branchSearch }}
-                        className="btn-gold mt-4"
+                    <label
+                      className={`bg-card mt-3 block rounded-md border p-3 transition-colors ${
+                        customAmount ? "border-gold" : "border-border"
+                      }`}
+                    >
+                      <span
+                        className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
                       >
-                        {t("home.buyGift")}
-                      </Link>
-                    </>
-                  ) : (
-                    // Городской таб: своего отдельного прайса по филиалам у
-                    // нас нет (в отличие от layan.kz, где Астана и Караганда
-                    // показывают физически разные списки услуг) — единый
-                    // каталог уже собран в секции #services, поэтому панель
-                    // ведёт туда с уже подставленным филиалом, а не дублирует
-                    // весь категорийный браузер второй раз внутри hero.
-                    <>
-                      <p className="font-display text-lg">
-                        {t("home.buyCityPrefix")} {t(branchById(heroTab).labelKey)}
-                      </p>
-                      <p className="text-cream/70 mt-2 text-sm leading-relaxed">
-                        {t("catalog.subtitle")}
-                      </p>
-                      <a href="#services" className="btn-gold mt-4">
-                        {t("home.heroCatalogCta")}
-                      </a>
-                    </>
-                  )}
-                </div>
+                        {t("home.buyAmountCustom")}
+                      </span>
+                      <input
+                        type="number"
+                        min={MIN_AMOUNT}
+                        step={1000}
+                        value={customAmount}
+                        onChange={(e) => setCustomAmount(e.target.value)}
+                        placeholder={String(MIN_AMOUNT)}
+                        className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
+                      />
+                    </label>
+
+                    <Link
+                      to="/certificate"
+                      search={{ kind: "amount", amount: effectiveAmount, ...branchSearch }}
+                      className="btn-gold mt-4"
+                    >
+                      {t("home.buyGift")}
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -376,11 +375,6 @@ function Index() {
           и попросили). Блок 3: почему RAI THAI SPA ─────────────────────── */}
       <section className="relative overflow-hidden">
         <Divider motif="swirlLeaf" className="pt-12 sm:pt-16 lg:pt-20" />
-        <Motif
-          name="diamondLattice"
-          className="text-sage pointer-events-none absolute -top-6 -left-14 h-52 w-52 sm:-top-10 sm:-left-24 sm:h-72 sm:w-72 lg:h-[26rem] lg:w-[26rem]"
-          style={{ opacity: 0.16 }}
-        />
         <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-24 lg:pb-32">
           <div className="grid gap-10 sm:gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center lg:gap-16">
             <div>
