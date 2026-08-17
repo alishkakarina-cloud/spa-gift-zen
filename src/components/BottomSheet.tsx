@@ -46,20 +46,23 @@ export function BottomSheet({
       <div
         role="dialog"
         aria-modal="true"
-        className={`surface relative w-full max-w-xl rounded-t-2xl border-b-0 p-6 pb-8 transition-transform duration-300 ease-out sm:p-8 ${
+        style={{ maxHeight: "85svh" }}
+        className={`surface relative flex w-full max-w-xl flex-col rounded-t-2xl border-b-0 transition-transform duration-300 ease-out ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
       >
+        {/* Крестик — вне скролл-контейнера ниже, поэтому остаётся на месте,
+            пока длинный список услуг скроллится под ним. */}
         <button
           type="button"
           onClick={onClose}
           aria-label={closeLabel}
           title={closeLabel}
-          className="text-cream/60 hover:text-gold absolute top-4 right-4 flex h-8 w-8 items-center justify-center transition-colors"
+          className="text-cream/60 hover:text-gold absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center transition-colors"
         >
           <X className="h-5 w-5" />
         </button>
-        {children}
+        <div className="overflow-y-auto p-6 pb-8 sm:p-8">{children}</div>
       </div>
     </div>
   );

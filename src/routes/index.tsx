@@ -6,6 +6,45 @@ import logoLight from "@/assets/logo-on-dark.webp";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { BottomSheet } from "@/components/BottomSheet";
 import { spaMenuPdfFor } from "@/data/branches";
+import { services, formatPrice } from "@/data/catalog";
+
+/**
+ * Превью каталога внутри шторки — сознательно короткая подборка (не весь
+ * каталог: в «Массаж» и «SPA-программы» по 9 позиций каждая), те же id, что
+ * первыми стоят в data/catalog.ts. Полный список — через PDF-кнопку внизу
+ * шторки.
+ */
+const sheetPreviewGroups: ReadonlyArray<{ groupKey: string; serviceIds: readonly string[] }> = [
+  {
+    groupKey: "cert.groupMassage",
+    serviceIds: ["oil-absolute-calm", "traditional-thai", "lomi-lomi", "hot-stones"],
+  },
+  { groupKey: "cert.groupSpa", serviceIds: ["queen-of-thailand", "king-of-thailand"] },
+];
+
+function ServicePreviewRow({
+  id,
+  t,
+}: {
+  id: string;
+  t: (path: string, vars?: Record<string, string | number>) => string;
+}) {
+  const price = services.find((s) => s.id === id)?.price ?? 0;
+  return (
+    <li className="border-border/60 border-b py-3 last:border-b-0">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <span className="font-display text-base">{t(`services.${id}.name`)}</span>
+        <span className="text-gold shrink-0 text-sm">{formatPrice(price)}</span>
+      </div>
+      <p className="text-cream/45 mt-0.5 text-[0.62rem] tracking-[0.15em] uppercase">
+        {t(`services.${id}.duration`)}
+      </p>
+      <p className="text-cream/65 mt-1.5 text-sm leading-relaxed">
+        {t(`services.${id}.description`)}
+      </p>
+    </li>
+  );
+}
 
 /**
  * Новая главная "/" — по структуре layan.kz (полноэкранный hero: лого →
@@ -101,7 +140,19 @@ function Index() {
         <p className="text-cream/70 mt-3 max-w-lg text-sm leading-relaxed">
           {t("catalog.subtitle")}
         </p>
-        <a href={spaMenuPdfFor()} download className="btn-gold mt-6 w-full sm:w-auto">
+
+        {sheetPreviewGroups.map((group) => (
+          <div key={group.groupKey}>
+            <p className="font-display text-gold mt-6 text-lg">{t(group.groupKey)}</p>
+            <ul className="mt-2">
+              {group.serviceIds.map((id) => (
+                <ServicePreviewRow key={id} id={id} t={t} />
+              ))}
+            </ul>
+          </div>
+        ))}
+
+        <a href={spaMenuPdfFor()} download className="btn-gold mt-8 w-full sm:w-auto">
           {t("home.sheetPdfButton")}
         </a>
       </BottomSheet>
