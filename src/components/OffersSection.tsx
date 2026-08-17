@@ -7,7 +7,8 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { MIN_AMOUNT, fixedAmounts, formatPrice } from "@/data/catalog";
 import { BRANCHES, spaMenuPdfFor, type Branch } from "@/data/branches";
 import type { CatalogGroup } from "@/data/serviceGroups";
-import { serializeServiceIds, toggleServiceId } from "@/data/selection";
+import { serializeServiceIds } from "@/data/selection";
+import { useCart } from "@/context/CartContext";
 
 type Selection = { kind: "amount" } | null;
 
@@ -26,7 +27,10 @@ export function OffersSection() {
   const { t } = useLanguage();
 
   const [servicesGroupId, setServicesGroupId] = useState<CatalogGroup>("massage");
-  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
+  // Общее на весь сайт состояние (CartContext) — то же самое, что показывает
+  // FloatingCart, чтобы счётчик услуг в корзине совпадал с тем, что реально
+  // отмечено в каталоге, а не жил отдельным счётом на каждой странице.
+  const { selectedServiceIds, toggle: toggleService, clear: clearServices } = useCart();
 
   // Сумма — по-прежнему полноценный выбор, ведущий в мастер оформления.
   const [selection, setSelection] = useState<Selection>(null);
@@ -206,8 +210,8 @@ export function OffersSection() {
               groupId={servicesGroupId}
               onGroupChange={setServicesGroupId}
               selectedIds={selectedServiceIds}
-              onToggle={(id) => setSelectedServiceIds((ids) => toggleServiceId(ids, id))}
-              onClear={() => setSelectedServiceIds([])}
+              onToggle={toggleService}
+              onClear={clearServices}
               t={t}
               action={
                 <Link

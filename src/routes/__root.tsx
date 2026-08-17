@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "@/i18n/LanguageContext";
+import { CartProvider } from "@/context/CartContext";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { FloatingCart } from "@/components/FloatingCart";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -133,19 +134,18 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        {!isAdmin && (
-          /* Общая шапка на всех страницах сайта — по образцу layan.kz, где
-             один и тот же header (контакт/лого/CTA) закреплён на каждой
-             странице. */
-          <SiteHeader />
-        )}
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        {!isAdmin && <WhatsAppButton />}
-        {/* Только вёрстка, демо-содержимое — бизнес-логика (что считать
-            "выбором", откуда брать данные) ещё не согласована с клиентом,
-            см. FloatingCart.tsx. */}
-        {!isAdmin && <FloatingCart />}
+        <CartProvider>
+          {!isAdmin && (
+            /* Общая шапка на всех страницах сайта — по образцу layan.kz, где
+               один и тот же header (контакт/лого/CTA) закреплён на каждой
+               странице. */
+            <SiteHeader />
+          )}
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          {!isAdmin && <WhatsAppButton />}
+          {!isAdmin && <FloatingCart />}
+        </CartProvider>
       </LanguageProvider>
     </QueryClientProvider>
   );
