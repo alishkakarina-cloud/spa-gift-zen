@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { BRANCHES } from "@/data/branches";
@@ -13,6 +14,39 @@ function WhatsAppGlyph({ className }: { className?: string }) {
 }
 
 /**
+ * Показ/скрытие шапки по направлению скролла — по поведению layan.kz:
+ * скролл вниз прячет её (translateY(-100%)), скролл вверх возвращает,
+ * у самого верха страницы шапка всегда видна. sticky (не fixed) — уже
+ * занимает место в потоке и не требует компенсирующих отступов у
+ * контента на других страницах.
+ */
+function useHideOnScrollDown() {
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+
+  useEffect(() => {
+    lastY.current = window.scrollY;
+
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y < 80) {
+        setHidden(false);
+      } else if (y > lastY.current) {
+        setHidden(true);
+      } else if (y < lastY.current) {
+        setHidden(false);
+      }
+      lastY.current = y;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return hidden;
+}
+
+/**
  * Общая шапка для всех страниц (структура по образцу layan.kz: контакт слева,
  * логотип, основной CTA справа) — раньше у каждой страницы была своя шапка
  * (на главной — только переключатель языка поверх hero, на /catalog и
@@ -21,9 +55,14 @@ function WhatsAppGlyph({ className }: { className?: string }) {
 export function SiteHeader() {
   const { t } = useLanguage();
   const primaryBranch = BRANCHES[0]!;
+  const hidden = useHideOnScrollDown();
 
   return (
-    <header className="border-border/60 relative z-30 border-b bg-forest-deep/95 backdrop-blur-sm">
+    <header
+      className={`border-border/60 sticky top-0 z-30 border-b bg-forest-deep/95 backdrop-blur-sm transition-transform duration-300 ease-out ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      }`}
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-6">
         <a
           href={primaryBranch.whatsapp}
@@ -49,7 +88,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-3 sm:gap-4">
           <Link to="/certificate" className="btn-gold">
-            {t("cert.giftButton")}
+            {t("home.heroCta")}
           </Link>
           <LanguageSwitcher />
         </div>
