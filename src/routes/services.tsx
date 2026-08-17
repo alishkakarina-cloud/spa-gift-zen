@@ -180,6 +180,9 @@ function ServicesPage() {
             <p className="eyebrow">{t("branches.eyebrow")}</p>
           </div>
           <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("branches.title")}</h2>
+          <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
+            {t("home.aboutText")}
+          </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-2">
             {BRANCHES.map((b) => (
