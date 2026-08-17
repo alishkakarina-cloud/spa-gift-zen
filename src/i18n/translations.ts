@@ -37,6 +37,8 @@ const ru = {
     heroCta: "Купить сертификат",
     heroCatalogCta: "Наши услуги",
     heroCardCaption: "Подарочный сертификат",
+    sheetPdfButton: "Скачать каталог услуг (PDF)",
+    sheetClose: "Закрыть",
 
     /* Блок «Почему RAI THAI SPA» — четыре пункта из ТЗ. */
     whyEyebrow: "Почему RAI THAI SPA",
@@ -596,6 +598,8 @@ const kz = {
       "Тайландтан келген нағыз шеберлерден массаж бен SPA-ға мерзімсіз сертификат. Онлайн рәсімдеу — 2 минут.",
     heroCta: "Сертификат таңдау",
     heroCatalogCta: "Біздің қызметтер",
+    sheetPdfButton: "Қызметтер каталогын жүктеу (PDF)",
+    sheetClose: "Жабу",
     heroBadgeTitle: "Мерзімсіз сертификат",
     heroBadgeText: "Мерзім туралы алаңдамай сыйға тартыңыз — сыйлықты ыңғайлы кезде пайдалануға болады.",
     heroTimeLine: "Онлайн рәсімдеу 2 минут",
@@ -1089,6 +1093,8 @@ const en = {
       "An open-ended certificate for massage and SPA from real Thai-trained masters. Order online in 2 minutes.",
     heroCta: "Choose a certificate",
     heroCatalogCta: "Our services",
+    sheetPdfButton: "Download services catalog (PDF)",
+    sheetClose: "Close",
     heroBadgeTitle: "Open-ended certificate",
     heroBadgeText: "Give it without worrying about deadlines — the gift can be used whenever it's convenient.",
     heroTimeLine: "Order online in 2 minutes",

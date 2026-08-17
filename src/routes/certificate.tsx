@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { Check, ChevronRight } from "lucide-react";
 import { toPng } from "html-to-image";
 import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
@@ -353,39 +354,47 @@ function CertificateFlow() {
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-      {/* Список всех шагов сразу, а не полоска-прогресс — по механике
-          layan.kz (/buy-certificate): пройденные шаги схлопнуты до подписи
-          без номера, активный показывает номер и раскрыт, будущие показывают
-          номер и подпись. */}
-      <ol className="border-border mt-2 divide-y divide-border border-y text-sm">
-        {steps.map((s, i) => {
-          const n = i + 1;
-          const done = n < step;
-          const active = n === step;
-          return (
-            <li key={s} className="flex items-baseline gap-3 py-3">
-              {!done && (
+      {/* Горизонтальный степпер: все этапы в один ряд со стрелками между
+          ними, пройденные — галочкой, активный — золотым. На мобильном не
+          переносится на несколько строк, а скроллится по горизонтали. */}
+      <div className="border-border -mx-6 overflow-x-auto border-y px-6 sm:mx-0 sm:px-0">
+        <ol className="flex items-center gap-1.5 py-3 text-sm">
+          {steps.map((s, i) => {
+            const n = i + 1;
+            const done = n < step;
+            const active = n === step;
+            return (
+              <li key={s} className="flex shrink-0 items-center gap-1.5">
                 <span
-                  className={`font-display shrink-0 text-base ${active ? "text-gold" : "text-cream/40"}`}
+                  className={`flex items-center gap-2 whitespace-nowrap ${
+                    active
+                      ? "font-display text-gold"
+                      : done
+                        ? "text-cream/55"
+                        : "text-cream/40"
+                  }`}
                 >
-                  {n}
+                  <span
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs ${
+                      active
+                        ? "border-gold bg-gold/10 text-gold"
+                        : done
+                          ? "border-cream/35 text-cream/55"
+                          : "border-cream/20 text-cream/40"
+                    }`}
+                  >
+                    {done ? <Check className="h-3.5 w-3.5" /> : n}
+                  </span>
+                  {s}
                 </span>
-              )}
-              <span
-                className={
-                  active
-                    ? "font-display text-gold text-base"
-                    : done
-                      ? "text-cream/55"
-                      : "text-cream/40"
-                }
-              >
-                {s}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
+                {i < steps.length - 1 && (
+                  <ChevronRight className="text-cream/25 h-4 w-4 shrink-0" aria-hidden="true" />
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </div>
 
       <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_380px] lg:items-start">
         {/* key={step} размонтирует и заново монтирует блок при смене шага —

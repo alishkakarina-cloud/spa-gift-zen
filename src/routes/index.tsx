@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 import heroPhoto from "@/assets/atmosphere-arch.jpg";
 import logoLight from "@/assets/logo-on-dark.webp";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { BottomSheet } from "@/components/BottomSheet";
+import { spaMenuPdfFor } from "@/data/branches";
 
 /**
  * Новая главная "/" — по структуре layan.kz (полноэкранный hero: лого →
@@ -12,6 +15,10 @@ import { useLanguage } from "@/i18n/LanguageContext";
  * витрину /offers, где выбор города уже есть. Весь прежний контент главной
  * (каталог, инфоблоки, футер) переехал на /offers, эта страница — только
  * hero.
+ *
+ * «Наши услуги» открывает шторку с PDF-каталогом (как на layan.kz), а не
+ * ведёт на /offers — маршрут /offers остаётся доступен напрямую, просто
+ * кнопка с главной на него больше не ссылается.
  */
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,6 +41,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useLanguage();
+  const [servicesOpen, setServicesOpen] = useState(false);
 
   return (
     <main>
@@ -67,9 +75,9 @@ function Index() {
             <Link to="/certificate" className="btn-beige w-full">
               {t("home.heroCta")}
             </Link>
-            <Link to="/offers" hash="services" className="btn-gold w-full">
+            <button type="button" onClick={() => setServicesOpen(true)} className="btn-gold w-full">
               {t("home.heroCatalogCta")}
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -82,6 +90,20 @@ function Index() {
           <ChevronDown className="h-5 w-5" />
         </Link>
       </section>
+
+      <BottomSheet
+        open={servicesOpen}
+        onClose={() => setServicesOpen(false)}
+        closeLabel={t("home.sheetClose")}
+      >
+        <h2 className="font-display pr-8 text-xl sm:text-2xl">{t("home.heroCatalogCta")}</h2>
+        <p className="text-cream/70 mt-3 max-w-lg text-sm leading-relaxed">
+          {t("catalog.subtitle")}
+        </p>
+        <a href={spaMenuPdfFor()} download className="btn-gold mt-6 w-full sm:w-auto">
+          {t("home.sheetPdfButton")}
+        </a>
+      </BottomSheet>
     </main>
   );
 }
