@@ -39,6 +39,15 @@ const ru = {
     heroCardCaption: "Подарочный сертификат",
     sheetPdfButton: "Скачать каталог услуг (PDF)",
     sheetClose: "Закрыть",
+    certPerksEyebrow: "Подарочный сертификат",
+    certPerksTitle: "Сертификаты Rai Thai Spa",
+    certPerksText:
+      "Электронный сертификат — на конкретную услугу или на сумму, получатель выбирает сам. Оформляется онлайн и приходит сразу после оплаты.",
+    certPerk2Title: "Услуга или сумма — на выбор получателя",
+    certPerk4Title: "Можно использовать в любом из наших салонов",
+    salonsBannerTitle: "Ждём вас в любом из наших салонов",
+    salonsBannerText:
+      "Подарите близкому человеку тайский массаж и SPA — сертификат Rai Thai Spa подойдёт для салона в Кокшетау и в Петропавловске.",
 
     /* Блок «Почему RAI THAI SPA» — четыре пункта из ТЗ. */
     whyEyebrow: "Почему RAI THAI SPA",
@@ -600,6 +609,15 @@ const kz = {
     heroCatalogCta: "Біздің қызметтер",
     sheetPdfButton: "Қызметтер каталогын жүктеу (PDF)",
     sheetClose: "Жабу",
+    certPerksEyebrow: "Сыйлық сертификаты",
+    certPerksTitle: "Rai Thai Spa сертификаттары",
+    certPerksText:
+      "Электронды сертификат — нақты қызметке немесе сомаға, алушы өзі таңдайды. Онлайн рәсімделеді және төлемнен кейін бірден келеді.",
+    certPerk2Title: "Қызмет немесе сома — алушының таңдауы бойынша",
+    certPerk4Title: "Біздің кез келген салонымызда қолдануға болады",
+    salonsBannerTitle: "Кез келген салонымызда күтеміз",
+    salonsBannerText:
+      "Жақын адамыңызға тай массажы мен SPA сыйлаңыз — Rai Thai Spa сертификаты Көкшетау мен Петропавл салондарында жарамды.",
     heroBadgeTitle: "Мерзімсіз сертификат",
     heroBadgeText: "Мерзім туралы алаңдамай сыйға тартыңыз — сыйлықты ыңғайлы кезде пайдалануға болады.",
     heroTimeLine: "Онлайн рәсімдеу 2 минут",
@@ -1095,6 +1113,15 @@ const en = {
     heroCatalogCta: "Our services",
     sheetPdfButton: "Download services catalog (PDF)",
     sheetClose: "Close",
+    certPerksEyebrow: "Gift certificate",
+    certPerksTitle: "Rai Thai Spa certificates",
+    certPerksText:
+      "An electronic certificate for a specific service or for an amount — the recipient chooses. Ordered online, delivered right after payment.",
+    certPerk2Title: "A service or an amount — the recipient's choice",
+    certPerk4Title: "Valid at any of our salons",
+    salonsBannerTitle: "We're waiting for you at any of our salons",
+    salonsBannerText:
+      "Give a loved one Thai massage and SPA — a Rai Thai Spa certificate works at our salons in Kokshetau and Petropavlovsk.",
     heroBadgeTitle: "Open-ended certificate",
     heroBadgeText: "Give it without worrying about deadlines — the gift can be used whenever it's convenient.",
     heroTimeLine: "Order online in 2 minutes",

@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CatalogRouteImport } from './routes/catalog'
 import { Route as CertificateRouteImport } from './routes/certificate'
 import { Route as OffersRouteImport } from './routes/offers'
+import { Route as ServicesRouteImport } from './routes/services'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminMenuRouteImport } from './routes/admin/menu'
@@ -48,6 +49,11 @@ const CertificateRoute = CertificateRouteImport.update({
 const OffersRoute = OffersRouteImport.update({
   id: '/offers',
   path: '/offers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/catalog': typeof CatalogRoute
   '/certificate': typeof CertificateRoute
   '/offers': typeof OffersRoute
+  '/services': typeof ServicesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/menu': typeof AdminMenuRoute
   '/admin/services': typeof AdminServicesRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/catalog': typeof CatalogRoute
   '/certificate': typeof CertificateRoute
   '/offers': typeof OffersRoute
+  '/services': typeof ServicesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/menu': typeof AdminMenuRoute
   '/admin/services': typeof AdminServicesRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/catalog': typeof CatalogRoute
   '/certificate': typeof CertificateRoute
   '/offers': typeof OffersRoute
+  '/services': typeof ServicesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/menu': typeof AdminMenuRoute
   '/admin/services': typeof AdminServicesRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/catalog'
     | '/certificate'
     | '/offers'
+    | '/services'
     | '/admin/login'
     | '/admin/menu'
     | '/admin/services'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/catalog'
     | '/certificate'
     | '/offers'
+    | '/services'
     | '/admin/login'
     | '/admin/menu'
     | '/admin/services'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/catalog'
     | '/certificate'
     | '/offers'
+    | '/services'
     | '/admin/login'
     | '/admin/menu'
     | '/admin/services'
@@ -273,6 +285,7 @@ export interface RootRouteChildren {
   CatalogRoute: typeof CatalogRoute
   CertificateRoute: typeof CertificateRoute
   OffersRoute: typeof OffersRoute
+  ServicesRoute: typeof ServicesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMenuRoute: typeof AdminMenuRoute
   AdminServicesRoute: typeof AdminServicesRoute
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       path: '/offers'
       fullPath: '/offers'
       preLoaderRoute: typeof OffersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -462,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   CatalogRoute: CatalogRoute,
   CertificateRoute: CertificateRoute,
   OffersRoute: OffersRoute,
+  ServicesRoute: ServicesRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminMenuRoute: AdminMenuRoute,
   AdminServicesRoute: AdminServicesRoute,

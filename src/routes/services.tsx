@@ -1,0 +1,266 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { Instagram, MapPin, Check } from "lucide-react";
+import { Divider } from "@/components/Divider";
+import { Motif } from "@/components/Motif";
+import { InstagramLinks } from "@/components/BranchesSection";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { services, formatPrice, serviceImage } from "@/data/catalog";
+import { BRANCHES, spaMenuPdfFor, mapLinkFor, instagramLinkFor, type Branch } from "@/data/branches";
+import logoLight from "@/assets/logo-on-dark.webp";
+
+/**
+ * /services — «Наши услуги» с главной ведёт сюда полноценной страницей, а не
+ * маленькой шторкой (как было раньше — см. BottomSheet.tsx, компонент не
+ * удалён, просто больше не используется на этой кнопке). Структура — по
+ * référence layan.kz (открыли их «Наши услуги» и сверились по факту: это не
+ * шторка, а секция на той же странице — салоны → Instagram → сертификаты →
+ * каталог → баннер салонов → футер), но со своей палитрой и своими текстами.
+ *
+ * «Закрыть» отдельным крестиком не сделан — это обычная страница, а не
+ * модалка, глобальный SiteHeader (лого = ссылка на главную, sticky) уже
+ * даёт то же самое действие на всё время скролла.
+ */
+const featuredServiceIds = [
+  "oil-absolute-calm",
+  "traditional-thai",
+  "lomi-lomi",
+  "hot-stones",
+  "queen-of-thailand",
+  "king-of-thailand",
+] as const;
+
+export const Route = createFileRoute("/services")({
+  head: () => ({
+    meta: [
+      { title: "Наши услуги — Rai Thai Spa" },
+      {
+        name: "description",
+        content:
+          "Салоны Rai Thai Spa в Кокшетау и Петропавловске, каталог услуг и подарочные сертификаты.",
+      },
+    ],
+  }),
+  component: ServicesPage,
+});
+
+function ServiceCard({ id, t }: { id: string; t: (path: string) => string }) {
+  const svc = services.find((s) => s.id === id)!;
+  const image = serviceImage(id);
+  return (
+    <article className="surface flex flex-col overflow-hidden rounded-lg">
+      {image && (
+        <img
+          src={image}
+          alt=""
+          width={720}
+          height={720}
+          loading="lazy"
+          decoding="async"
+          className="aspect-[4/3] w-full object-cover"
+        />
+      )}
+      <div className="flex flex-1 flex-col gap-1.5 p-4">
+        <h3 className="font-display text-base leading-tight">{t(`services.${id}.name`)}</h3>
+        <p className="text-cream/45 text-[0.6rem] tracking-[0.15em] uppercase">
+          {t(`services.${id}.duration`)}
+        </p>
+        <p className="text-gold mt-auto text-sm">{formatPrice(svc.price)}</p>
+      </div>
+    </article>
+  );
+}
+
+function ServicesPage() {
+  const { t } = useLanguage();
+  const [activeBranchId, setActiveBranchId] = useState<Branch>(BRANCHES[0]!.id);
+  const activeBranch = BRANCHES.find((b) => b.id === activeBranchId)!;
+
+  const perks = [
+    t("home.heroBadgeTitle"),
+    t("home.certPerk2Title"),
+    t("home.how3Desc"),
+    t("home.certPerk4Title"),
+  ];
+
+  return (
+    <main>
+      <section className="relative overflow-hidden">
+        <Divider motif="waveCrown" className="pt-12 sm:pt-16 lg:pt-20" />
+        <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-4 text-center sm:px-6 sm:pt-12">
+          <h1 className="font-display text-3xl sm:text-4xl">{t("home.heroCatalogCta")}</h1>
+        </div>
+      </section>
+
+      {/* ── 1. Наши салоны — пилюли-переключатель города, карточка активного
+          салона (лого, Instagram, адрес). ─────────────────────────────── */}
+      <section className="relative overflow-hidden">
+        <div className="relative mx-auto max-w-3xl px-5 pt-8 pb-12 sm:px-6 sm:pb-16">
+          <div className="flex items-center gap-3">
+            <Motif name="templeArch" className="text-gold h-7 w-7" />
+            <p className="eyebrow">{t("branches.eyebrow")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("branches.title")}</h2>
+
+          <div className="mt-6 grid grid-cols-2 gap-2 sm:max-w-xs">
+            {BRANCHES.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => setActiveBranchId(b.id)}
+                aria-pressed={activeBranchId === b.id}
+                className={activeBranchId === b.id ? "btn-gold" : "btn-ghost"}
+              >
+                {t(b.labelKey)}
+              </button>
+            ))}
+          </div>
+
+          <article className="surface mt-6 flex flex-col items-start gap-4 rounded-lg p-6 sm:flex-row sm:items-center sm:p-7">
+            <img
+              src={logoLight}
+              alt=""
+              width={900}
+              height={778}
+              className="border-gold/40 bg-forest-deep h-16 w-16 shrink-0 rounded-full border object-contain p-2"
+            />
+            <div>
+              <h3 className="font-display text-xl tracking-wide">RAI THAI SPA</h3>
+              <a
+                href={instagramLinkFor(activeBranch)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border-gold/45 text-gold hover:bg-gold/10 mt-2 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors"
+              >
+                <Instagram className="h-4 w-4 shrink-0" aria-hidden="true" />@{activeBranch.instagram}
+              </a>
+              <a
+                href={mapLinkFor(activeBranch)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-cream/80 hover:text-gold mt-3 flex items-start gap-2 text-sm transition-colors"
+              >
+                <MapPin className="text-gold mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                {activeBranch.address}
+              </a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      {/* ── 2. Мы в Instagram — тот же компонент, что и в футере главной. ── */}
+      <section className="relative overflow-hidden">
+        <div className="relative mx-auto max-w-3xl px-5 pb-12 sm:px-6 sm:pb-16">
+          <InstagramLinks t={t} />
+        </div>
+      </section>
+
+      {/* ── 3. Подарочные сертификаты — 4 пункта с иконкой. ─────────────── */}
+      <section className="relative overflow-hidden">
+        <Divider motif="flowerBurst" className="pt-4 sm:pt-6" />
+        <div className="relative mx-auto max-w-4xl px-5 pt-8 pb-12 sm:px-6 sm:pb-16">
+          <div className="flex items-center gap-3">
+            <Motif name="lotusBloom" className="text-gold h-7 w-7" />
+            <p className="eyebrow">{t("home.certPerksEyebrow")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("home.certPerksTitle")}</h2>
+          <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
+            {t("home.certPerksText")}
+          </p>
+
+          <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+            {perks.map((perk) => (
+              <li key={perk} className="flex items-start gap-3">
+                <span className="border-gold/45 text-gold flex h-6 w-6 shrink-0 items-center justify-center rounded-full border">
+                  <Check className="h-3.5 w-3.5" />
+                </span>
+                <span className="text-sm">{perk}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* ── 4. Каталог услуг — превью из данных /certificate + PDF-меню. ── */}
+      <section id="catalog" className="relative overflow-hidden">
+        <Divider motif="swirlLeaf" className="pt-4 sm:pt-6" />
+        <div className="relative mx-auto max-w-6xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
+          <div className="flex items-center gap-3">
+            <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
+            <p className="eyebrow">{t("catalog.title")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("catalog.title")}</h2>
+          <p className="text-cream/65 mt-3 max-w-lg text-sm leading-relaxed">
+            {t("catalog.subtitle")}
+          </p>
+
+          <a href={spaMenuPdfFor()} download className="btn-ghost mt-5 text-[0.62rem]">
+            {t("catalog.menuButton")}
+          </a>
+
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            {featuredServiceIds.map((id) => (
+              <ServiceCard key={id} id={id} t={t} />
+            ))}
+          </div>
+
+          <Link to="/offers" hash="services" className="btn-gold mt-8">
+            {t("cert.giftButton")}
+          </Link>
+        </div>
+      </section>
+
+      {/* ── 5. Баннер салонов — наша палитра (тёмно-зелёный/золотой), не
+          оранжевая, как у layan. ──────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-[linear-gradient(135deg,rgba(14,28,21,0.97),rgba(180,151,117,0.22))]">
+        <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 py-14 text-center sm:px-6 sm:py-20">
+          <Motif name="templeArch" className="text-gold h-8 w-8" />
+          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("home.salonsBannerTitle")}</h2>
+          <p className="text-cream/75 mt-4 max-w-xl text-sm leading-relaxed">
+            {t("home.salonsBannerText")}
+          </p>
+          <Link to="/offers" className="btn-beige mt-8">
+            {t("home.heroCta")}
+          </Link>
+        </div>
+      </section>
+
+      {/* ── 6. Футер. Юр. ссылки, платёжные иконки и реквизиты компании —
+          не добавлены: их ещё нет в проекте, ждём данные. ──────────────── */}
+      <footer className="relative overflow-hidden">
+        <div className="text-cream/50 relative mx-auto flex max-w-6xl flex-col items-center gap-6 px-5 py-10 text-center text-xs sm:py-16">
+          <img
+            src={logoLight}
+            alt="RaiThai Massage & Spa"
+            width={900}
+            height={778}
+            loading="lazy"
+            className="h-12 w-auto opacity-70 sm:h-14"
+          />
+
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {BRANCHES.map((b) => (
+              <a
+                key={b.id}
+                href={b.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-cream/70 hover:text-gold transition-colors"
+              >
+                {t(b.labelKey)}: WhatsApp
+              </a>
+            ))}
+          </div>
+
+          <Link to="/offers" className="btn-gold">
+            {t("home.heroCta")}
+          </Link>
+
+          <p className="text-cream/40">
+            © {new Date().getFullYear()} Rai Thai Spa. {t("footer.rights")}
+          </p>
+        </div>
+      </footer>
+    </main>
+  );
+}
