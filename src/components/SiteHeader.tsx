@@ -87,9 +87,6 @@ export function SiteHeader() {
         </Link>
 
         <div className="flex items-center gap-3 sm:gap-4">
-          <Link to="/certificate" className="btn-gold">
-            {t("home.heroCta")}
-          </Link>
           <LanguageSwitcher />
         </div>
       </div>
