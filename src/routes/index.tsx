@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronDown, MapPin } from "lucide-react";
+import { useState } from "react";
 import heroPhoto from "@/assets/atmosphere-arch.jpg";
 import logoLight from "@/assets/logo-on-dark.webp";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -49,6 +50,11 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useLanguage();
+  // Город в hero — формальность (правка клиента): клик только подсвечивает
+  // кнопку, никуда не ведёт и ни на что не влияет. Раньше вёл прямо в
+  // /certificate?branch=... — эта функциональность убрана, реальный выбор
+  // города остался в секции ниже (OffersSection).
+  const [activeHeroBranch, setActiveHeroBranch] = useState<Branch | null>(null);
 
   return (
     <main>
@@ -68,17 +74,25 @@ function Index() {
               мастер оформления с выставленным городом — та же
               city-фильтрация /certificate, что уже используется на /offers. */}
           <div className="mb-6 flex items-center justify-center gap-2 sm:mb-8">
-            {heroBranches.map((id) => (
-              <Link
-                key={id}
-                to="/certificate"
-                search={{ branch: id }}
-                className="border-gold/50 text-gold bg-forest-deep/60 hover:bg-gold/10 flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-[0.68rem] whitespace-nowrap backdrop-blur-sm transition-colors sm:gap-1.5 sm:px-5 sm:py-2 sm:text-sm"
-              >
-                <MapPin className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
-                {t(branchById(id).labelKey)}
-              </Link>
-            ))}
+            {heroBranches.map((id) => {
+              const active = activeHeroBranch === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setActiveHeroBranch(id)}
+                  aria-pressed={active}
+                  className={`flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-[0.68rem] whitespace-nowrap backdrop-blur-sm transition-colors sm:gap-1.5 sm:px-5 sm:py-2 sm:text-sm ${
+                    active
+                      ? "border-gold bg-gold text-primary-foreground"
+                      : "border-gold/50 text-gold bg-forest-deep/60 hover:bg-gold/10"
+                  }`}
+                >
+                  <MapPin className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+                  {t(branchById(id).labelKey)}
+                </button>
+              );
+            })}
           </div>
 
           <img

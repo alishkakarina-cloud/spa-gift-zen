@@ -9,7 +9,7 @@ import { BRANCHES, spaMenuPdfFor, type Branch } from "@/data/branches";
 import type { CatalogGroup } from "@/data/serviceGroups";
 import { serializeServiceIds, toggleServiceId } from "@/data/selection";
 
-type Selection = { kind: "city"; branch: Branch } | { kind: "amount" } | null;
+type Selection = { kind: "amount" } | null;
 
 /**
  * Выбор города/суммы + каталог услуг — раньше жил только на /offers,
@@ -28,12 +28,15 @@ export function OffersSection() {
   const [servicesGroupId, setServicesGroupId] = useState<CatalogGroup>("massage");
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
 
-  // Выбор города/суммы — по механике layan.kz: клик по кнопке только
-  // переключает выбор (взаимоисключающий, как радио), переход к мастеру —
-  // отдельным действием («Далее»), не по клику на саму кнопку.
+  // Сумма — по-прежнему полноценный выбор, ведущий в мастер оформления.
   const [selection, setSelection] = useState<Selection>(null);
   const [selectedAmount, setSelectedAmount] = useState<number>(fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
+
+  // Город — теперь формальность: клик только подсвечивает кнопку, никуда
+  // не ведёт и не влияет на «Далее» (убрана функция по правке клиента —
+  // раньше клик сразу выставлял город и активировал переход).
+  const [activeCity, setActiveCity] = useState<Branch | null>(null);
 
   const parsedCustom = Number(customAmount);
   const effectiveAmount =
@@ -43,7 +46,6 @@ export function OffersSection() {
 
   const amountOpen = selection?.kind === "amount";
 
-  const selectCity = (branch: Branch) => setSelection({ kind: "city", branch });
   const toggleAmount = () => setSelection((s) => (s?.kind === "amount" ? null : { kind: "amount" }));
 
   return (
@@ -64,12 +66,12 @@ export function OffersSection() {
 
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {BRANCHES.map((b) => {
-              const selected = selection?.kind === "city" && selection.branch === b.id;
+              const selected = activeCity === b.id;
               return (
                 <button
                   key={b.id}
                   type="button"
-                  onClick={() => selectCity(b.id)}
+                  onClick={() => setActiveCity(b.id)}
                   aria-pressed={selected}
                   className={`surface p-6 text-left transition-colors ${
                     selected ? "border-gold bg-gold/10" : "hover:border-gold/60"
@@ -162,11 +164,7 @@ export function OffersSection() {
             </div>
           </div>
 
-          {selection?.kind === "city" ? (
-            <Link to="/certificate" search={{ branch: selection.branch }} className="btn-gold mt-8">
-              {t("cert.nextButton")}
-            </Link>
-          ) : selection?.kind === "amount" ? (
+          {selection?.kind === "amount" ? (
             <Link
               to="/certificate"
               search={{ kind: "amount", amount: effectiveAmount }}

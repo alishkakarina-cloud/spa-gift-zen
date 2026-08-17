@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { FloatingCart } from "@/components/FloatingCart";
 import { SiteHeader } from "@/components/SiteHeader";
 
 function NotFoundComponent() {
@@ -141,6 +142,10 @@ function RootComponent() {
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         {!isAdmin && <WhatsAppButton />}
+        {/* Только вёрстка, демо-содержимое — бизнес-логика (что считать
+            "выбором", откуда брать данные) ещё не согласована с клиентом,
+            см. FloatingCart.tsx. */}
+        {!isAdmin && <FloatingCart />}
       </LanguageProvider>
     </QueryClientProvider>
   );

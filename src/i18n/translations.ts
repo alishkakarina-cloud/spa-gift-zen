@@ -564,6 +564,11 @@ const ru = {
     terms: "Действует",
     exclusions: "Не распространяется",
   },
+  cart: {
+    title: "Ваш выбор",
+    close: "Закрыть",
+    checkout: "Перейти к оформлению",
+  },
   branches: {
     eyebrow: "Контакты",
     title: "Наши салоны",
@@ -1074,6 +1079,11 @@ const kz = {
     terms: "Қолданылады",
     exclusions: "Қолданылмайды",
   },
+  cart: {
+    title: "Сіздің таңдауыңыз",
+    close: "Жабу",
+    checkout: "Рәсімдеуге өту",
+  },
   branches: {
     eyebrow: "Байланыс",
     title: "Біздің салондар",
@@ -1576,6 +1586,11 @@ const en = {
     intro: "Treat yourself to a getaway on favorable terms and experience the atmosphere of real Thailand at Rai Thai Spa.",
     terms: "Applies",
     exclusions: "Doesn't apply",
+  },
+  cart: {
+    title: "Your selection",
+    close: "Close",
+    checkout: "Go to checkout",
   },
   branches: {
     eyebrow: "Contacts",

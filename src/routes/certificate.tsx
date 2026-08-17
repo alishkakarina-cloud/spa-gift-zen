@@ -514,7 +514,11 @@ function CertificateFlow() {
               <p className="mt-3 max-w-lg text-sm leading-relaxed text-cream/65">
                 {t("cert.step2Text")}
               </p>
-              <div className="mt-8 grid gap-5 sm:grid-cols-2">
+              {/* Горизонтальный ряд из 3 — на телефоне тоже, не только с sm:.
+                  Раньше карточки шли в 1 колонку на мобильном (sm:grid-cols-2
+                  начинал работать только от планшета) и растягивались на всю
+                  высоту экрана. */}
+              <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-4">
                 {designs.map((d) => (
                   // Рамка идёт впритык к фото — раньше между border и картинкой
                   // был зазор p-1.5, из-за него казалось, что фото обрезано
@@ -528,7 +532,7 @@ function CertificateFlow() {
                   >
                     <CertificateCard design={d} valueLabel={valueLabel} items={cardItems} compact />
                     <span
-                      className={`block px-3 py-3 text-[0.68rem] tracking-[0.28em] uppercase ${designId === d.id ? "text-gold" : "text-cream/65"}`}
+                      className={`block px-1.5 py-2 text-center text-[0.52rem] leading-tight tracking-[0.08em] uppercase sm:px-3 sm:py-3 sm:text-[0.68rem] sm:tracking-[0.28em] ${designId === d.id ? "text-gold" : "text-cream/65"}`}
                     >
                       {t(`designs.${d.id}.title`)}
                     </span>
