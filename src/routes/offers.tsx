@@ -4,7 +4,7 @@ import { Divider } from "@/components/Divider";
 import { Motif } from "@/components/Motif";
 import { ServiceCatalogBrowser } from "@/components/ServiceCatalogBrowser";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { MIN_AMOUNT, formatPrice } from "@/data/catalog";
+import { MIN_AMOUNT, fixedAmounts, formatPrice } from "@/data/catalog";
 import { BRANCHES, spaMenuPdfFor, type Branch } from "@/data/branches";
 import type { CatalogGroup } from "@/data/serviceGroups";
 import { serializeServiceIds, toggleServiceId } from "@/data/selection";
@@ -38,16 +38,37 @@ export const Route = createFileRoute("/offers")({
   component: Offers,
 });
 
+type Selection = { kind: "city"; branch: Branch } | { kind: "amount" } | null;
+
 function Offers() {
   const { t } = useLanguage();
 
   const [servicesGroupId, setServicesGroupId] = useState<CatalogGroup>("massage");
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
 
+  // Выбор города/суммы — по механике layan.kz: клик по кнопке только
+  // переключает выбор (взаимоисключающий, как радио), переход к мастеру —
+  // отдельным действием («Далее»), не по клику на саму кнопку.
+  const [selection, setSelection] = useState<Selection>(null);
+  const [selectedAmount, setSelectedAmount] = useState<number>(fixedAmounts[0]!);
+  const [customAmount, setCustomAmount] = useState("");
+
+  const parsedCustom = Number(customAmount);
+  const effectiveAmount =
+    customAmount && Number.isFinite(parsedCustom) && parsedCustom >= MIN_AMOUNT
+      ? parsedCustom
+      : selectedAmount;
+
+  const amountOpen = selection?.kind === "amount";
+
+  const selectCity = (branch: Branch) => setSelection({ kind: "city", branch });
+  const toggleAmount = () => setSelection((s) => (s?.kind === "amount" ? null : { kind: "amount" }));
+
   return (
     <main>
-      {/* ── Выбор: город (сразу в мастер с выставленным филиалом) или
-          сумма — три равноправных пункта, без промежуточных экранов. ──── */}
+      {/* ── Выбор: город или сумма — три равноправных пункта-переключателя.
+          Переход к мастеру — только по «Далее» внизу, не по самим кнопкам
+          (по образцу layan.kz). ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <Divider motif="waveCrown" className="pt-12 sm:pt-16 lg:pt-20" />
         <div className="relative mx-auto max-w-5xl px-5 pt-10 pb-12 sm:px-6 sm:pt-12 sm:pb-16">
@@ -60,33 +81,122 @@ function Offers() {
           </h1>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            {BRANCHES.map((b) => (
-              <Link
-                key={b.id}
-                to="/certificate"
-                search={{ branch: b.id }}
-                className="surface p-6 text-left transition-colors hover:border-gold/60"
-              >
-                <span className="block font-display text-xl sm:text-2xl">
-                  {t("home.buyCityPrefix")} {t(b.labelKey)}
-                </span>
-                <span className="text-cream/65 mt-2 block text-sm">{b.address}</span>
-              </Link>
-            ))}
+            {BRANCHES.map((b) => {
+              const selected = selection?.kind === "city" && selection.branch === b.id;
+              return (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => selectCity(b.id)}
+                  aria-pressed={selected}
+                  className={`surface p-6 text-left transition-colors ${
+                    selected ? "border-gold bg-gold/10" : "hover:border-gold/60"
+                  }`}
+                >
+                  <span className={`font-display block text-xl sm:text-2xl ${selected ? "text-gold" : ""}`}>
+                    {t("home.buyCityPrefix")} {t(b.labelKey)}
+                  </span>
+                  <span className="text-cream/65 mt-2 block text-sm">{b.address}</span>
+                </button>
+              );
+            })}
 
+            <div
+              className={`surface overflow-hidden text-left transition-colors ${
+                amountOpen ? "border-gold bg-gold/10" : "hover:border-gold/60"
+              }`}
+            >
+              <button
+                type="button"
+                onClick={toggleAmount}
+                aria-expanded={amountOpen}
+                className="w-full p-6 text-left"
+              >
+                <span className={`font-display block text-xl sm:text-2xl ${amountOpen ? "text-gold" : ""}`}>
+                  {t("home.buyAmountToggle")}
+                </span>
+                <span className="text-cream/65 mt-2 block text-sm">
+                  {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
+                </span>
+              </button>
+
+              {/* Разворот по высоте через grid-template-rows 0fr→1fr — плавно
+                  анимируется до реальной высоты содержимого без измерения в
+                  JS. Плюс fade содержимого, чтобы появление не было резким. */}
+              <div
+                className="grid transition-[grid-template-rows] duration-[350ms] ease-in-out"
+                style={{ gridTemplateRows: amountOpen ? "1fr" : "0fr" }}
+              >
+                <div className="overflow-hidden">
+                  <div
+                    className={`px-6 pb-6 transition-opacity duration-300 ${
+                      amountOpen ? "opacity-100 delay-100" : "opacity-0"
+                    }`}
+                  >
+                    <div className="flex flex-wrap gap-2">
+                      {fixedAmounts.map((a) => (
+                        <button
+                          key={a}
+                          type="button"
+                          onClick={() => {
+                            setSelectedAmount(a);
+                            setCustomAmount("");
+                          }}
+                          aria-pressed={!customAmount && selectedAmount === a}
+                          className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
+                            !customAmount && selectedAmount === a
+                              ? "border-gold bg-gold text-primary-foreground"
+                              : "border-border bg-card text-cream hover:border-gold/60"
+                          }`}
+                        >
+                          {formatPrice(a)}
+                        </button>
+                      ))}
+                    </div>
+
+                    <label
+                      className={`bg-card mt-3 block rounded-md border p-3 transition-colors ${
+                        customAmount ? "border-gold" : "border-border"
+                      }`}
+                    >
+                      <span
+                        className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
+                      >
+                        {t("home.buyAmountCustom")}
+                      </span>
+                      <input
+                        type="number"
+                        min={MIN_AMOUNT}
+                        step={1000}
+                        value={customAmount}
+                        onChange={(e) => setCustomAmount(e.target.value)}
+                        placeholder={String(MIN_AMOUNT)}
+                        className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {selection?.kind === "city" ? (
+            <Link to="/certificate" search={{ branch: selection.branch }} className="btn-gold mt-8">
+              {t("cert.nextButton")}
+            </Link>
+          ) : selection?.kind === "amount" ? (
             <Link
               to="/certificate"
-              search={{ kind: "amount" }}
-              className="surface p-6 text-left transition-colors hover:border-gold/60"
+              search={{ kind: "amount", amount: effectiveAmount }}
+              className="btn-gold mt-8"
             >
-              <span className="block font-display text-xl sm:text-2xl">
-                {t("home.buyAmountToggle")}
-              </span>
-              <span className="text-cream/65 mt-2 block text-sm">
-                {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
-              </span>
+              {t("cert.nextButton")}
             </Link>
-          </div>
+          ) : (
+            <button type="button" disabled className="btn-gold mt-8 cursor-not-allowed opacity-40">
+              {t("cert.nextButton")}
+            </button>
+          )}
         </div>
       </section>
 
