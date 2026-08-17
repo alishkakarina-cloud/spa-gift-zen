@@ -16,9 +16,10 @@ import { spaMenuPdfFor } from "@/data/branches";
  * (каталог, инфоблоки, футер) переехал на /offers, эта страница — только
  * hero.
  *
- * «Наши услуги» открывает шторку с PDF-каталогом (как на layan.kz), а не
- * ведёт на /offers — маршрут /offers остаётся доступен напрямую, просто
- * кнопка с главной на него больше не ссылается.
+ * «Купить сертификат» ведёт на /offers (выбор города/суммы + каталог), а
+ * не сразу на /certificate — так через hero всегда проходит выбор
+ * города/суммы. «Наши услуги» открывает шторку с PDF-каталогом (как на
+ * layan.kz).
  */
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -72,7 +73,7 @@ function Index() {
           </p>
 
           <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
-            <Link to="/certificate" className="btn-beige w-full">
+            <Link to="/offers" className="btn-beige w-full">
               {t("home.heroCta")}
             </Link>
             <button type="button" onClick={() => setServicesOpen(true)} className="btn-gold w-full">
