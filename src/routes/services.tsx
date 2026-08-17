@@ -17,6 +17,10 @@ import logoLight from "@/assets/logo-on-dark.webp";
  * шторка, а секция на той же странице — салоны → Instagram → сертификаты →
  * каталог → баннер салонов → футер), но со своей палитрой и своими текстами.
  *
+ * Порядок секций ниже — по правке от клиента: каталог должен быть виден
+ * сразу под заголовком, без скролла через контакты; контакты (салоны +
+ * Instagram) уехали в самый низ, перед футером.
+ *
  * «Закрыть» отдельным крестиком не сделан — это обычная страница, а не
  * модалка, глобальный SiteHeader (лого = ссылка на главную, sticky) уже
  * даёт то же самое действие на всё время скролла.
@@ -92,8 +96,83 @@ function ServicesPage() {
         </div>
       </section>
 
-      {/* ── 1. Наши салоны — пилюли-переключатель города, карточка активного
-          салона (лого, Instagram, адрес). ─────────────────────────────── */}
+      {/* ── 1. Каталог услуг — сразу под заголовком, без скролла через
+          контакты. Превью из данных /certificate + PDF-меню. ───────────── */}
+      <section id="catalog" className="relative overflow-hidden">
+        <Divider motif="swirlLeaf" className="pt-4 sm:pt-6" />
+        <div className="relative mx-auto max-w-6xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
+          <div className="flex items-center gap-3">
+            <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
+            <p className="eyebrow">{t("catalog.title")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("catalog.title")}</h2>
+          <p className="text-cream/65 mt-3 max-w-lg text-sm leading-relaxed">
+            {t("catalog.subtitle")}
+          </p>
+
+          <a href={spaMenuPdfFor()} download className="btn-ghost mt-5 text-[0.62rem]">
+            {t("catalog.menuButton")}
+          </a>
+
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            {featuredServiceIds.map((id) => (
+              <ServiceCard key={id} id={id} t={t} />
+            ))}
+          </div>
+
+          <Link to="/offers" hash="services" className="btn-gold mt-8">
+            {t("cert.giftButton")}
+          </Link>
+        </div>
+      </section>
+
+      {/* ── 2. Подарочные сертификаты — 4 пункта с иконкой. ─────────────── */}
+      <section className="relative overflow-hidden">
+        <Divider motif="flowerBurst" className="pt-4 sm:pt-6" />
+        <div className="relative mx-auto max-w-4xl px-5 pt-8 pb-12 sm:px-6 sm:pb-16">
+          <div className="flex items-center gap-3">
+            <Motif name="lotusBloom" className="text-gold h-7 w-7" />
+            <p className="eyebrow">{t("home.certPerksEyebrow")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("home.certPerksTitle")}</h2>
+          <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
+            {t("home.certPerksText")}
+          </p>
+
+          <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+            {perks.map((perk) => (
+              <li key={perk} className="flex items-start gap-3">
+                <span className="border-gold/45 text-gold flex h-6 w-6 shrink-0 items-center justify-center rounded-full border">
+                  <Check className="h-3.5 w-3.5" />
+                </span>
+                <span className="text-sm">{perk}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* ── 3. Баннер салонов — наша палитра (тёмно-зелёный/золотой), не
+          оранжевая, как у layan. ──────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-[linear-gradient(135deg,rgba(14,28,21,0.97),rgba(180,151,117,0.22))]">
+        <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 py-14 text-center sm:px-6 sm:py-20">
+          <Motif name="templeArch" className="text-gold h-8 w-8" />
+          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("home.salonsBannerTitle")}</h2>
+          <p className="text-cream/75 mt-4 max-w-xl text-sm leading-relaxed">
+            {t("home.salonsBannerText")}
+          </p>
+          <Link to="/offers" className="btn-beige mt-8">
+            {t("home.heroCta")}
+          </Link>
+        </div>
+      </section>
+
+      {/* ── 4. Наши салоны — пилюли-переключатель города, карточка активного
+          салона (лого, Instagram, адрес). Контакты — в самом низу страницы,
+          перед футером, по правке от клиента. Кнопки-пилюли переключателя
+          уменьшены под мобильный (были на общих btn-gold/btn-ghost —
+          крупный padding/uppercase, непропорционально большие для этого
+          компактного переключателя). ────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div className="relative mx-auto max-w-3xl px-5 pt-8 pb-12 sm:px-6 sm:pb-16">
           <div className="flex items-center gap-3">
@@ -102,14 +181,18 @@ function ServicesPage() {
           </div>
           <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("branches.title")}</h2>
 
-          <div className="mt-6 grid grid-cols-2 gap-2 sm:max-w-xs">
+          <div className="mt-6 flex flex-wrap items-center gap-2">
             {BRANCHES.map((b) => (
               <button
                 key={b.id}
                 type="button"
                 onClick={() => setActiveBranchId(b.id)}
                 aria-pressed={activeBranchId === b.id}
-                className={activeBranchId === b.id ? "btn-gold" : "btn-ghost"}
+                className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                  activeBranchId === b.id
+                    ? "border-gold bg-gold text-primary-foreground"
+                    : "border-border bg-card text-cream/80 hover:border-gold/60"
+                }`}
               >
                 {t(b.labelKey)}
               </button>
@@ -148,80 +231,10 @@ function ServicesPage() {
         </div>
       </section>
 
-      {/* ── 2. Мы в Instagram — тот же компонент, что и в футере главной. ── */}
+      {/* ── 5. Мы в Instagram — тот же компонент, что и в футере главной. ── */}
       <section className="relative overflow-hidden">
         <div className="relative mx-auto max-w-3xl px-5 pb-12 sm:px-6 sm:pb-16">
           <InstagramLinks t={t} />
-        </div>
-      </section>
-
-      {/* ── 3. Подарочные сертификаты — 4 пункта с иконкой. ─────────────── */}
-      <section className="relative overflow-hidden">
-        <Divider motif="flowerBurst" className="pt-4 sm:pt-6" />
-        <div className="relative mx-auto max-w-4xl px-5 pt-8 pb-12 sm:px-6 sm:pb-16">
-          <div className="flex items-center gap-3">
-            <Motif name="lotusBloom" className="text-gold h-7 w-7" />
-            <p className="eyebrow">{t("home.certPerksEyebrow")}</p>
-          </div>
-          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("home.certPerksTitle")}</h2>
-          <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
-            {t("home.certPerksText")}
-          </p>
-
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-            {perks.map((perk) => (
-              <li key={perk} className="flex items-start gap-3">
-                <span className="border-gold/45 text-gold flex h-6 w-6 shrink-0 items-center justify-center rounded-full border">
-                  <Check className="h-3.5 w-3.5" />
-                </span>
-                <span className="text-sm">{perk}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* ── 4. Каталог услуг — превью из данных /certificate + PDF-меню. ── */}
-      <section id="catalog" className="relative overflow-hidden">
-        <Divider motif="swirlLeaf" className="pt-4 sm:pt-6" />
-        <div className="relative mx-auto max-w-6xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
-          <div className="flex items-center gap-3">
-            <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
-            <p className="eyebrow">{t("catalog.title")}</p>
-          </div>
-          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("catalog.title")}</h2>
-          <p className="text-cream/65 mt-3 max-w-lg text-sm leading-relaxed">
-            {t("catalog.subtitle")}
-          </p>
-
-          <a href={spaMenuPdfFor()} download className="btn-ghost mt-5 text-[0.62rem]">
-            {t("catalog.menuButton")}
-          </a>
-
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-            {featuredServiceIds.map((id) => (
-              <ServiceCard key={id} id={id} t={t} />
-            ))}
-          </div>
-
-          <Link to="/offers" hash="services" className="btn-gold mt-8">
-            {t("cert.giftButton")}
-          </Link>
-        </div>
-      </section>
-
-      {/* ── 5. Баннер салонов — наша палитра (тёмно-зелёный/золотой), не
-          оранжевая, как у layan. ──────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,rgba(14,28,21,0.97),rgba(180,151,117,0.22))]">
-        <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 py-14 text-center sm:px-6 sm:py-20">
-          <Motif name="templeArch" className="text-gold h-8 w-8" />
-          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("home.salonsBannerTitle")}</h2>
-          <p className="text-cream/75 mt-4 max-w-xl text-sm leading-relaxed">
-            {t("home.salonsBannerText")}
-          </p>
-          <Link to="/offers" className="btn-beige mt-8">
-            {t("home.heroCta")}
-          </Link>
         </div>
       </section>
 
