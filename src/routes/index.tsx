@@ -6,6 +6,7 @@ import logoLight from "@/assets/logo-on-dark.webp";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { BRANCHES, type Branch } from "@/data/branches";
 import { OffersSection } from "@/components/OffersSection";
+import { SiteFooter } from "@/components/SiteFooter";
 
 // Порядок в hero — Кокшетау → Петропавловск, как и на витрине /offers,
 // а не порядок BRANCHES в данных (тот используется в других местах сайта).
@@ -131,6 +132,7 @@ function Index() {
       </section>
 
       <OffersSection />
+      <SiteFooter t={t} />
     </main>
   );
 }

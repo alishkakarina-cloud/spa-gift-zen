@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { OffersSection } from "@/components/OffersSection";
+import { SiteFooter } from "@/components/SiteFooter";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 /**
  * /offers — тот же контент (город/сумма + каталог), что теперь физически
@@ -28,9 +30,11 @@ export const Route = createFileRoute("/offers")({
 });
 
 function Offers() {
+  const { t } = useLanguage();
   return (
     <main>
       <OffersSection />
+      <SiteFooter t={t} />
     </main>
   );
 }
