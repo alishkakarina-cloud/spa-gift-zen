@@ -1,12 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Instagram, MapPin, Check } from "lucide-react";
+import { Instagram, Mail, MapPin, Check } from "lucide-react";
 import { Divider } from "@/components/Divider";
 import { Motif } from "@/components/Motif";
 import { InstagramLinks } from "@/components/BranchesSection";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { services, formatPrice, serviceImage } from "@/data/catalog";
-import { BRANCHES, spaMenuPdfFor, mapLinkFor, instagramLinkFor, type Branch } from "@/data/branches";
+import {
+  BRANCHES,
+  COMPANY_EMAIL,
+  spaMenuPdfFor,
+  mapLinkFor,
+  instagramLinkFor,
+  type Branch,
+} from "@/data/branches";
 import logoLight from "@/assets/logo-on-dark.webp";
 
 /**
@@ -241,17 +248,19 @@ function ServicesPage() {
           самым первым блоком, а не отдельной секцией перед ним, как было у
           нас, — перенесено сюда по факту разбора, а не по пересказу задачи.
 
-          Три куска у layan есть, а у нас нет данных — оставлены пустыми до
-          ответа, ничего не выдумано:
-          — единый номер телефона + email компании (у layan один номер в
-            футере; у нас только два раздельных WhatsApp филиалов — оставлены
-            как есть, в прежнем виде);
+          Телефон/email: владелец подтвердил email (raithai2024@gmail.com,
+          2026-08-18) и явно попросил оставить оба филиала отдельно вместо
+          единого номера, как у layan, — так и сделано ниже.
+
+          Два куска у layan есть, а у нас всё ещё нет данных — оставлены
+          пустыми до ответа, ничего не выдумано:
           — юр. ссылки (5 шт. у layan, реальные PDF) — текстов/файлов нет,
             выбрано вообще не показывать пункты, а не давать кликабельные
             заглушки, которые выглядят как рабочая ссылка, но никуда не ведут;
           — иконки платёжных систем — на сайте нет ни одной подключённой
-            платёжки (Kaspi QR и Freedom Pay — по-прежнему демо-заглушки, см.
-            CLAUDE.md), поэтому иконок нет совсем, а не наугад Mastercard/Visa.
+            платёжки (Kaspi QR — демо-заглушка, Freedom Pay убран владельцем
+            совсем, см. CLAUDE.md), поэтому иконок нет совсем, а не наугад
+            Mastercard/Visa.
           Когда данные подтвердят — юр. ссылки встают между контактами и
           кнопкой, платёжные иконки — после копирайта (тот же порядок, что у
           layan). ──────────────────────────────────────────────────────────── */}
@@ -282,6 +291,13 @@ function ServicesPage() {
                 {t(b.labelKey)}: WhatsApp
               </a>
             ))}
+            <a
+              href={`mailto:${COMPANY_EMAIL}`}
+              className="text-cream/70 hover:text-gold inline-flex items-center gap-1.5 transition-colors"
+            >
+              <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              {COMPANY_EMAIL}
+            </a>
           </div>
 
           <Link to="/offers" className="btn-gold w-full max-w-sm">

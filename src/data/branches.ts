@@ -1,3 +1,6 @@
+/** Рабочая почта компании (не филиала) — подтверждена владельцем 2026-08-18. */
+export const COMPANY_EMAIL = "raithai2024@gmail.com";
+
 /** Два филиала RaiThai — единственный источник правды по городам. */
 export type Branch = "petropavlovsk" | "kokshetau";
 
