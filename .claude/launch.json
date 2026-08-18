@@ -5,7 +5,7 @@
       "name": "thai-massage-dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 8083
+      "port": 8080
     }
   ]
 }

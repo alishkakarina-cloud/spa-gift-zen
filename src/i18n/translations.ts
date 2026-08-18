@@ -390,11 +390,6 @@ const ru = {
       duration: "160 мин",
       description: "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку.",
     },
-    "paraffin-hands": {
-      name: "Парафинотерапия для рук",
-      duration: "",
-      description: "Тёплый парафиновый кокон для рук — глубокое питание кожи.",
-    },
     "complex-calm-harmony": {
       name: "«Спокойствие и гармония»",
       duration: "90 мин",
@@ -928,11 +923,6 @@ const kz = {
       duration: "90 мин",
       description: "Болашақ анаға ұқыпты қамқорлық: бел мен аяққа түсетін жүктемені азайту, бүйірде жату.",
     },
-    "paraffin-hands": {
-      name: "Қолға арналған парафинотерапия",
-      duration: "",
-      description: "Қолға арналған жылы парафин коконы — теріні терең қоректендіреді.",
-    },
     "complex-calm-harmony": {
       name: "«Тыныштық пен үйлесім»",
       duration: "90 мин",
@@ -1435,11 +1425,6 @@ const en = {
       name: "Massage for mums-to-be, 90 minutes",
       duration: "90 min",
       description: "Gentle care for the mother-to-be: relief for the lower back and legs, side-lying position.",
-    },
-    "paraffin-hands": {
-      name: "Paraffin therapy for hands",
-      duration: "",
-      description: "A warm paraffin cocoon for the hands — deep nourishment for the skin.",
     },
     "complex-calm-harmony": {
       name: "«Calm and Harmony»",

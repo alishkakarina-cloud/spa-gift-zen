@@ -254,15 +254,6 @@ export const services: Service[] = [
     pregnancySafe: true,
   },
   {
-    id: "paraffin-hands",
-    name: "Парафинотерапия для рук",
-    duration: "",
-    price: 5000,
-    description: "Тёплый парафиновый кокон для рук — глубокое питание кожи.",
-    group: "massage",
-  },
-
-  {
     id: "complex-calm-harmony",
     name: "«Спокойствие и гармония»",
     duration: "90 мин",

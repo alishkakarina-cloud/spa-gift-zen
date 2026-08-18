@@ -234,17 +234,33 @@ function ServicesPage() {
         </div>
       </section>
 
-      {/* ── 5. Мы в Instagram — тот же компонент, что и в футере главной. ── */}
-      <section className="relative overflow-hidden">
-        <div className="relative mx-auto max-w-3xl px-5 pb-12 sm:px-6 sm:pb-16">
-          <InstagramLinks t={t} />
-        </div>
-      </section>
+      {/* ── 5. Футер — структура сверена вживую с layan.kz (открыли их сайт,
+          дошли до конца, прочитали DOM их <footer> напрямую): Instagram →
+          логотип → контакты → юр. ссылки → кнопка → копирайт → платёжные
+          иконки. У layan «Мы в Instagram» физически лежит внутри <footer>
+          самым первым блоком, а не отдельной секцией перед ним, как было у
+          нас, — перенесено сюда по факту разбора, а не по пересказу задачи.
 
-      {/* ── 6. Футер. Юр. ссылки, платёжные иконки и реквизиты компании —
-          не добавлены: их ещё нет в проекте, ждём данные. ──────────────── */}
+          Три куска у layan есть, а у нас нет данных — оставлены пустыми до
+          ответа, ничего не выдумано:
+          — единый номер телефона + email компании (у layan один номер в
+            футере; у нас только два раздельных WhatsApp филиалов — оставлены
+            как есть, в прежнем виде);
+          — юр. ссылки (5 шт. у layan, реальные PDF) — текстов/файлов нет,
+            выбрано вообще не показывать пункты, а не давать кликабельные
+            заглушки, которые выглядят как рабочая ссылка, но никуда не ведут;
+          — иконки платёжных систем — на сайте нет ни одной подключённой
+            платёжки (Kaspi QR и Freedom Pay — по-прежнему демо-заглушки, см.
+            CLAUDE.md), поэтому иконок нет совсем, а не наугад Mastercard/Visa.
+          Когда данные подтвердят — юр. ссылки встают между контактами и
+          кнопкой, платёжные иконки — после копирайта (тот же порядок, что у
+          layan). ──────────────────────────────────────────────────────────── */}
       <footer className="relative overflow-hidden">
-        <div className="text-cream/50 relative mx-auto flex max-w-6xl flex-col items-center gap-6 px-5 py-10 text-center text-xs sm:py-16">
+        <div className="text-cream/50 relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-5 py-10 text-center text-xs sm:py-16">
+          <div className="w-full max-w-3xl">
+            <InstagramLinks t={t} />
+          </div>
+
           <img
             src={logoLight}
             alt="RaiThai Massage & Spa"
@@ -268,7 +284,7 @@ function ServicesPage() {
             ))}
           </div>
 
-          <Link to="/offers" className="btn-gold">
+          <Link to="/offers" className="btn-gold w-full max-w-sm">
             {t("home.heroCta")}
           </Link>
 
