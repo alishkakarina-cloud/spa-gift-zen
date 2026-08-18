@@ -210,15 +210,6 @@ const ru = {
     rowSendingNow: "Сразу после оплаты",
     rowWish: "Пожелание",
     step5Title: "Оплата",
-    paymentMethodLabel: "Способ оплаты",
-    paymentIntro: "Введите данные карты и подтвердите платёж на {amount}. Сертификат сформируется автоматически.",
-    paymentByCard: "Оплата картой",
-    cardNumberLabel: "Номер карты",
-    cardExpiryLabel: "Срок действия",
-    cardCvvLabel: "CVV",
-    paymentNote:
-      "Приём платежей Freedom Pay подключается после получения API-ключа и Merchant ID. Сейчас форма работает в демо-режиме и не обрабатывает реальные платежи.",
-    paymentByKaspi: "Оплата по QR-коду",
     kaspiQrIntro:
       "Отсканируйте QR-код в приложении Kaspi.kz и подтвердите платёж на {amount}. Сертификат сформируется автоматически.",
     kaspiQrCaption: "Kaspi QR · демо-режим",
@@ -758,15 +749,6 @@ const kz = {
     rowSendingNow: "Төлемнен кейін бірден",
     rowWish: "Тілек",
     step5Title: "Төлем",
-    paymentMethodLabel: "Төлем әдісі",
-    paymentIntro: "Карта деректерін енгізіп, {amount} төлемін растаңыз. Сертификат автоматты түрде қалыптасады.",
-    paymentByCard: "Картамен төлеу",
-    cardNumberLabel: "Карта нөмірі",
-    cardExpiryLabel: "Жарамдылық мерзімі",
-    cardCvvLabel: "CVV",
-    paymentNote:
-      "Freedom Pay төлемдерін қабылдау API-кілт пен Merchant ID алынғаннан кейін қосылады. Қазір форма демо-режимде жұмыс істейді және нақты төлемдерді өңдемейді.",
-    paymentByKaspi: "QR-код арқылы төлеу",
     kaspiQrIntro:
       "Kaspi.kz қосымшасында QR-кодты сканерлеп, {amount} төлемін растаңыз. Сертификат автоматты түрде қалыптасады.",
     kaspiQrCaption: "Kaspi QR · демо-режим",
@@ -1261,15 +1243,6 @@ const en = {
     rowSendingNow: "Right after payment",
     rowWish: "Message",
     step5Title: "Payment",
-    paymentMethodLabel: "Payment method",
-    paymentIntro: "Enter your card details and confirm payment of {amount}. The certificate will be generated automatically.",
-    paymentByCard: "Pay by card",
-    cardNumberLabel: "Card number",
-    cardExpiryLabel: "Expiry date",
-    cardCvvLabel: "CVV",
-    paymentNote:
-      "Freedom Pay payment processing goes live once the API key and Merchant ID are received. The form is currently in demo mode and does not process real payments.",
-    paymentByKaspi: "Pay by QR code",
     kaspiQrIntro:
       "Scan the QR code in the Kaspi.kz app and confirm the payment of {amount}. The certificate will be generated automatically.",
     kaspiQrCaption: "Kaspi QR · demo mode",

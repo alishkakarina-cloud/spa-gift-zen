@@ -77,25 +77,10 @@ export const Route = createFileRoute("/certificate")({
 type Kind = "service" | "amount";
 /** 1 — выбор, 2 — дизайн, 3 — оформление со сводкой, 4 — оплата, 5 — готово. */
 type Step = 1 | 2 | 3 | 4 | 5;
-type PaymentMethod = "card" | "kaspi";
 /** Арка на бланке маленькая — длинный текст туда физически не влезает. */
 const MESSAGE_MAX_LENGTH = 140;
 /** FAQ из официального ТЗ (блок 18) — 9 вопросов, ключи home.faq1Q..faq9A. */
 const FAQ_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
-
-const formatCardNumber = (value: string) =>
-  value
-    .replace(/\D/g, "")
-    .slice(0, 16)
-    .replace(/(.{4})/g, "$1 ")
-    .trim();
-
-const formatCardExpiry = (value: string) => {
-  const digits = value.replace(/\D/g, "").slice(0, 4);
-  return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
-};
-
-const formatCardCvv = (value: string) => value.replace(/\D/g, "").slice(0, 3);
 
 function CertificateFlow() {
   const { t, lang } = useLanguage();
@@ -146,10 +131,6 @@ function CertificateFlow() {
   const [recipientLastName, setRecipientLastName] = useState("");
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvv, setCardCvv] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   // Stable per-visit reference for the Kaspi QR demo payload below — not a real order/payment id.
   const [kaspiDemoRef] = useState(() => Math.random().toString(36).slice(2, 10).toUpperCase());
   const [saving, setSaving] = useState(false);
@@ -182,9 +163,8 @@ function CertificateFlow() {
    * DEMO payload only — not a real Kaspi Pay payment request. A production
    * integration needs a backend call to the Kaspi Pay API to obtain a signed
    * payment link/QR payload for this specific order, then a webhook or
-   * polling to confirm the payment before the step 5 -> 6 transition (in
-   * `next`, below) can be trusted the same way `generateCertificateNumber`
-   * already is for Freedom Pay.
+   * polling to confirm the payment before the step 4 -> 5 transition (in
+   * `next`, below) can be trusted.
    */
   const kaspiQrValue = `RAITHAI-DEMO;ref=${kaspiDemoRef};amount=${total}`;
 
@@ -317,7 +297,7 @@ function CertificateFlow() {
             recipientName: recipientFullName || null,
             recipientContact: null,
             branch: branchInfo ? branchLabel : null,
-            paymentMethod: paymentMethod === "kaspi" ? "kaspi" : "freedom_pay",
+            paymentMethod: "kaspi",
             designId,
             message: message.trim() || null,
             // Состав сертификата на момент покупки — раньше нигде не
@@ -683,9 +663,7 @@ function CertificateFlow() {
               <h1 className="font-display text-3xl">{t("cert.step5Title")}</h1>
               <p className="mt-4 text-sm leading-relaxed text-cream/70">
                 {(() => {
-                  const [before, after] = t(
-                    paymentMethod === "card" ? "cert.paymentIntro" : "cert.kaspiQrIntro",
-                  ).split("{amount}");
+                  const [before, after] = t("cert.kaspiQrIntro").split("{amount}");
                   return (
                     <>
                       {before}
@@ -696,107 +674,15 @@ function CertificateFlow() {
                 })()}
               </p>
 
-              <p className="mt-6 text-[0.65rem] tracking-[0.2em] text-cream/50 uppercase">
-                {t("cert.paymentMethodLabel")}
-              </p>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("card")}
-                  className={`surface flex items-center justify-between gap-3 p-5 text-left transition-colors ${paymentMethod === "card" ? "border-gold" : "hover:border-gold/60"}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <svg
-                      viewBox="0 0 32 24"
-                      className="h-6 w-8 shrink-0 text-gold"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <rect x="1" y="1" width="30" height="22" rx="3" stroke="currentColor" strokeWidth="1.5" />
-                      <rect x="1" y="6.5" width="30" height="3.5" fill="currentColor" />
-                      <rect x="4" y="15" width="8" height="2" rx="1" fill="currentColor" opacity="0.7" />
-                    </svg>
-                    <span className="font-display text-lg tracking-wide">Freedom Pay</span>
-                  </div>
-                  <span className="text-[0.55rem] tracking-[0.2em] text-cream/45 uppercase">
-                    {t("cert.paymentByCard")}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("kaspi")}
-                  className={`surface flex items-center justify-between gap-3 p-5 text-left transition-colors ${paymentMethod === "kaspi" ? "border-gold" : "hover:border-gold/60"}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <svg viewBox="0 0 24 24" className="h-6 w-6 shrink-0 text-gold" fill="none" aria-hidden="true">
-                      <rect x="2" y="2" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5" />
-                      <rect x="15" y="2" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5" />
-                      <rect x="2" y="15" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5" />
-                      <rect x="14" y="14" width="3" height="3" fill="currentColor" />
-                      <rect x="19" y="14" width="3" height="3" fill="currentColor" />
-                      <rect x="14" y="19" width="3" height="3" fill="currentColor" />
-                      <rect x="19" y="19" width="3" height="3" fill="currentColor" />
-                    </svg>
-                    <span className="font-display text-lg tracking-wide">Kaspi QR</span>
-                  </div>
-                  <span className="text-[0.55rem] tracking-[0.2em] text-cream/45 uppercase">
-                    {t("cert.paymentByKaspi")}
-                  </span>
-                </button>
+              <div className="surface mt-8 flex flex-col items-center gap-4 p-8">
+                <div className="bg-cream p-3">
+                  <QRCodeSVG value={kaspiQrValue} size={160} bgColor="#f4efe6" fgColor="#12241b" level="M" />
+                </div>
+                <p className="text-[0.65rem] tracking-[0.28em] text-cream/50 uppercase">
+                  {t("cert.kaspiQrCaption")}
+                </p>
               </div>
-
-              {paymentMethod === "card" ? (
-                <>
-                  <div className="mt-6 grid gap-5">
-                    <Field label={t("cert.cardNumberLabel")}>
-                      <input
-                        inputMode="numeric"
-                        autoComplete="cc-number"
-                        value={cardNumber}
-                        onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                        placeholder="0000 0000 0000 0000"
-                        className="input"
-                      />
-                    </Field>
-                    <div className="grid grid-cols-2 gap-5">
-                      <Field label={t("cert.cardExpiryLabel")}>
-                        <input
-                          inputMode="numeric"
-                          autoComplete="cc-exp"
-                          value={cardExpiry}
-                          onChange={(e) => setCardExpiry(formatCardExpiry(e.target.value))}
-                          placeholder="ММ/ГГ"
-                          className="input"
-                        />
-                      </Field>
-                      <Field label={t("cert.cardCvvLabel")}>
-                        <input
-                          inputMode="numeric"
-                          autoComplete="cc-csc"
-                          value={cardCvv}
-                          onChange={(e) => setCardCvv(formatCardCvv(e.target.value))}
-                          placeholder="•••"
-                          className="input"
-                        />
-                      </Field>
-                    </div>
-                  </div>
-                  <p className="mt-4 text-xs text-cream/50">{t("cert.paymentNote")}</p>
-                </>
-              ) : (
-                <>
-                  <div className="surface mt-6 flex flex-col items-center gap-4 p-8">
-                    <div className="bg-cream p-3">
-                      <QRCodeSVG value={kaspiQrValue} size={160} bgColor="#f4efe6" fgColor="#12241b" level="M" />
-                    </div>
-                    <p className="text-[0.65rem] tracking-[0.28em] text-cream/50 uppercase">
-                      {t("cert.kaspiQrCaption")}
-                    </p>
-                  </div>
-                  <p className="mt-4 text-xs text-cream/50">{t("cert.kaspiQrNote")}</p>
-                </>
-              )}
+              <p className="mt-4 text-xs text-cream/50">{t("cert.kaspiQrNote")}</p>
             </div>
           )}
 

@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
-type PaymentMethod = "kaspi" | "freedom_pay";
+// Freedom Pay was removed as a payment option on the client (2026-08-18) —
+// Kaspi QR is the only path now. Still accepting "freedom_pay" here would
+// let a stale/bypassed client write rows for a method the UI no longer
+// offers, so the API only allows what's actually reachable.
+type PaymentMethod = "kaspi";
 type CertificateType = "service" | "amount";
 
 type ServiceLine = { id: string; name: string; price: number };
@@ -60,7 +64,7 @@ function isValidBody(body: unknown): body is CreateCertificateBody {
     (b["certificateType"] !== "service" && b["certificateType"] !== "amount") ||
     typeof b["buyerName"] !== "string" ||
     (b["buyerName"] as string).trim().length === 0 ||
-    (b["paymentMethod"] !== "kaspi" && b["paymentMethod"] !== "freedom_pay")
+    b["paymentMethod"] !== "kaspi"
   ) {
     return false;
   }
