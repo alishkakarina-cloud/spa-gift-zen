@@ -215,6 +215,8 @@ const ru = {
     kaspiQrCaption: "Kaspi QR · демо-режим",
     kaspiQrNote:
       "Приём платежей Kaspi подключается после получения доступа к Kaspi Pay API. Сейчас QR-код показан в демо-режиме и не привязан к реальному платежу.",
+    consentLabel: "Я согласен(а) с условиями оказания услуг и получения сертификата.",
+    errConsentRequired: "Отметьте согласие с условиями, чтобы продолжить.",
     step6Eyebrow: "Оплачено",
     step6Title: "Сертификат готов",
     step6Text: "Номер сертификата — {number}. {status}",
@@ -754,6 +756,8 @@ const kz = {
     kaspiQrCaption: "Kaspi QR · демо-режим",
     kaspiQrNote:
       "Kaspi төлемдерін қабылдау Kaspi Pay API-ге қолжетімділік алынғаннан кейін қосылады. Қазір QR-код демо-режимде көрсетілген және нақты төлеммен байланысты емес.",
+    consentLabel: "Мен қызмет көрсету және сертификат алу шарттарымен келісемін.",
+    errConsentRequired: "Жалғастыру үшін шарттармен келісуді белгілеңіз.",
     step6Eyebrow: "Төленді",
     step6Title: "Сертификат дайын",
     step6Text: "Сертификат нөмірі — {number}. {status}",
@@ -1248,6 +1252,8 @@ const en = {
     kaspiQrCaption: "Kaspi QR · demo mode",
     kaspiQrNote:
       "Accepting Kaspi payments will be enabled once access to the Kaspi Pay API is granted. Right now the QR code is shown in demo mode and is not linked to a real payment.",
+    consentLabel: "I agree to the terms of service and certificate issuance.",
+    errConsentRequired: "Please confirm you agree to the terms to continue.",
     step6Eyebrow: "Paid",
     step6Title: "Certificate is ready",
     step6Text: "Certificate number — {number}. {status}",

@@ -130,6 +130,7 @@ function CertificateFlow() {
   const [recipientFirstName, setRecipientFirstName] = useState("");
   const [recipientLastName, setRecipientLastName] = useState("");
   const [message, setMessage] = useState("");
+  const [consentAccepted, setConsentAccepted] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   // Stable per-visit reference for the Kaspi QR demo payload below — not a real order/payment id.
   const [kaspiDemoRef] = useState(() => Math.random().toString(36).slice(2, 10).toUpperCase());
@@ -275,8 +276,20 @@ function CertificateFlow() {
     return e;
   };
 
+  // Generic consent — no named/linked documents yet (see chat: legal texts
+  // still pending from the owner), so this only confirms "I agree to the
+  // terms of service", not five specific policies like layan.kz does.
+  const validateStep4 = () => (consentAccepted ? [] : [t("cert.errConsentRequired")]);
+
   const next = async () => {
-    const e = step === 1 ? validateStep1() : step === 3 ? validateStep3() : [];
+    const e =
+      step === 1
+        ? validateStep1()
+        : step === 3
+          ? validateStep3()
+          : step === 4
+            ? validateStep4()
+            : [];
     setErrors(e);
     if (e.length > 0) return;
 
@@ -683,6 +696,16 @@ function CertificateFlow() {
                 </p>
               </div>
               <p className="mt-4 text-xs text-cream/50">{t("cert.kaspiQrNote")}</p>
+
+              <label className="text-cream/70 hover:text-cream mt-6 flex cursor-pointer items-start gap-2.5 text-sm transition-colors">
+                <input
+                  type="checkbox"
+                  checked={consentAccepted}
+                  onChange={(e) => setConsentAccepted(e.target.checked)}
+                  className="accent-gold mt-0.5 h-4 w-4 shrink-0"
+                />
+                {t("cert.consentLabel")}
+              </label>
             </div>
           )}
 
