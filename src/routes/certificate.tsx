@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronRight } from "lucide-react";
+import { Check, ChevronRight, Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
@@ -719,16 +719,22 @@ function CertificateFlow() {
                   type="button"
                   onClick={downloadCertificateImage}
                   disabled={preparingImage !== null}
-                  className="btn-gold disabled:opacity-60"
+                  className="btn-gold inline-flex items-center gap-2 disabled:opacity-60"
                 >
+                  {preparingImage === "download" && (
+                    <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />
+                  )}
                   {preparingImage === "download" ? t("cert.preparingButton") : t("cert.downloadButton")}
                 </button>
                 <button
                   type="button"
                   onClick={shareCertificateToWhatsApp}
                   disabled={preparingImage !== null}
-                  className="btn-beige disabled:opacity-60"
+                  className="btn-beige inline-flex items-center gap-2 disabled:opacity-60"
                 >
+                  {preparingImage === "whatsapp" && (
+                    <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />
+                  )}
                   {preparingImage === "whatsapp"
                     ? t("cert.preparingButton")
                     : t("cert.whatsappShareButton")}
@@ -764,8 +770,9 @@ function CertificateFlow() {
                 type="button"
                 onClick={next}
                 disabled={saving}
-                className="btn-gold disabled:opacity-60"
+                className="btn-gold inline-flex items-center gap-2 disabled:opacity-60"
               >
+                {saving && <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />}
                 {saving
                   ? t("cert.savingButton")
                   : step === 1
