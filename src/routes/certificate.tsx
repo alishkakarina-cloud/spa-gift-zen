@@ -987,48 +987,6 @@ function CertificateFlow() {
             </ul>
           )}
 
-          {/* Шаг 4 не проходит через эту общую панель — у него своя кнопка
-              оплаты и своя логика внутри блока выше (startPayment,
-              invoicePhase). Кнопка "Назад" на шаге 4 доступна, только пока
-              счёт ещё не создан — уйти со страницы посреди ожидания оплаты
-              не должно быть так же легко, как между обычными шагами. */}
-          {step < 5 && step !== 4 && (
-            <div className="mt-10 flex items-center gap-3">
-              {step > 1 && (
-                <button
-                  type="button"
-                  onClick={back}
-                  disabled={saving}
-                  className="btn-ghost disabled:opacity-50"
-                >
-                  {t("cert.backButton")}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={next}
-                disabled={saving}
-                className="btn-gold inline-flex items-center gap-2 disabled:opacity-60"
-              >
-                {saving && <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />}
-                {saving
-                  ? t("cert.savingButton")
-                  : step === 1
-                    ? // Кнопка сразу после выбора суммы или программы — «Подарить».
-                      t("cert.giftButton")
-                    : step === 3
-                      ? t("cert.payButton")
-                      : t("cert.nextButton")}
-              </button>
-            </div>
-          )}
-          {step === 4 && invoicePhase === "choose" && (
-            <div className="mt-6">
-              <button type="button" onClick={back} className="btn-ghost">
-                {t("cert.backButton")}
-              </button>
-            </div>
-          )}
         </section>
 
         <aside className="lg:sticky lg:top-10">
@@ -1040,6 +998,13 @@ function CertificateFlow() {
             sender={sender || undefined}
             message={message || undefined}
             number={certificateNumber ?? undefined}
+            // Раньше превью не имело ограничения ширины и на мобильном
+            // занимало весь экран по высоте (380px-колонка десктопа
+            // растягивалась на всю ширину экрана). 200px (~30-37% высоты
+            // экрана на типичном мобильном, при aspect-ratio 461/697) —
+            // карточка ещё хорошо читается, но не доминирует над экраном.
+            // lg:max-w-none — на десктопе снова во всю 380px-колонку.
+            className="mx-auto max-w-[200px] sm:max-w-[240px] lg:max-w-none"
           />
           <div className="mt-5 flex items-baseline justify-between border-t border-border pt-4 text-sm">
             <span className="text-cream/60">{t("cert.payTotal")}</span>
@@ -1049,6 +1014,55 @@ function CertificateFlow() {
           </div>
         </aside>
       </div>
+
+      {/* Кнопки навигации — раньше жили в конце <section> (левая колонка),
+          из-за чего на некоторых экранах читались ниже превью сертификата
+          и даже ниже FAQ (та же сетка, но с длинным шагом слева и коротким
+          FAQ ниже неё). Вынесены сюда, сразу после сетки превью+"К оплате",
+          но перед FAQ — так кнопка "Далее" видна сразу после суммы на любой
+          ширине экрана, а не после блока частых вопросов. */}
+      {/* Шаг 4 не проходит через эту панель — у него своя кнопка оплаты и
+          своя логика внутри блока выше (startPayment, invoicePhase). Кнопка
+          "Назад" на шаге 4 доступна, только пока счёт ещё не создан — уйти
+          со страницы посреди ожидания оплаты не должно быть так же легко,
+          как между обычными шагами. */}
+      {step < 5 && step !== 4 && (
+        <div className="mt-10 flex items-center gap-3">
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={back}
+              disabled={saving}
+              className="btn-ghost disabled:opacity-50"
+            >
+              {t("cert.backButton")}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={next}
+            disabled={saving}
+            className="btn-gold inline-flex items-center gap-2 disabled:opacity-60"
+          >
+            {saving && <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />}
+            {saving
+              ? t("cert.savingButton")
+              : step === 1
+                ? // Кнопка сразу после выбора суммы или программы — «Подарить».
+                  t("cert.giftButton")
+                : step === 3
+                  ? t("cert.payButton")
+                  : t("cert.nextButton")}
+          </button>
+        </div>
+      )}
+      {step === 4 && invoicePhase === "choose" && (
+        <div className="mt-6">
+          <button type="button" onClick={back} className="btn-ghost">
+            {t("cert.backButton")}
+          </button>
+        </div>
+      )}
 
       {/* FAQ перенесён сюда с главной — по структуре layan.kz вопросы о
           сертификате живут рядом со страницей покупки, а не на главной. */}

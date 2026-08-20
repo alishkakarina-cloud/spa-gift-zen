@@ -25,6 +25,9 @@ type Props = {
   /** Как записаться на процедуру — печатается на самом сертификате. */
   bookingNote?: string | undefined;
   compact?: boolean | undefined;
+  /** Доп. классы на внешний div — например ограничение максимальной ширины
+   *  превью в сайдбаре шага оформления (иначе занимает весь экран). */
+  className?: string | undefined;
 };
 
 export function CertificateCard({
@@ -38,6 +41,7 @@ export function CertificateCard({
   branch,
   bookingNote,
   compact = false,
+  className = "",
 }: Props) {
   const { t } = useLanguage();
   const lines = items && items.length > 0 ? items : null;
@@ -49,17 +53,18 @@ export function CertificateCard({
       // <button> (у него нет собственной ширины) считает размеры непредсказуемо,
       // из-за чего три карточки на шаге выбора дизайна могли обрезаться
       // по-разному. С явной шириной все три получают одинаковый бокс.
-      className="relative w-full overflow-hidden rounded-2xl"
+      className={`relative w-full overflow-hidden rounded-2xl ${className}`}
       style={{ aspectRatio: CERT_DESIGN_ASPECT, boxShadow: "0 24px 60px -30px rgba(0,0,0,0.75)" }}
     >
       {/* Логотип, рамка и сама арка уже впечатаны в фото заказчиком — карточке
           больше не нужно рисовать текстуру/вуаль/мотив программно поверх.
-          object-fit: contain — вписываем фото целиком, без обрезки: даже с
-          почти совпадающим aspect-ratio контейнера (461/818) cover всё
-          равно чуть обрезает края (была жалоба на это на шаге выбора
-          дизайна), а тут на кону лого сверху и цветы по углам — contain
-          гарантированно ничего не срежет, максимум тончайший зазор по
-          бокам у одного из трёх фото (у них чуть разное соотношение). */}
+          object-fit: cover + object-position: top — контейнер (461/697)
+          у́же по высоте, чем фото (461/818), поэтому cover масштабирует
+          строго по ширине (бока и углы не трогает — та же логика, что и
+          раньше с cover, только теперь контейнер нарочно короче фото) и
+          обрезает лишнее СНИЗУ, где золотая плашка с названием дизайна —
+          сайт и так печатает название отдельным текстом рядом с карточкой,
+          плашка дублировала его (см. CERT_DESIGN_ASPECT в catalog.ts). */}
       <img
         src={design.photo}
         alt=""
@@ -67,7 +72,7 @@ export function CertificateCard({
         loading="lazy"
         width={461}
         height={818}
-        className="absolute inset-0 h-full w-full object-contain object-center"
+        className="absolute inset-0 h-full w-full object-cover object-top"
       />
 
       {/* Текстовый блок внутри арки — координаты свои под каждое фото

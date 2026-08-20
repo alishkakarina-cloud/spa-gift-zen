@@ -603,33 +603,37 @@ export type CertificateDesign = {
 };
 
 /**
- * Новые фото дизайнов от заказчика (2026-08-20): 461×818 (for-her/for-him),
- * 449×799 (standard) — соотношения почти идентичны (~0.562 vs ~0.562),
- * расхождение <0.3%, незаметно на глаз. Раньше тут стояло 457/915 (≈0.500) —
- * заметно уже, чем реальные фото (≈0.562); при object-fit: cover это обрезало
- * бы бока (у "Для неё" — ровно те самые угловые пионы). Теперь aspect-ratio
- * контейнера (см. CertificateCard) соответствует фото, а не наоборот.
+ * Фото дизайнов от заказчика (461×818 у for-her/for-him, 449×799 у standard,
+ * соотношения почти идентичны, ~0.562) несут внизу впечатанную золотую
+ * плашку с названием дизайна ("ДЛЯ НЕГО" и т.п.) — то же название сайт и
+ * так печатает отдельным текстом (например подпись под карточкой на шаге
+ * выбора дизайна), поэтому плашка дублирует его. Редактора картинок нет,
+ * убрать вручную нельзя — обрезаем нижние ~15% высоты через CSS
+ * (object-fit: cover + object-position: top в CertificateCard), где как раз
+ * начинается плашка. Ширина при этом не трогается (scale по ширине идёт
+ * первым, т.к. это соотношение только уже, не шире оригинала) — лого и
+ * угловые цветы наверху и по бокам не обрезаются, только низ.
  */
-export const CERT_DESIGN_ASPECT = "461 / 818";
+export const CERT_DESIGN_ASPECT = "461 / 697";
 
 export const designs: CertificateDesign[] = [
   {
     id: "standard",
     title: "Стандартный",
     photo: standardDesignPhoto,
-    archBox: { top: 41, bottom: 75, centerX: 52, width: 50 },
+    archBox: { top: 48, bottom: 88, centerX: 52, width: 50 },
   },
   {
     id: "for-her",
     title: "Для неё",
     photo: forHerDesignPhoto,
-    archBox: { top: 41, bottom: 75, centerX: 50, width: 50 },
+    archBox: { top: 48, bottom: 88, centerX: 50, width: 50 },
   },
   {
     id: "for-him",
     title: "Для него",
     photo: forHimDesignPhoto,
-    archBox: { top: 41, bottom: 75, centerX: 48, width: 50 },
+    archBox: { top: 48, bottom: 88, centerX: 48, width: 50 },
   },
 ];
 
