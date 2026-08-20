@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createApipayInvoice } from "@/lib/apipay";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
 // Freedom Pay was removed as a payment option on the client (2026-08-18) —
@@ -7,6 +8,7 @@ import { getSupabaseServerClient } from "@/lib/supabase-server";
 // offers, so the API only allows what's actually reachable.
 type PaymentMethod = "kaspi";
 type CertificateType = "service" | "amount";
+type PaymentChannel = "qr" | "phone";
 
 type ServiceLine = { id: string; name: string; price: number };
 
@@ -19,10 +21,15 @@ type CreateCertificateBody = {
   recipientContact?: string | null;
   branch?: string | null;
   paymentMethod: PaymentMethod;
+  paymentChannel: PaymentChannel;
+  /** Только для paymentChannel: "phone" — строго 8XXXXXXXXXX (ApiPay/Kaspi Pay). */
+  payPhone?: string | null;
   designId?: string | null;
   message?: string | null;
   services?: ReadonlyArray<ServiceLine> | null;
 };
+
+const PHONE_RE = /^8\d{10}$/;
 
 const generateCertificateNumber = () => {
   const year = new Date().getFullYear();
@@ -64,10 +71,12 @@ function isValidBody(body: unknown): body is CreateCertificateBody {
     (b["certificateType"] !== "service" && b["certificateType"] !== "amount") ||
     typeof b["buyerName"] !== "string" ||
     (b["buyerName"] as string).trim().length === 0 ||
-    b["paymentMethod"] !== "kaspi"
+    b["paymentMethod"] !== "kaspi" ||
+    (b["paymentChannel"] !== "qr" && b["paymentChannel"] !== "phone")
   ) {
     return false;
   }
+  if (b["paymentChannel"] === "phone" && !PHONE_RE.test(String(b["payPhone"] ?? ""))) return false;
   if (b["services"] != null && !Array.isArray(b["services"])) return false;
   if (Array.isArray(b["services"]) && !b["services"].every(isValidServiceLine)) return false;
   return true;
@@ -123,24 +132,58 @@ export const Route = createFileRoute("/api/certificates/create")({
               design_id: body.designId?.trim() || null,
               message: body.message?.trim() || null,
               services: body.services && body.services.length > 0 ? body.services : null,
-              // Ни Kaspi Pay, ни Freedom Pay ещё не подключены (это отдельная
-              // будущая задача) — "paid" здесь означало бы то же, что и
-              // раньше означал клиентский мок: пользователь дошёл до кнопки
-              // "Оплатить" и нажал её, а не то, что платёжный провайдер
-              // подтвердил поступление денег. sandbox_paid — честная пометка
-              // тестового платежа, чтобы её можно было отличить от настоящей
-              // 'paid', когда реальный шлюз (webhook/статус-полл) появится.
-              payment_status: "sandbox_paid",
+              payment_channel: body.paymentChannel,
+              // Реальный статус ставит вебхук ApiPay (см.
+              // src/routes/api/webhooks/apipay.ts) после подтверждённой
+              // оплаты — здесь только резервируем номер и ждём.
+              payment_status: "pending",
               status: "active",
             })
             .select("id, certificate_number")
             .single();
 
           if (!error) {
-            return Response.json({
-              id: data.id,
-              certificateNumber: data.certificate_number,
-            });
+            // Строка сохранена — теперь пробуем выставить реальный счёт в
+            // ApiPay. Если это упадёт, сертификат остаётся зарезервированным
+            // (payment_status: "failed"), клиент может просто попробовать
+            // ещё раз — создастся новая строка с новым номером.
+            try {
+              const invoice = await createApipayInvoice({
+                channel: body.paymentChannel,
+                amount: body.amount,
+                description: `Сертификат RaiThai — ${certificateNumber}`,
+                externalOrderId: data.id,
+                ...(body.paymentChannel === "phone" ? { phoneNumber: body.payPhone!.trim() } : {}),
+              });
+
+              await supabase
+                .from("certificates")
+                .update({
+                  payment_provider: "apipay",
+                  provider_invoice_id: String(invoice.id),
+                })
+                .eq("id", data.id);
+
+              return Response.json({
+                id: data.id,
+                certificateNumber: data.certificate_number,
+                invoice:
+                  body.paymentChannel === "qr"
+                    ? {
+                        qrCode: invoice.qr_code ?? invoice.qr ?? null,
+                        payUrl: invoice.pay_url ?? invoice.link ?? null,
+                      }
+                    : null,
+              });
+            } catch (err) {
+              console.error("ApiPay invoice creation failed:", err);
+              await supabase.from("certificates").update({ payment_status: "failed" }).eq("id", data.id);
+              const isNotConfigured = err instanceof Error && err.message.includes("APIPAY_API_KEY");
+              return Response.json(
+                { error: isNotConfigured ? "apipay_not_configured" : "invoice_create_failed" },
+                { status: isNotConfigured ? 500 : 502 },
+              );
+            }
           }
 
           // Postgres unique_violation — another request grabbed this number

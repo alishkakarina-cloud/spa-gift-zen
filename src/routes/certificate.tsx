@@ -130,9 +130,41 @@ function CertificateFlow() {
   const [message, setMessage] = useState("");
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
-  // Stable per-visit reference for the Kaspi QR demo payload below — not a real order/payment id.
-  const [kaspiDemoRef] = useState(() => Math.random().toString(36).slice(2, 10).toUpperCase());
   const [saving, setSaving] = useState(false);
+
+  // ── Оплата (ApiPay.kz, Kaspi Pay) — шаг 4 ─────────────────────────────
+  type PayChannel = "qr" | "phone";
+  type InvoicePhase = "choose" | "creating" | "awaiting" | "error" | "timeout";
+  const PAY_PHONE_RE = /^8\d{10}$/;
+  const [payChannel, setPayChannel] = useState<PayChannel>("qr");
+  // Предзаполняем из buyerPhone (шаг 3), только если он уже похож на нужный
+  // формат — иначе пусто, поле обязательно проверяется отдельно (Блок 2.2).
+  const [payPhone, setPayPhone] = useState("");
+  // Предзаполняем из buyerPhone (шаг 3) при входе на шаг 4, только если поле
+  // ещё пустое — buyerPhone на момент монтирования компонента (шаг 1) всегда
+  // пуст, так что делать это в инициализаторе useState бессмысленно.
+  useEffect(() => {
+    if (step !== 4 || payPhone) return;
+    const digits = buyerPhone.replace(/\D/g, "");
+    // "+7 700 545 8008" -> 11 цифр "77005458008" (код страны "7") -> Kaspi
+    // хочет "8" вместо "7"; "700 545 8008" без кода страны -> 10 цифр,
+    // просто добавляем "8" спереди.
+    const normalized =
+      digits.length === 11 && digits.startsWith("7")
+        ? `8${digits.slice(1)}`
+        : digits.length === 10
+          ? `8${digits}`
+          : digits;
+    if (PAY_PHONE_RE.test(normalized)) setPayPhone(normalized);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+  const [invoicePhase, setInvoicePhase] = useState<InvoicePhase>("choose");
+  const [invoiceData, setInvoiceData] = useState<{
+    id: string;
+    qrCode: string | null;
+    payUrl: string | null;
+  } | null>(null);
+  const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
   const design = designs.find((d) => d.id === designId)!;
   const chosen = selectedServices(serviceIds);
@@ -158,16 +190,7 @@ function CertificateFlow() {
   const branchInfo = branch ? BRANCHES.find((b) => b.id === branch) : undefined;
   const branchLabel = branchInfo ? t(branchInfo.labelKey) : t("cert.branchNotChosen");
 
-  /**
-   * DEMO payload only — not a real Kaspi Pay payment request. A production
-   * integration needs a backend call to the Kaspi Pay API to obtain a signed
-   * payment link/QR payload for this specific order, then a webhook or
-   * polling to confirm the payment before the step 4 -> 5 transition (in
-   * `next`, below) can be trusted.
-   */
-  const kaspiQrValue = `RAITHAI-DEMO;ref=${kaspiDemoRef};amount=${total}`;
-
-  // Issued only once payment is confirmed (see `next`), not on page load.
+  // Issued only once payment is confirmed (see the polling effect below), not on page load.
   const [certificateNumber, setCertificateNumber] = useState<string | null>(null);
 
   // Карточка сертификата на шаге 5 — узел, с которого рендерим PNG для
@@ -274,69 +297,130 @@ function CertificateFlow() {
     return e;
   };
 
-  const validateStep4 = () => (consentAccepted ? [] : [t("cert.errConsentRequired")]);
+  const validateStep4 = () => {
+    const e: string[] = [];
+    if (!consentAccepted) e.push(t("cert.errConsentRequired"));
+    if (payChannel === "phone" && !PAY_PHONE_RE.test(payPhone)) e.push(t("cert.errPayPhoneInvalid"));
+    return e;
+  };
 
   const next = async () => {
-    const e =
-      step === 1
-        ? validateStep1()
-        : step === 3
-          ? validateStep3()
-          : step === 4
-            ? validateStep4()
-            : [];
+    const e = step === 1 ? validateStep1() : step === 3 ? validateStep3() : [];
     setErrors(e);
     if (e.length > 0) return;
-
-    if (step === 4) {
-      // Payment confirmed (step 4 → 5): persist the certificate to Supabase
-      // first, and only advance once that succeeds — the number shown to the
-      // user is whatever the server actually saved, not a client guess.
-      setSaving(true);
-      try {
-        const response = await fetch("/api/certificates/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: total,
-            certificateType: kind,
-            buyerName,
-            buyerContact: [buyerPhone, buyerEmail].filter(Boolean).join(" · ") || null,
-            recipientName: recipientFullName || null,
-            recipientContact: null,
-            branch: branchInfo ? branchLabel : null,
-            paymentMethod: "kaspi",
-            designId,
-            message: message.trim() || null,
-            // Состав сертификата на момент покупки — раньше нигде не
-            // сохранялся, хотя форма его собирает (chosen).
-            services:
-              kind === "service" && chosen.length > 0
-                ? chosen.map((s) => ({
-                    id: s.id,
-                    name: t(`services.${s.id}.name`),
-                    price: s.price,
-                  }))
-                : null,
-          }),
-        });
-        if (!response.ok) throw new Error("save_failed");
-        const data = (await response.json()) as { certificateNumber: string };
-        setCertificateNumber(data.certificateNumber);
-        setStep(5);
-      } catch {
-        setErrors([t("cert.errCertificateSaveFailed")]);
-      } finally {
-        setSaving(false);
-      }
-      return;
-    }
-
     setStep((s) => Math.min(5, s + 1) as Step);
   };
 
+  /**
+   * Шаг 4 больше не идёт через общий `next()`/нижнюю кнопку — выбор способа
+   * оплаты и создание счёта живут внутри самого шага (см. JSX ниже).
+   * Создаёт certificate-строку (payment_status: "pending", номер уже
+   * зарезервирован) + счёт в ApiPay в одном запросе; шаг 5 открывается
+   * только когда поллинг (см. useEffect ниже) увидит payment_status: "paid".
+   */
+  const startPayment = async () => {
+    const e = validateStep4();
+    setErrors(e);
+    if (e.length > 0) return;
+
+    setInvoicePhase("creating");
+    setInvoiceError(null);
+    try {
+      const response = await fetch("/api/certificates/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: total,
+          certificateType: kind,
+          buyerName,
+          buyerContact: [buyerPhone, buyerEmail].filter(Boolean).join(" · ") || null,
+          recipientName: recipientFullName || null,
+          recipientContact: null,
+          branch: branchInfo ? branchLabel : null,
+          paymentMethod: "kaspi",
+          paymentChannel: payChannel,
+          payPhone: payChannel === "phone" ? payPhone : null,
+          designId,
+          message: message.trim() || null,
+          // Состав сертификата на момент покупки — раньше нигде не
+          // сохранялся, хотя форма его собирает (chosen).
+          services:
+            kind === "service" && chosen.length > 0
+              ? chosen.map((s) => ({
+                  id: s.id,
+                  name: t(`services.${s.id}.name`),
+                  price: s.price,
+                }))
+              : null,
+        }),
+      });
+      const data = (await response.json()) as {
+        id?: string;
+        certificateNumber?: string;
+        invoice?: { qrCode: string | null; payUrl: string | null } | null;
+        error?: string;
+      };
+      if (!response.ok || !data.id || !data.certificateNumber) {
+        throw new Error(data.error ?? "save_failed");
+      }
+      setCertificateNumber(data.certificateNumber);
+      setInvoiceData({
+        id: data.id,
+        qrCode: data.invoice?.qrCode ?? null,
+        payUrl: data.invoice?.payUrl ?? null,
+      });
+      setInvoicePhase("awaiting");
+    } catch (err) {
+      const code = err instanceof Error ? err.message : "save_failed";
+      setInvoiceError(
+        code === "apipay_not_configured" ? t("cert.errApipayNotConfigured") : t("cert.errInvoiceCreateFailed"),
+      );
+      setInvoicePhase("error");
+    }
+  };
+
+  // Поллинг статуса, пока ждём вебхук от ApiPay — каждые 3с, максимум ~100
+  // попыток (~5 мин), затем предлагаем проверить вручную вместо бесконечных
+  // запросов. Останавливается при уходе с "awaiting" или размонтировании.
+  useEffect(() => {
+    if (invoicePhase !== "awaiting" || !invoiceData) return;
+    let attempts = 0;
+    const id = invoiceData.id;
+    const interval = setInterval(async () => {
+      attempts += 1;
+      try {
+        const res = await fetch(`/api/certificates/status/${id}`);
+        if (res.ok) {
+          const data = (await res.json()) as { paymentStatus: string };
+          if (data.paymentStatus === "paid") {
+            clearInterval(interval);
+            setStep(5);
+            return;
+          }
+          if (data.paymentStatus === "failed") {
+            clearInterval(interval);
+            setInvoiceError(t("cert.errInvoiceCreateFailed"));
+            setInvoicePhase("error");
+            return;
+          }
+        }
+      } catch {
+        // Сетевой сбой одного опроса — не страшно, попробуем на следующем тике.
+      }
+      if (attempts >= 100) {
+        clearInterval(interval);
+        setInvoicePhase("timeout");
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [invoicePhase, invoiceData, t]);
+
   const back = () => {
     setErrors([]);
+    if (step === 4) {
+      setInvoicePhase("choose");
+      setInvoiceData(null);
+    }
     setStep((s) => Math.max(1, s - 1) as Step);
   };
 
@@ -656,47 +740,152 @@ function CertificateFlow() {
           {step === 4 && (
             <div className="max-w-md">
               <h1 className="font-display text-3xl">{t("cert.step5Title")}</h1>
-              <p className="mt-4 text-sm leading-relaxed text-cream/70">
-                {(() => {
-                  const [before, after] = t("cert.kaspiQrIntro").split("{amount}");
-                  return (
+              <p className="mt-4 text-sm leading-relaxed text-cream/70">{t("cert.payIntro")}</p>
+              <p className="font-display text-gold mt-2 text-2xl">{formatPrice(total)}</p>
+
+              {(invoicePhase === "choose" ||
+                invoicePhase === "creating" ||
+                invoicePhase === "error") && (
+                <>
+                  <p className="text-cream/60 mt-8 text-[0.65rem] tracking-[0.2em] uppercase">
+                    {t("cert.payMethodTitle")}
+                  </p>
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    {(["qr", "phone"] as const).map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setPayChannel(c)}
+                        aria-pressed={payChannel === c}
+                        className={`rounded-md border px-4 py-3 text-sm transition-colors ${
+                          payChannel === c
+                            ? "border-gold bg-gold text-primary-foreground"
+                            : "border-border bg-card text-cream/80 hover:border-gold/60"
+                        }`}
+                      >
+                        {t(c === "qr" ? "cert.payMethodQr" : "cert.payMethodPhone")}
+                      </button>
+                    ))}
+                  </div>
+
+                  {payChannel === "phone" && (
+                    <label className="mt-4 block">
+                      <span className="text-cream/70 text-xs">{t("cert.payPhoneLabel")}</span>
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        value={payPhone}
+                        onChange={(e) => setPayPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                        placeholder={t("cert.payPhonePlaceholder")}
+                        className="input mt-1.5"
+                      />
+                      <span className="text-cream/45 mt-1 block text-xs">{t("cert.payPhoneHint")}</span>
+                    </label>
+                  )}
+
+                  <label className="text-cream/70 hover:text-cream mt-6 flex cursor-pointer items-start gap-2.5 text-sm transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={consentAccepted}
+                      onChange={(e) => setConsentAccepted(e.target.checked)}
+                      className="accent-gold mt-0.5 h-4 w-4 shrink-0"
+                    />
+                    {t("cert.consentLabel")}
+                  </label>
+                  <p className="text-cream/45 mt-2 pl-[1.625rem] text-xs">
+                    <Link to="/offer" target="_blank" className="hover:text-gold underline">
+                      {t("footer.legalOffer")}
+                    </Link>
+                    {" · "}
+                    <Link to="/certificate-rules" target="_blank" className="hover:text-gold underline">
+                      {t("footer.legalCertRules")}
+                    </Link>
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={startPayment}
+                    disabled={invoicePhase === "creating"}
+                    className="btn-gold mt-6 inline-flex items-center gap-2 disabled:opacity-60"
+                  >
+                    {invoicePhase === "creating" && (
+                      <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />
+                    )}
+                    {invoicePhase === "creating"
+                      ? t("cert.savingButton")
+                      : t(payChannel === "qr" ? "cert.showQrButton" : "cert.sendPhoneRequestButton")}
+                  </button>
+
+                  {invoicePhase === "error" && invoiceError && (
+                    <p className="text-destructive mt-4 text-sm">{invoiceError}</p>
+                  )}
+                </>
+              )}
+
+              {(invoicePhase === "awaiting" || invoicePhase === "timeout") && invoiceData && (
+                <div className="surface mt-8 flex flex-col items-center gap-4 p-8 text-center">
+                  {payChannel === "qr" &&
+                    (invoiceData.qrCode ? (
+                      <div className="bg-cream p-3">
+                        <QRCodeSVG
+                          value={invoiceData.qrCode}
+                          size={160}
+                          bgColor="#f4efe6"
+                          fgColor="#12241b"
+                          level="M"
+                        />
+                      </div>
+                    ) : invoiceData.payUrl ? (
+                      <a href={invoiceData.payUrl} target="_blank" rel="noopener noreferrer" className="btn-gold">
+                        {t("cert.showQrButton")}
+                      </a>
+                    ) : null)}
+
+                  <p className="text-cream/70 text-sm leading-relaxed">
+                    {payChannel === "qr"
+                      ? t("cert.payAwaitingQr")
+                      : (() => {
+                          const [before, after] = t("cert.payAwaitingPhone").split("{phone}");
+                          return (
+                            <>
+                              {before}
+                              <span className="text-gold">{payPhone}</span>
+                              {after}
+                            </>
+                          );
+                        })()}
+                  </p>
+
+                  {invoicePhase === "awaiting" ? (
+                    <p className="text-cream/45 flex items-center gap-2 text-xs">
+                      <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden="true" />
+                      {t("cert.payAwaitingNote")}
+                    </p>
+                  ) : (
                     <>
-                      {before}
-                      <span className="text-gold">{formatPrice(total)}</span>
-                      {after}
+                      <p className="text-cream/70 text-sm">{t("cert.payTimeoutMessage")}</p>
+                      <button
+                        type="button"
+                        onClick={() => setInvoicePhase("awaiting")}
+                        className="btn-beige"
+                      >
+                        {t("cert.checkStatusButton")}
+                      </button>
                     </>
-                  );
-                })()}
-              </p>
+                  )}
 
-              <div className="surface mt-8 flex flex-col items-center gap-4 p-8">
-                <div className="bg-cream p-3">
-                  <QRCodeSVG value={kaspiQrValue} size={160} bgColor="#f4efe6" fgColor="#12241b" level="M" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInvoicePhase("choose");
+                      setInvoiceData(null);
+                    }}
+                    className="text-cream/45 hover:text-gold text-xs underline"
+                  >
+                    {t("cert.changeMethodButton")}
+                  </button>
                 </div>
-                <p className="text-[0.65rem] tracking-[0.28em] text-cream/50 uppercase">
-                  {t("cert.kaspiQrCaption")}
-                </p>
-              </div>
-              <p className="mt-4 text-xs text-cream/50">{t("cert.kaspiQrNote")}</p>
-
-              <label className="text-cream/70 hover:text-cream mt-6 flex cursor-pointer items-start gap-2.5 text-sm transition-colors">
-                <input
-                  type="checkbox"
-                  checked={consentAccepted}
-                  onChange={(e) => setConsentAccepted(e.target.checked)}
-                  className="accent-gold mt-0.5 h-4 w-4 shrink-0"
-                />
-                {t("cert.consentLabel")}
-              </label>
-              <p className="text-cream/45 mt-2 pl-[1.625rem] text-xs">
-                <Link to="/offer" target="_blank" className="hover:text-gold underline">
-                  {t("footer.legalOffer")}
-                </Link>
-                {" · "}
-                <Link to="/certificate-rules" target="_blank" className="hover:text-gold underline">
-                  {t("footer.legalCertRules")}
-                </Link>
-              </p>
+              )}
             </div>
           )}
 
@@ -768,7 +957,12 @@ function CertificateFlow() {
             </ul>
           )}
 
-          {step < 5 && (
+          {/* Шаг 4 не проходит через эту общую панель — у него своя кнопка
+              оплаты и своя логика внутри блока выше (startPayment,
+              invoicePhase). Кнопка "Назад" на шаге 4 доступна, только пока
+              счёт ещё не создан — уйти со страницы посреди ожидания оплаты
+              не должно быть так же легко, как между обычными шагами. */}
+          {step < 5 && step !== 4 && (
             <div className="mt-10 flex items-center gap-3">
               {step > 1 && (
                 <button
@@ -794,9 +988,14 @@ function CertificateFlow() {
                       t("cert.giftButton")
                     : step === 3
                       ? t("cert.payButton")
-                      : step === 4
-                        ? t("cert.paidButton")
-                        : t("cert.nextButton")}
+                      : t("cert.nextButton")}
+              </button>
+            </div>
+          )}
+          {step === 4 && invoicePhase === "choose" && (
+            <div className="mt-6">
+              <button type="button" onClick={back} className="btn-ghost">
+                {t("cert.backButton")}
               </button>
             </div>
           )}

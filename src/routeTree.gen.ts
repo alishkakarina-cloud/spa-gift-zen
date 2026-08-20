@@ -31,9 +31,11 @@ import { Route as ApiAdminMeRouteImport } from './routes/api/admin/me'
 import { Route as ApiAdminMenuRouteImport } from './routes/api/admin/menu'
 import { Route as ApiAdminServicesRouteImport } from './routes/api/admin/services'
 import { Route as ApiCertificatesCreateRouteImport } from './routes/api/certificates/create'
+import { Route as ApiWebhooksApipayRouteImport } from './routes/api/webhooks/apipay'
 import { Route as ApiAdminCertificatesIdRouteImport } from './routes/api/admin/certificates.$id'
 import { Route as ApiAdminCertificatesExportRouteImport } from './routes/api/admin/certificates.export'
 import { Route as ApiAdminServicesIdRouteImport } from './routes/api/admin/services.$id'
+import { Route as ApiCertificatesStatusIdRouteImport } from './routes/api/certificates/status.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -145,6 +147,11 @@ const ApiCertificatesCreateRoute = ApiCertificatesCreateRouteImport.update({
   path: '/api/certificates/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWebhooksApipayRoute = ApiWebhooksApipayRouteImport.update({
+  id: '/api/webhooks/apipay',
+  path: '/api/webhooks/apipay',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminCertificatesIdRoute = ApiAdminCertificatesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -160,6 +167,11 @@ const ApiAdminServicesIdRoute = ApiAdminServicesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => ApiAdminServicesRoute,
+} as any)
+const ApiCertificatesStatusIdRoute = ApiCertificatesStatusIdRouteImport.update({
+  id: '/api/certificates/status/$id',
+  path: '/api/certificates/status/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -185,9 +197,11 @@ export interface FileRoutesByFullPath {
   '/api/admin/menu': typeof ApiAdminMenuRoute
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
   '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
   '/api/admin/services/$id': typeof ApiAdminServicesIdRoute
+  '/api/certificates/status/$id': typeof ApiCertificatesStatusIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -212,9 +226,11 @@ export interface FileRoutesByTo {
   '/api/admin/menu': typeof ApiAdminMenuRoute
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
   '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
   '/api/admin/services/$id': typeof ApiAdminServicesIdRoute
+  '/api/certificates/status/$id': typeof ApiCertificatesStatusIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -240,9 +256,11 @@ export interface FileRoutesById {
   '/api/admin/menu': typeof ApiAdminMenuRoute
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
   '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
   '/api/admin/services/$id': typeof ApiAdminServicesIdRoute
+  '/api/certificates/status/$id': typeof ApiCertificatesStatusIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -269,9 +287,11 @@ export interface FileRouteTypes {
     | '/api/admin/menu'
     | '/api/admin/services'
     | '/api/certificates/create'
+    | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
     | '/api/admin/certificates/export'
     | '/api/admin/services/$id'
+    | '/api/certificates/status/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -296,9 +316,11 @@ export interface FileRouteTypes {
     | '/api/admin/menu'
     | '/api/admin/services'
     | '/api/certificates/create'
+    | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
     | '/api/admin/certificates/export'
     | '/api/admin/services/$id'
+    | '/api/certificates/status/$id'
   id:
     | '__root__'
     | '/'
@@ -323,9 +345,11 @@ export interface FileRouteTypes {
     | '/api/admin/menu'
     | '/api/admin/services'
     | '/api/certificates/create'
+    | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
     | '/api/admin/certificates/export'
     | '/api/admin/services/$id'
+    | '/api/certificates/status/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -351,6 +375,8 @@ export interface RootRouteChildren {
   ApiAdminMenuRoute: typeof ApiAdminMenuRoute
   ApiAdminServicesRoute: typeof ApiAdminServicesRouteWithChildren
   ApiCertificatesCreateRoute: typeof ApiCertificatesCreateRoute
+  ApiWebhooksApipayRoute: typeof ApiWebhooksApipayRoute
+  ApiCertificatesStatusIdRoute: typeof ApiCertificatesStatusIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -509,6 +535,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCertificatesCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/webhooks/apipay': {
+      id: '/api/webhooks/apipay'
+      path: '/api/webhooks/apipay'
+      fullPath: '/api/webhooks/apipay'
+      preLoaderRoute: typeof ApiWebhooksApipayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/certificates/$id': {
       id: '/api/admin/certificates/$id'
       path: '/$id'
@@ -529,6 +562,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/services/$id'
       preLoaderRoute: typeof ApiAdminServicesIdRouteImport
       parentRoute: typeof ApiAdminServicesRoute
+    }
+    '/api/certificates/status/$id': {
+      id: '/api/certificates/status/$id'
+      path: '/api/certificates/status/$id'
+      fullPath: '/api/certificates/status/$id'
+      preLoaderRoute: typeof ApiCertificatesStatusIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -580,6 +620,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminMenuRoute: ApiAdminMenuRoute,
   ApiAdminServicesRoute: ApiAdminServicesRouteWithChildren,
   ApiCertificatesCreateRoute: ApiCertificatesCreateRoute,
+  ApiWebhooksApipayRoute: ApiWebhooksApipayRoute,
+  ApiCertificatesStatusIdRoute: ApiCertificatesStatusIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
