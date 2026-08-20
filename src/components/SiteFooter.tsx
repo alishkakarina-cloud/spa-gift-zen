@@ -72,6 +72,9 @@ export function SiteFooter({ t }: { t: (path: string) => string }) {
           <Link to="/privacy-policy" className="text-cream/50 hover:text-gold transition-colors">
             {t("footer.legalPrivacy")}
           </Link>
+          <Link to="/cookie-policy" className="text-cream/50 hover:text-gold transition-colors">
+            {t("footer.legalCookie")}
+          </Link>
           <Link to="/offer" className="text-cream/50 hover:text-gold transition-colors">
             {t("footer.legalOffer")}
           </Link>

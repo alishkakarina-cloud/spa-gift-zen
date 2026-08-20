@@ -1,6 +1,7 @@
 import { Instagram, MapPin } from "lucide-react";
 import { Motif } from "@/components/Motif";
 import { BRANCHES, instagramLinkFor, mapLinkFor } from "@/data/branches";
+import logoLight from "@/assets/logo-on-dark.webp";
 
 /**
  * «Наши салоны» — контакты двух филиалов и отдельный блок Instagram.
@@ -80,34 +81,55 @@ export function BranchesSection({ t }: { t: (path: string) => string }) {
  * <footer>. Вынесен отдельно и переехал внутрь <footer> на главной — на
  * layan.kz Instagram-ссылки живут именно внутри футера, а не отдельной
  * секцией перед ним.
+ *
+ * Карточки укрупнены по образцу layan.kz (круглый лого-плейсхолдер сверху,
+ * крупное название салона, большая пилюля-кнопка с хендлом на всю ширину) —
+ * но в нашей палитре (тёмно-зелёный/золотой), не в их светлой. У layan
+ * плейсхолдер пустой (лого ещё не подгрузилось на скрине) — у нас сразу
+ * стоит наш логотип в золотом круге, как на карточке филиала в /services.
  */
 export function InstagramLinks({ t }: { t: (path: string) => string }) {
   return (
-    <div className="surface w-full rounded-lg p-6 sm:p-8">
-      <div className="flex items-center gap-3">
+    <div className="w-full">
+      <div className="flex items-center justify-center gap-3">
         <Instagram className="text-gold h-5 w-5" aria-hidden="true" />
         <h2 className="font-display text-xl sm:text-2xl">{t("branches.instagramTitle")}</h2>
       </div>
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-8 flex flex-col gap-6 sm:mt-10 sm:gap-8">
         {BRANCHES.map((b) => (
-          <a
+          <article
             key={b.id}
-            href={instagramLinkFor(b)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="border-border hover:border-gold/60 text-cream/80 hover:text-gold flex items-center gap-2.5 rounded-md border px-4 py-3 text-sm transition-colors"
+            className="surface flex flex-col items-center rounded-lg px-6 py-10 sm:px-10 sm:py-12"
           >
-            <Instagram className="text-gold h-4 w-4 shrink-0" aria-hidden="true" />
-            <span>
-              @{b.instagram}
-              <span className="text-cream/45 block text-[0.6rem] tracking-[0.2em] uppercase">
-                {t(b.labelKey)}
-              </span>
-              <span className="text-cream/40 mt-0.5 block text-[0.6rem] normal-case">
+            <img
+              src={logoLight}
+              alt=""
+              width={900}
+              height={778}
+              loading="lazy"
+              className="border-gold/40 bg-forest-deep h-20 w-20 rounded-full border object-contain p-3 sm:h-24 sm:w-24"
+            />
+            <h3 className="font-display mt-6 text-center text-xl sm:text-2xl">
+              RaiThai Massage &amp; SPA — {t(b.labelKey)}
+            </h3>
+
+            <a
+              href={instagramLinkFor(b)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border-gold/50 hover:bg-gold/10 text-cream mt-6 flex w-full max-w-md items-center justify-between rounded-full border px-6 py-3.5 text-sm transition-colors sm:text-base"
+            >
+              <span>@{b.instagram}</span>
+              <Instagram className="text-gold h-5 w-5 shrink-0" aria-hidden="true" />
+            </a>
+
+            <div className="text-cream/50 mt-6 flex flex-col items-center gap-1.5 text-xs">
+              <span>
                 {t("branches.hours")}: {b.hours}
               </span>
-            </span>
-          </a>
+              <span>{b.address}</span>
+            </div>
+          </article>
         ))}
       </div>
     </div>

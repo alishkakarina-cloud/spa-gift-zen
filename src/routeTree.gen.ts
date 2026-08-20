@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CatalogRouteImport } from './routes/catalog'
 import { Route as CertificateRouteImport } from './routes/certificate'
 import { Route as CertificateRulesRouteImport } from './routes/certificate-rules'
+import { Route as CookiePolicyRouteImport } from './routes/cookie-policy'
 import { Route as OfferRouteImport } from './routes/offer'
 import { Route as OffersRouteImport } from './routes/offers'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
@@ -52,6 +53,11 @@ const CertificateRoute = CertificateRouteImport.update({
 const CertificateRulesRoute = CertificateRulesRouteImport.update({
   id: '/certificate-rules',
   path: '/certificate-rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiePolicyRoute = CookiePolicyRouteImport.update({
+  id: '/cookie-policy',
+  path: '/cookie-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OfferRoute = OfferRouteImport.update({
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/catalog': typeof CatalogRoute
   '/certificate': typeof CertificateRoute
   '/certificate-rules': typeof CertificateRulesRoute
+  '/cookie-policy': typeof CookiePolicyRoute
   '/offer': typeof OfferRoute
   '/offers': typeof OffersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -187,6 +194,7 @@ export interface FileRoutesByTo {
   '/catalog': typeof CatalogRoute
   '/certificate': typeof CertificateRoute
   '/certificate-rules': typeof CertificateRulesRoute
+  '/cookie-policy': typeof CookiePolicyRoute
   '/offer': typeof OfferRoute
   '/offers': typeof OffersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/catalog': typeof CatalogRoute
   '/certificate': typeof CertificateRoute
   '/certificate-rules': typeof CertificateRulesRoute
+  '/cookie-policy': typeof CookiePolicyRoute
   '/offer': typeof OfferRoute
   '/offers': typeof OffersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/catalog'
     | '/certificate'
     | '/certificate-rules'
+    | '/cookie-policy'
     | '/offer'
     | '/offers'
     | '/privacy-policy'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/catalog'
     | '/certificate'
     | '/certificate-rules'
+    | '/cookie-policy'
     | '/offer'
     | '/offers'
     | '/privacy-policy'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/catalog'
     | '/certificate'
     | '/certificate-rules'
+    | '/cookie-policy'
     | '/offer'
     | '/offers'
     | '/privacy-policy'
@@ -321,6 +333,7 @@ export interface RootRouteChildren {
   CatalogRoute: typeof CatalogRoute
   CertificateRoute: typeof CertificateRoute
   CertificateRulesRoute: typeof CertificateRulesRoute
+  CookiePolicyRoute: typeof CookiePolicyRoute
   OfferRoute: typeof OfferRoute
   OffersRoute: typeof OffersRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
@@ -368,6 +381,13 @@ declare module '@tanstack/react-router' {
       path: '/certificate-rules'
       fullPath: '/certificate-rules'
       preLoaderRoute: typeof CertificateRulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookie-policy': {
+      id: '/cookie-policy'
+      path: '/cookie-policy'
+      fullPath: '/cookie-policy'
+      preLoaderRoute: typeof CookiePolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/offer': {
@@ -542,6 +562,7 @@ const rootRouteChildren: RootRouteChildren = {
   CatalogRoute: CatalogRoute,
   CertificateRoute: CertificateRoute,
   CertificateRulesRoute: CertificateRulesRoute,
+  CookiePolicyRoute: CookiePolicyRoute,
   OfferRoute: OfferRoute,
   OffersRoute: OffersRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
