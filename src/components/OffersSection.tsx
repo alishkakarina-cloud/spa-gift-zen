@@ -60,9 +60,16 @@ export function OffersSection() {
       <section id="buy" className="relative overflow-hidden">
         <Divider motif="waveCrown" className="pt-12 sm:pt-16 lg:pt-20" />
         <div className="relative mx-auto max-w-5xl px-5 pt-10 pb-12 sm:px-6 sm:pt-12 sm:pb-16">
-          <div className="flex items-center gap-3">
-            <Motif name="petalDiamond" className="text-gold h-7 w-7" />
-            <p className="eyebrow">{t("home.buyEyebrow")}</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Motif name="petalDiamond" className="text-gold h-7 w-7" />
+              <p className="eyebrow">{t("home.buyEyebrow")}</p>
+            </div>
+            {/* Бессрочность — по ТЗ должна быть видна и на карточке выбора
+                сертификата, не только в hero/преимуществах/FAQ. */}
+            <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.62rem] tracking-[0.2em] uppercase">
+              {t("home.buyEndless")}
+            </span>
           </div>
           <h1 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
             {t("cert.step1Title")}
