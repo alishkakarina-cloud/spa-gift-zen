@@ -54,8 +54,12 @@ export function CertificateCard({
     >
       {/* Логотип, рамка и сама арка уже впечатаны в фото заказчиком — карточке
           больше не нужно рисовать текстуру/вуаль/мотив программно поверх.
-          object-fit: cover + object-position: center держат кадрирование
-          одинаковым на всех трёх, пропорции фото не искажаются. */}
+          object-fit: contain — вписываем фото целиком, без обрезки: даже с
+          почти совпадающим aspect-ratio контейнера (461/818) cover всё
+          равно чуть обрезает края (была жалоба на это на шаге выбора
+          дизайна), а тут на кону лого сверху и цветы по углам — contain
+          гарантированно ничего не срежет, максимум тончайший зазор по
+          бокам у одного из трёх фото (у них чуть разное соотношение). */}
       <img
         src={design.photo}
         alt=""
@@ -63,7 +67,7 @@ export function CertificateCard({
         loading="lazy"
         width={461}
         height={818}
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        className="absolute inset-0 h-full w-full object-contain object-center"
       />
 
       {/* Текстовый блок внутри арки — координаты свои под каждое фото
