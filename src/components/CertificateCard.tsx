@@ -2,11 +2,15 @@ import { CERT_DESIGN_ASPECT, type CertificateDesign } from "@/data/catalog";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 /**
- * Тёмный тёплый тон, снятый пипеткой с подписи «Подарочный сертификат» на
- * исходных фото дизайнов заказчика — весь текст в арке набран этим цветом,
- * он одинаково читается на всех трёх кремовых арках.
+ * Цвет текста внутри арки зависит от фона фото (design.textTone) — на
+ * светлом бежевом фоне (for-her) тёмный тон читается хорошо, но на тёмных
+ * бордовом/зелёном фонах (standard/for-him) тот же тёмный текст почти не
+ * виден, поэтому там нужен светлый. ARCH_INK_LIGHT — не новый цвет, а
+ * фирменный --gold-soft (#edcea5) из styles.css, тот же, что на золотой
+ * рамке и орнаменте этих карточек.
  */
-const ARCH_INK = "#3a2a1a";
+const ARCH_INK_DARK = "#3a2a1a";
+const ARCH_INK_LIGHT = "#edcea5";
 
 type Props = {
   design: CertificateDesign;
@@ -46,6 +50,7 @@ export function CertificateCard({
   const { t } = useLanguage();
   const lines = items && items.length > 0 ? items : null;
   const { archBox } = design;
+  const archInk = design.textTone === "light" ? ARCH_INK_LIGHT : ARCH_INK_DARK;
 
   return (
     <div
@@ -81,7 +86,7 @@ export function CertificateCard({
           left: `${archBox.centerX}%`,
           width: `${archBox.width}%`,
           transform: "translateX(-50%)",
-          color: ARCH_INK,
+          color: archInk,
           justifyContent: "center",
         }}
       >

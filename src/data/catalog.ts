@@ -600,6 +600,13 @@ export type CertificateDesign = {
    * поэтому центр и границы — на дизайн, а не общие для всех трёх.
    */
   archBox: { top: number; bottom: number; centerX: number; width: number };
+  /**
+   * Цвет текста внутри арки (номинал, "бессрочный" и т.п.) — зависит от фона
+   * фото: "dark" — тёмно-золотой текст для светлого бежевого фона
+   * (for-her), "light" — светлый бежево-золотой текст для тёмных фонов
+   * (бордовый standard, тёмно-зелёный for-him), иначе на них не читается.
+   */
+  textTone: "dark" | "light";
 };
 
 /**
@@ -624,18 +631,21 @@ export const designs: CertificateDesign[] = [
     title: "Стандартный",
     photo: standardDesignPhoto,
     archBox: { top: 41, bottom: 75, centerX: 52, width: 50 },
+    textTone: "light",
   },
   {
     id: "for-her",
     title: "Для неё",
     photo: forHerDesignPhoto,
     archBox: { top: 41, bottom: 75, centerX: 50, width: 50 },
+    textTone: "dark",
   },
   {
     id: "for-him",
     title: "Для него",
     photo: forHimDesignPhoto,
     archBox: { top: 41, bottom: 75, centerX: 48, width: 50 },
+    textTone: "light",
   },
 ];
 
