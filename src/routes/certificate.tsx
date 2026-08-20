@@ -133,7 +133,8 @@ function CertificateFlow() {
   const [amount, setAmount] = useState<number>(presetAmount ?? fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
   const [designId, setDesignId] = useState(designs[0]!.id);
-  const [buyerName, setBuyerName] = useState("");
+  const [buyerFirstName, setBuyerFirstName] = useState("");
+  const [buyerLastName, setBuyerLastName] = useState("");
   const [buyerPhone, setBuyerPhone] = useState("");
   const [buyerEmail, setBuyerEmail] = useState("");
   const [forSelf, setForSelf] = useState(false);
@@ -190,12 +191,12 @@ function CertificateFlow() {
       ? chosen.map((s) => t(`services.${s.id}.name`))
       : undefined;
   const valueLabel = formatPrice(total || 0);
+  const buyerFullName = `${buyerFirstName} ${buyerLastName}`.trim();
   // «Покупаю для себя» — получатель и отправитель берутся из данных покупателя.
-  // У получателя — имя и фамилия (оба поля), у покупателя — только имя.
   const recipientFullName = (
-    forSelf ? buyerName : `${recipientFirstName} ${recipientLastName}`.trim()
+    forSelf ? buyerFullName : `${recipientFirstName} ${recipientLastName}`.trim()
   ).trim();
-  const senderName = (forSelf ? buyerName : sender).trim();
+  const senderName = (forSelf ? buyerFullName : sender).trim();
   // Город приходит из сценария покупки и на этом шаге не меняется. Если
   // пользователь попал сюда прямой ссылкой, минуя выбор, — не подставляем
   // филиал молча, а честно показываем, что он не выбран.
@@ -299,12 +300,15 @@ function CertificateFlow() {
 
   const validateStep3 = () => {
     const e: string[] = [];
-    if (!buyerName.trim()) e.push(t("cert.errBuyerNameRequired"));
+    if (!buyerFirstName.trim()) e.push(t("cert.errBuyerNameRequired"));
+    if (!buyerLastName.trim()) e.push(t("cert.errBuyerLastNameRequired"));
     if (!/^[+()\d\s-]{10,}$/.test(buyerPhone)) e.push(t("cert.errBuyerPhoneRequired"));
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(buyerEmail)) e.push(t("cert.errBuyerEmailRequired"));
     if (!forSelf) {
+      // Фамилия получателя — необязательна (правка владельца 2026-08-21):
+      // не все хотят её указывать, а имени обычно достаточно, чтобы найти
+      // получателя на ресепшене.
       if (!recipientFirstName.trim()) e.push(t("cert.errRecipientRequired"));
-      if (!recipientLastName.trim()) e.push(t("cert.errRecipientLastNameRequired"));
       if (!sender.trim()) e.push(t("cert.errSenderRequired"));
     }
     return e;
@@ -345,7 +349,7 @@ function CertificateFlow() {
         body: JSON.stringify({
           amount: total,
           certificateType: kind,
-          buyerName,
+          buyerName: buyerFullName,
           buyerContact: [buyerPhone, buyerEmail].filter(Boolean).join(" · ") || null,
           recipientName: recipientFullName || null,
           recipientContact: null,
@@ -627,15 +631,26 @@ function CertificateFlow() {
               {/* Данные покупателя */}
               <p className="eyebrow mt-8">{t("cert.buyerSection")}</p>
               <div className="mt-4 grid gap-5">
-                <Field label={t("cert.buyerNameLabel")}>
-                  <input
-                    value={buyerName}
-                    onChange={(e) => setBuyerName(e.target.value)}
-                    maxLength={80}
-                    autoComplete="given-name"
-                    className="input"
-                  />
-                </Field>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <Field label={t("cert.buyerNameLabel")}>
+                    <input
+                      value={buyerFirstName}
+                      onChange={(e) => setBuyerFirstName(e.target.value)}
+                      maxLength={80}
+                      autoComplete="given-name"
+                      className="input"
+                    />
+                  </Field>
+                  <Field label={t("cert.buyerLastNameLabel")}>
+                    <input
+                      value={buyerLastName}
+                      onChange={(e) => setBuyerLastName(e.target.value)}
+                      maxLength={80}
+                      autoComplete="family-name"
+                      className="input"
+                    />
+                  </Field>
+                </div>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <Field label={t("cert.buyerPhoneLabel")}>
                     <input
@@ -696,6 +711,7 @@ function CertificateFlow() {
                         value={recipientLastName}
                         onChange={(e) => setRecipientLastName(e.target.value)}
                         maxLength={60}
+                        placeholder={t("cert.optionalPlaceholder")}
                         className="input"
                       />
                     </Field>
