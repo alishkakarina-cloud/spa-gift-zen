@@ -585,9 +585,9 @@ export const groupServiceFamilies = (list: ReadonlyArray<Service>): ServiceFamil
   });
 };
 
-import standardDesignPhoto from "@/assets/cert-designs/standard.jpg";
-import forHerDesignPhoto from "@/assets/cert-designs/for-her.jpg";
-import forHimDesignPhoto from "@/assets/cert-designs/for-him.jpg";
+import standardDesignPhoto from "@/assets/cert-designs/standard.png";
+import forHerDesignPhoto from "@/assets/cert-designs/for-her.png";
+import forHimDesignPhoto from "@/assets/cert-designs/for-him.png";
 
 export type CertificateDesign = {
   id: string;
@@ -603,23 +603,20 @@ export type CertificateDesign = {
 };
 
 /**
- * Фото дизайнов от заказчика — плашка с названием дизайна ("ДЛЯ НЕГО" и
- * т.п.) внизу каждого фото ЯВЛЯЕТСЯ частью дизайна, не трогаем/не обрезаем
- * (правка владельца 2026-08-21: предыдущая попытка через object-fit: cover
- * срезала плашку через CSS — отменено, плашка снова видна везде).
+ * Новые фото дизайнов от заказчика (2026-08-21, второй комплект). Нижняя
+ * плашка с названием ("ДЛЯ НЕГО" и т.п.) на этот раз обрезана программно —
+ * граница найдена попиксельным сканированием как тонкая золотая линия,
+ * закрывающая арку снизу (последняя горизонтальная линия сплошной заливки
+ * почти на всю ширину карточки, перед которой начинался текст подписи):
+ * standard 449×799 → 449×722 (линия на строках 718-721), for-him
+ * 454×799 → 454×723 (719-722), for-her 462×800 → 462×723 (720-722).
+ * Название дизайна больше не часть картинки — выводится текстом в разметке
+ * шага «Выберите дизайн» (см. certificate.tsx).
  *
- * Файлы обрезаны по пиксельному bounding box непрозрачного/не-белого
- * контента (порог RGB > 245, минус запас 1px) 2026-08-21: у standard.jpg
- * белого поля не было вообще (449×799 без изменений), у for-her.jpg и
- * for-him.jpg была белая полоса 16px сверху — обрезана (461×801). Слева/
- * справа/снизу белого поля не найдено ни у одного файла при точном
- * попиксельном сканировании.
- *
- * Соотношения чуть разные (standard ≈0.562, остальные два ≈0.575) —
- * object-fit: contain (не cover), чтобы гарантированно показывать фото
- * целиком без обрезки на любом из трёх, даже при разнице пропорций.
+ * Соотношения чуть разные (0.622 / 0.628 / 0.639) — object-fit: contain
+ * (не cover), чтобы показывать фото целиком без обрезки на любом из трёх.
  */
-export const CERT_DESIGN_ASPECT = "461 / 801";
+export const CERT_DESIGN_ASPECT = "454 / 723";
 
 export const designs: CertificateDesign[] = [
   {

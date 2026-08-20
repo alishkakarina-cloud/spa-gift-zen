@@ -609,14 +609,15 @@ function CertificateFlow() {
                     key={d.id}
                     type="button"
                     onClick={() => setDesignId(d.id)}
-                    aria-label={t(`designs.${d.id}.title`)}
                     className={`w-full overflow-hidden rounded-2xl border text-left transition-colors ${designId === d.id ? "border-gold" : "border-border/40 hover:border-gold/60"}`}
                   >
-                    {/* Название дизайна печатается только на самой картинке
-                        (золотая плашка) — раньше сайт дублировал его ещё раз
-                        отдельным текстом ниже; убрано, aria-label на кнопке
-                        сохраняет название для скринридеров. */}
                     <CertificateCard design={d} valueLabel={valueLabel} items={cardItems} compact />
+                    {/* Новые фото дизайна (2026-08-21) — без золотой плашки
+                        с названием внизу, поэтому название снова выводится
+                        текстом на сайте, а не как часть картинки. */}
+                    <p className="py-2.5 text-center text-[0.62rem] tracking-[0.14em] text-cream/70 uppercase">
+                      {t(`designs.${d.id}.title`)}
+                    </p>
                   </button>
                 ))}
               </div>
