@@ -170,8 +170,8 @@ export const Route = createFileRoute("/api/certificates/create")({
                 invoice:
                   body.paymentChannel === "qr"
                     ? {
-                        qrCode: invoice.qr_code ?? invoice.qr ?? null,
-                        payUrl: invoice.pay_url ?? invoice.link ?? null,
+                        qrCode: invoice.qr_token_url ?? null,
+                        payUrl: invoice.kaspi_qr_link ?? null,
                       }
                     : null,
               });

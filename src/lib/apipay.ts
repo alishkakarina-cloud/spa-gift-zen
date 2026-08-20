@@ -96,14 +96,15 @@ export type ApipayInvoice = {
   status: string;
   phone?: string;
   created_at?: string;
-  // QR response shape isn't confirmed against a real key yet (docs summary
-  // didn't spell out exact field names for POST /invoices/qr) — read every
-  // plausible key defensively, verify against the first real sandbox test
-  // (plan §Проверка, item 5) and trim the ones that don't show up.
-  qr_code?: string;
-  qr?: string;
-  pay_url?: string;
-  link?: string;
+  // Подтверждено реальным sandbox-запросом 2026-08-20 (POST /invoices/qr):
+  // qr_token_url — ссылка, которую нужно закодировать в QR (то, что рисует
+  // QRCodeSVG на нашей странице); kaspi_qr_link — тот же платёж отдельной
+  // прямой ссылкой (запасной вариант — кнопка «перейти», если рендер QR
+  // почему-то недоступен); qr_image_path — путь к готовой PNG-картинке от
+  // ApiPay, но без указанного базового URL для неё, поэтому не используется.
+  qr_token_url?: string;
+  kaspi_qr_link?: string;
+  qr_image_path?: string;
 };
 
 /**
