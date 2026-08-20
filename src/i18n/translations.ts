@@ -61,6 +61,14 @@ const ru = {
     why4Title: "Подарок-впечатление",
     why4Desc: "Не очередная вещь, а отдых и время для себя.",
 
+    /* Блок «Условия использования сертификата» — по структуре layan.kz,
+     * данные строго по ТЗ. Пункт о возврате не включён — вопрос ещё не
+     * утверждён владельцем (см. FAQ_NUMBERS в certificate.tsx). */
+    termsTitle: "Условия использования сертификата",
+    term1: "Сертификат бессрочный — использовать можно в любое время",
+    term2: "Можно использовать в любом филиале сети RaiThai",
+    term3: "Возможность доплаты при выборе более дорогой услуги",
+
     /* Блок «Как это работает» — 3 шага из ТЗ, дословно. */
     howEyebrow: "Как это работает",
     howTitle: "Три шага до подарка",
@@ -630,6 +638,11 @@ const kz = {
     why4Title: "Әсерлі сыйлық",
     why4Desc: "Кезекті зат емес, демалыс пен өзіңізге уақыт.",
 
+    termsTitle: "Сертификатты пайдалану шарттары",
+    term1: "Сертификат мерзімсіз — кез келген уақытта пайдалануға болады",
+    term2: "RaiThai желісінің кез келген филиалында пайдалануға болады",
+    term3: "Қымбатырақ қызметті таңдағанда үстеп төлеу мүмкіндігі",
+
     howEyebrow: "Бұл қалай жұмыс істейді",
     howTitle: "Сыйлыққа дейін үш қадам",
     how1Title: "Сыйлықты таңдаңыз",
@@ -1130,6 +1143,11 @@ const en = {
     why3Desc: "Choose the gift, pay online, and get an electronic certificate.",
     why4Title: "An experience, not a thing",
     why4Desc: "Not another object — time and rest for yourself.",
+
+    termsTitle: "Certificate terms of use",
+    term1: "The certificate never expires — use it whenever you like",
+    term2: "Valid at any RaiThai branch",
+    term3: "You can pay the difference for a pricier service",
 
     howEyebrow: "How it works",
     howTitle: "Three steps to a gift",

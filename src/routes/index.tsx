@@ -174,6 +174,32 @@ function Index() {
         </div>
       </section>
 
+      {/* ── «Условия использования сертификата» — по структуре layan.kz
+          (заголовок + карточки-плашки сплошным акцентным цветом), но с
+          нашими данными и палитрой (золотой, не их оранжевый). Пункт про
+          возврат сертификата сюда не включён — вопрос ещё не утверждён
+          владельцем (см. FAQ_NUMBERS в certificate.tsx). ─────────────── */}
+      <section className="relative overflow-hidden">
+        <div className="relative mx-auto max-w-2xl px-5 pb-16 sm:px-6 sm:pb-24">
+          <h2 className="font-display text-center text-2xl sm:text-3xl">
+            {t("home.termsTitle")}
+          </h2>
+          <div className="mt-8 flex flex-col gap-3">
+            {([1, 2, 3] as const).map((n) => (
+              <div
+                key={n}
+                className="bg-gold text-primary-foreground flex items-center gap-3 rounded-lg px-5 py-4"
+              >
+                <span className="border-primary-foreground/50 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border">
+                  <Check className="h-3.5 w-3.5" />
+                </span>
+                <p className="text-sm leading-snug sm:text-base">{t(`home.term${n}`)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <SiteFooter t={t} />
     </main>
   );
