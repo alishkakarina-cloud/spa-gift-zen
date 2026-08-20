@@ -189,7 +189,7 @@ function Index() {
             {t("home.termsTitle")}
           </h2>
           <div className="mt-8 flex flex-col gap-3">
-            {([1, 2, 3, 4, 5, 6] as const).map((n) => (
+            {([1, 3, 4, 5] as const).map((n) => (
               <div
                 key={n}
                 className="bg-gold text-primary-foreground flex items-center gap-3 rounded-lg px-5 py-4"
