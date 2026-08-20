@@ -54,15 +54,22 @@ function ServiceCard({ id, t }: { id: string; t: (path: string) => string }) {
   return (
     <article className="surface flex flex-col overflow-hidden rounded-lg">
       {image && (
-        <img
-          src={image}
-          alt=""
-          width={720}
-          height={720}
-          loading="lazy"
-          decoding="async"
-          className="aspect-[4/3] w-full object-cover"
-        />
+        <div className="relative">
+          <img
+            src={image}
+            alt=""
+            width={720}
+            height={720}
+            loading="lazy"
+            decoding="async"
+            className="aspect-[4/3] w-full object-cover"
+          />
+          {svc.hit && (
+            <span className="bg-gold text-primary-foreground absolute top-2 left-2 rounded-full px-2.5 py-1 text-[0.6rem] font-medium tracking-[0.15em] uppercase">
+              {t("catalog.hitBadge")}
+            </span>
+          )}
+        </div>
       )}
       <div className="flex flex-1 flex-col gap-1.5 p-4">
         <h3 className="font-display text-base leading-tight">{t(`services.${id}.name`)}</h3>
@@ -208,6 +215,7 @@ function ServicesPage() {
               alt=""
               width={900}
               height={778}
+              loading="lazy"
               className="border-gold/40 bg-forest-deep h-16 w-16 shrink-0 rounded-full border object-contain p-2"
             />
             <div>

@@ -220,7 +220,7 @@ const ru = {
     step6Eyebrow: "Оплачено",
     step6Title: "Сертификат готов",
     step6Text: "Номер сертификата — {number}. {status}",
-    step6SentNow: "Отправлен получателю.",
+    step6SentNow: "Скачайте или отправьте получателю кнопками ниже.",
     step6SentLater: "Будет отправлен {date}.",
     downloadButton: "Скачать сертификат",
     preparingButton: "Готовим файл…",
@@ -573,6 +573,7 @@ const ru = {
     subtitle:
       "Массаж, комплексные программы, SPA-путешествия и детская линия Rai Thai Spa. Выберите услугу — оформление сертификата на неё займёт 2 минуты.",
     giftThis: "Подарить эту услугу",
+    hitBadge: "Хит",
     menuTitle: "Подарите возможность выбрать свой отдых",
     menuText:
       "Получатель сертификата сможет выбрать подходящий формат — от массажа до полноценной SPA-программы.",
@@ -761,7 +762,7 @@ const kz = {
     step6Eyebrow: "Төленді",
     step6Title: "Сертификат дайын",
     step6Text: "Сертификат нөмірі — {number}. {status}",
-    step6SentNow: "Алушыға жіберілді.",
+    step6SentNow: "Төмендегі батырмалармен жүктеп алыңыз немесе алушыға жіберіңіз.",
     step6SentLater: "{date} жіберіледі.",
     downloadButton: "Сертификатты жүктеу",
     preparingButton: "Дайындалуда…",
@@ -1076,6 +1077,7 @@ const kz = {
     subtitle:
       "Rai Thai Spa массажы, кешенді бағдарламалары, SPA-саяхаттары және балалар желісі. Қызметті таңдаңыз — оған сертификат рәсімдеу 2 минут алады.",
     giftThis: "Осы қызметті сыйға тарту",
+    hitBadge: "Хит",
   },
 };
 
@@ -1257,7 +1259,7 @@ const en = {
     step6Eyebrow: "Paid",
     step6Title: "Certificate is ready",
     step6Text: "Certificate number — {number}. {status}",
-    step6SentNow: "Sent to the recipient.",
+    step6SentNow: "Download or send it to the recipient using the buttons below.",
     step6SentLater: "Will be sent on {date}.",
     downloadButton: "Download certificate",
     preparingButton: "Preparing the file…",
@@ -1572,6 +1574,7 @@ const en = {
     subtitle:
       "Massage, combined programs, SPA journeys and the kids' line at Rai Thai Spa. Pick a service — a certificate for it takes 2 minutes to arrange.",
     giftThis: "Gift this service",
+    hitBadge: "Hit",
   },
 };
 

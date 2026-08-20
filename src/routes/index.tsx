@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronDown, MapPin } from "lucide-react";
+import { Check, ChevronDown, Infinity as InfinityIcon, MapPin } from "lucide-react";
 import { useState } from "react";
-import heroPhoto from "@/assets/atmosphere-arch.jpg";
+import heroPhoto from "@/assets/atmosphere-arch.webp";
 import logoLight from "@/assets/logo-on-dark.webp";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { BRANCHES, type Branch } from "@/data/branches";
 import { OffersSection } from "@/components/OffersSection";
 import { SiteFooter } from "@/components/SiteFooter";
+import { Divider } from "@/components/Divider";
+import { Motif } from "@/components/Motif";
 
 // Порядок в hero — Кокшетау → Петропавловск, как и на витрине /offers,
 // а не порядок BRANCHES в данных (тот используется в других местах сайта).
@@ -111,6 +113,13 @@ function Index() {
             {t("home.why2Title")}. {t("home.why2Desc")}
           </p>
 
+          {/* Бессрочность сертификата — по ТЗ должна быть видна уже в hero,
+              отдельным акцентом, не переписывая уже утверждённый заголовок. */}
+          <div className="border-gold/40 bg-forest-deep/60 text-gold mt-4 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.62rem] tracking-[0.15em] uppercase backdrop-blur-sm">
+            <InfinityIcon className="h-3 w-3 shrink-0" aria-hidden="true" />
+            {t("home.heroBadgeTitle")}
+          </div>
+
           <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
             <button type="button" onClick={scrollToBuy} className="btn-beige w-full">
               {t("home.heroCta")}
@@ -132,6 +141,39 @@ function Index() {
       </section>
 
       <OffersSection />
+
+      {/* ── «Почему RAI THAI SPA» — 4 причины из ТЗ. Переводы (whyEyebrow,
+          whyTitle, why1-4Title/Desc) уже были в i18n, блок физически нигде
+          не выводился — восстановлен здесь, на главной, чтобы бессрочность
+          сертификата (why1) была видна и как отдельный пункт преимуществ,
+          не только в hero-бейдже и в FAQ. ──────────────────────────────── */}
+      <section className="relative overflow-hidden">
+        <Divider motif="diamondLattice" className="pt-4 sm:pt-6" />
+        <div className="relative mx-auto max-w-5xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
+          <div className="flex items-center justify-center gap-3 text-center sm:justify-start sm:text-left">
+            <Motif name="petalDiamond" className="text-gold h-7 w-7 shrink-0" />
+            <p className="eyebrow">{t("home.whyEyebrow")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-center text-2xl sm:text-left sm:text-3xl">
+            {t("home.whyTitle")}
+          </h2>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {([1, 2, 3, 4] as const).map((n) => (
+              <div key={n} className="surface flex flex-col gap-2 rounded-lg p-5">
+                <span className="border-gold/45 text-gold flex h-9 w-9 shrink-0 items-center justify-center rounded-full border">
+                  <Check className="h-4 w-4" />
+                </span>
+                <h3 className="font-display text-base leading-tight">
+                  {t(`home.why${n}Title`)}
+                </h3>
+                <p className="text-cream/70 text-sm leading-relaxed">{t(`home.why${n}Desc`)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <SiteFooter t={t} />
     </main>
   );

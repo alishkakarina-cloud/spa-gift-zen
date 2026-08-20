@@ -11,6 +11,9 @@ export type Service = {
    * подборка собирается по флагу, без дублирования позиций.
    */
   pregnancySafe?: boolean;
+  /** «ХИТ» — три позиции, прямо названные в ТЗ: Перезагрузка, Королева
+   *  Таиланда, Oil-массаж «Абсолютный покой» (все длительности). */
+  hit?: boolean;
 };
 
 export const services: Service[] = [
@@ -22,6 +25,7 @@ export const services: Service[] = [
     description:
       "Плавная обволакивающая техника с тёплыми натуральными маслами. Снимает хронический стресс и тревожность.",
     group: "massage",
+    hit: true,
   },
   {
     id: "traditional-thai",
@@ -59,6 +63,7 @@ export const services: Service[] = [
       "Женский ритуал: хамам, пилинг, скраб, массаж лица, массаж на выбор 60 минут и тайский массаж ног.",
     group: "spa",
     pregnancySafe: true,
+    hit: true,
   },
   {
     id: "king-of-thailand",
@@ -82,6 +87,7 @@ export const services: Service[] = [
     description:
       "Плавная обволакивающая техника с тёплыми натуральными маслами. Снимает хронический стресс и тревожность.",
     group: "massage",
+    hit: true,
   },
   {
     id: "oil-absolute-calm-120",
@@ -91,6 +97,7 @@ export const services: Service[] = [
     description:
       "Плавная обволакивающая техника с тёплыми натуральными маслами. Снимает хронический стресс и тревожность.",
     group: "massage",
+    hit: true,
   },
   {
     id: "traditional-thai-90",
@@ -310,6 +317,7 @@ export const services: Service[] = [
       "Самая популярная программа Rai Thai: хамам, пилинг, скрабирование, мытьё головы, чайная церемония и расслабляющий oil-массаж 60 минут.",
     group: "spa",
     pregnancySafe: true,
+    hit: true,
   },
   {
     id: "date-raithai",
@@ -524,6 +532,7 @@ export type ServiceFamily = {
   variants: Service[];
   group: Service["group"];
   pregnancySafe?: boolean;
+  hit?: boolean;
 };
 
 const DURATION_SUFFIX = /-(60|90|120|160)$/;
@@ -558,6 +567,7 @@ export const groupServiceFamilies = (list: ReadonlyArray<Service>): ServiceFamil
       variants,
       group: base.group,
       ...(base.pregnancySafe ? { pregnancySafe: base.pregnancySafe } : {}),
+      ...(variants.some((v) => v.hit) ? { hit: true } : {}),
     };
   });
 };

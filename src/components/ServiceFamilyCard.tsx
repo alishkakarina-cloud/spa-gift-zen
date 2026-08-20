@@ -113,15 +113,22 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
   return (
     <article className="surface flex flex-col overflow-hidden rounded-lg">
       {image && (
-        <img
-          src={image}
-          alt=""
-          width={720}
-          height={720}
-          loading="lazy"
-          decoding="async"
-          className="aspect-[4/3] w-full object-cover"
-        />
+        <div className="relative">
+          <img
+            src={image}
+            alt=""
+            width={720}
+            height={720}
+            loading="lazy"
+            decoding="async"
+            className="aspect-[4/3] w-full object-cover"
+          />
+          {family.hit && (
+            <span className="bg-gold text-primary-foreground absolute top-2 left-2 rounded-full px-2.5 py-1 text-[0.6rem] font-medium tracking-[0.15em] uppercase">
+              {t("catalog.hitBadge")}
+            </span>
+          )}
+        </div>
       )}
       <div className="flex flex-1 flex-col gap-2 p-5">
         <h3 className="font-display text-lg leading-tight">{name}</h3>
@@ -149,15 +156,22 @@ export function ServiceFamilyRow({ family, selectedIds, onToggle, t }: Props) {
   return (
     <article className={`surface flex gap-4 overflow-hidden p-3 transition-colors ${active ? "border-gold" : ""}`}>
       {image && (
-        <img
-          src={image}
-          alt=""
-          width={720}
-          height={720}
-          loading="lazy"
-          decoding="async"
-          className="h-24 w-24 shrink-0 rounded-md object-cover sm:h-28 sm:w-28"
-        />
+        <div className="relative shrink-0">
+          <img
+            src={image}
+            alt=""
+            width={720}
+            height={720}
+            loading="lazy"
+            decoding="async"
+            className="h-24 w-24 rounded-md object-cover sm:h-28 sm:w-28"
+          />
+          {family.hit && (
+            <span className="bg-gold text-primary-foreground absolute top-1 left-1 rounded-full px-1.5 py-0.5 text-[0.5rem] font-medium tracking-[0.1em] uppercase">
+              {t("catalog.hitBadge")}
+            </span>
+          )}
+        </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 py-1 pr-2">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
