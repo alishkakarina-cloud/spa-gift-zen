@@ -73,9 +73,18 @@ function Index() {
           alt="Интерьер RaiThai Massage & Spa — тёмно-зелёные стены, авторская картина, полосатый ковёр"
           width={1080}
           height={1350}
-          className="absolute inset-0 h-full w-full object-cover"
+          // Насыщенность/контраст приглушены на самом фото (фильтр, не файл —
+          // проще менять фото позже без пересборки эффекта); затемнение и
+          // цветной тон — отдельным слоем ниже, так их можно независимо
+          // калибровать под текст поверх.
+          className="absolute inset-0 h-full w-full object-cover [filter:saturate(75%)_contrast(92%)]"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,18,13,0.85),rgba(8,18,13,0.68)_45%,rgba(14,28,21,0.96))]" />
+        {/* Затемнение + фирменный тёмно-зелёный тон одним радиальным слоем:
+            центр (там читается заголовок) — плотнее, 55-65% укрывистости;
+            к краям — заметно светлее, чтобы тёплые блики/свечи на фото не
+            тонули под сплошной заливкой. Цвет — --forest-deep (#253027,
+            брендбук), не абстрактный зелёный. */}
+        <div className="absolute inset-0 bg-[radial-gradient(140%_120%_at_50%_50%,rgba(37,48,39,0.62)_0%,rgba(37,48,39,0.58)_50%,rgba(37,48,39,0.42)_80%,rgba(37,48,39,0.26)_100%)]" />
 
         <div className="relative mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-5 py-14 text-center sm:px-6">
           {/* Пилюли выбора города — по структуре layan.kz, но в нашей
