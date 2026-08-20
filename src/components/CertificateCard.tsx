@@ -56,23 +56,19 @@ export function CertificateCard({
       className={`relative w-full overflow-hidden rounded-2xl ${className}`}
       style={{ aspectRatio: CERT_DESIGN_ASPECT, boxShadow: "0 24px 60px -30px rgba(0,0,0,0.75)" }}
     >
-      {/* Логотип, рамка и сама арка уже впечатаны в фото заказчиком — карточке
-          больше не нужно рисовать текстуру/вуаль/мотив программно поверх.
-          object-fit: cover + object-position: top — контейнер (461/697)
-          у́же по высоте, чем фото (461/818), поэтому cover масштабирует
-          строго по ширине (бока и углы не трогает — та же логика, что и
-          раньше с cover, только теперь контейнер нарочно короче фото) и
-          обрезает лишнее СНИЗУ, где золотая плашка с названием дизайна —
-          сайт и так печатает название отдельным текстом рядом с карточкой,
-          плашка дублировала его (см. CERT_DESIGN_ASPECT в catalog.ts). */}
+      {/* Логотип, рамка, арка и золотая плашка с названием — всё уже
+          впечатано в фото заказчиком, это часть дизайна, не обрезаем.
+          object-fit: contain — показывает фото целиком на всех трёх
+          дизайнах гарантированно без обрезки, даже с чуть разными
+          пропорциями файлов (см. CERT_DESIGN_ASPECT в catalog.ts). */}
       <img
         src={design.photo}
         alt=""
         aria-hidden="true"
         loading="lazy"
         width={461}
-        height={818}
-        className="absolute inset-0 h-full w-full object-cover object-top"
+        height={801}
+        className="absolute inset-0 h-full w-full object-contain object-center"
       />
 
       {/* Текстовый блок внутри арки — координаты свои под каждое фото
