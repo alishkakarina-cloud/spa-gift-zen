@@ -1,27 +1,18 @@
 import type { MotifName } from "@/components/Motif";
 import type { Service } from "@/data/catalog";
 import { groupServiceFamilies, services } from "@/data/catalog";
-import { PROMOTIONS } from "@/data/promotions";
 // Обложки категорий с официального меню RaiThai (raithai-spa.kamiqr.com) —
 // это фото самой категории, а не какой-то одной услуги внутри неё, поэтому
 // они лежат отдельно от src/assets/services и не участвуют в галерее услуг.
 import travelCover from "@/assets/categories/travel.webp";
 import pregnancyCover from "@/assets/categories/pregnancy.webp";
-import promotionsCover from "@/assets/categories/promotions.webp";
 
 /**
  * «Для беременных» — не отдельный набор услуг, а подборка уже существующих
  * позиций по флагу `pregnancySafe`, как на официальном меню RaiThai. Поэтому
  * идентификатор категории шире, чем `Service["group"]`.
- *
- * «Акции и специальные предложения» на референсе (raithai-spa.kamiqr.com) —
- * такая же по значимости категория верхнего уровня, как «Массажные
- * процедуры» или «SPA-программы», поэтому она тоже здесь, а не только в
- * отдельном блоке на главной. Но акция — не Service (нет цены/длительности,
- * её нельзя подарить), поэтому это не позиция каталога, а особый пункт со
- * своим рендером в ServiceCatalogBrowser.
  */
-export type CatalogGroup = Service["group"] | "pregnancy" | "promotions";
+export type CatalogGroup = Service["group"] | "pregnancy";
 
 export const SERVICE_GROUPS: ReadonlyArray<{
   id: CatalogGroup;
@@ -34,13 +25,6 @@ export const SERVICE_GROUPS: ReadonlyArray<{
   /** Примечание под заголовком категории (например, предупреждения врача). */
   noteKey?: string;
 }> = [
-  {
-    id: "promotions",
-    motif: "waveCrown",
-    labelKey: "cert.groupPromotions",
-    imageFrom: null,
-    coverImage: promotionsCover,
-  },
   {
     id: "massage",
     motif: "paisleyDrop",
@@ -86,6 +70,18 @@ export const servicesInGroup = (group: CatalogGroup) =>
     : services.filter((s) => s.group === group);
 
 /**
+ * Карточки категории, сгруппированные в семьи и готовые к отображению.
+ * SPA-программы — по возрастанию цены (ТЗ); остальные категории сохраняют
+ * порядок из данных.
+ */
+export const familiesInGroup = (group: CatalogGroup) => {
+  const families = groupServiceFamilies(servicesInGroup(group));
+  return group === "spa"
+    ? [...families].sort((a, b) => a.variants[0]!.price - b.variants[0]!.price)
+    : families;
+};
+
+/**
  * Счётчик на плитке категории — по карточкам, которые реально увидит
  * пользователь. Услуги с несколькими длительностями теперь одна карточка,
  * поэтому считаем сгруппированные семьи, а не плоские позиции в данных.
@@ -93,6 +89,5 @@ export const servicesInGroup = (group: CatalogGroup) =>
 export const serviceGroupCounts = () =>
   SERVICE_GROUPS.map((g) => ({
     ...g,
-    count:
-      g.id === "promotions" ? PROMOTIONS.length : groupServiceFamilies(servicesInGroup(g.id)).length,
+    count: groupServiceFamilies(servicesInGroup(g.id)).length,
   }));

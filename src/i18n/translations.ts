@@ -68,6 +68,9 @@ const ru = {
     term1: "Сертификат бессрочный — использовать можно в любое время",
     term2: "Можно использовать в любом филиале сети RaiThai",
     term3: "Возможность доплаты при выборе более дорогой услуги",
+    term4: "Электронный сертификат с уникальным номером приходит сразу после оплаты",
+    term5: "Перед визитом нужна предварительная запись и предъявление сертификата",
+    term6: "Сертификат можно передать другому человеку",
 
     /* Блок «Как это работает» — 3 шага из ТЗ, дословно. */
     howEyebrow: "Как это работает",
@@ -447,13 +450,15 @@ const ru = {
       description: "Хамам, пилинг кесе, скрабирование, мытьё головы, расслабляющий oil-массаж и чайная церемония.",
     },
     "journey-thailand-1": {
-      name: "«Путешествие в Таиланд», 1 персона",
+      name: "«Путешествие в Таиланд»",
       duration: "150 мин",
+      variantLabel: "1 персона",
       description: "Хамам или сауна, пилинг, скрабирование, чайная церемония и традиционный тайский массаж 60 минут.",
     },
     "journey-thailand-2": {
-      name: "«Путешествие в Таиланд», 2 персоны",
+      name: "«Путешествие в Таиланд»",
       duration: "150 мин",
+      variantLabel: "2 персоны",
       description: "Хамам или сауна, пилинг, скрабирование, чайная церемония и традиционный тайский массаж 60 минут.",
     },
     "journey-bali-1": {
@@ -643,6 +648,9 @@ const kz = {
     term1: "Сертификат мерзімсіз — кез келген уақытта пайдалануға болады",
     term2: "RaiThai желісінің кез келген филиалында пайдалануға болады",
     term3: "Қымбатырақ қызметті таңдағанда үстеп төлеу мүмкіндігі",
+    term4: "Бірегей нөмірі бар электронды сертификат төлемнен кейін бірден келеді",
+    term5: "Келер алдында алдын ала жазылу және сертификатты көрсету қажет",
+    term6: "Сертификатты басқа адамға беруге болады",
 
     howEyebrow: "Бұл қалай жұмыс істейді",
     howTitle: "Сыйлыққа дейін үш қадам",
@@ -983,13 +991,15 @@ const kz = {
       description: "Хамам, кесе пилингі, скраб, бас жуу, босаңсытатын oil-массаж және шәй рәсімі.",
     },
     "journey-thailand-1": {
-      name: "«Таиландқа саяхат», 1 адам",
+      name: "«Таиландқа саяхат»",
       duration: "150 мин",
+      variantLabel: "1 адам",
       description: "Хамам немесе сауна, пилинг, скраб, шәй рәсімі және 60 минуттық дәстүрлі тай массажы.",
     },
     "journey-thailand-2": {
-      name: "«Таиландқа саяхат», 2 адам",
+      name: "«Таиландқа саяхат»",
       duration: "150 мин",
+      variantLabel: "2 адам",
       description: "Хамам немесе сауна, пилинг, скраб, шәй рәсімі және 60 минуттық дәстүрлі тай массажы.",
     },
     "journey-bali-1": {
@@ -1150,6 +1160,9 @@ const en = {
     term1: "The certificate never expires — use it whenever you like",
     term2: "Valid at any RaiThai branch",
     term3: "You can pay the difference for a pricier service",
+    term4: "An electronic certificate with a unique number arrives right after payment",
+    term5: "Booking ahead and showing the certificate at your visit is required",
+    term6: "The certificate can be transferred to someone else",
 
     howEyebrow: "How it works",
     howTitle: "Three steps to a gift",
@@ -1489,13 +1502,15 @@ const en = {
       description: "Hammam, kese peeling, scrub, hair wash, a relaxing oil massage and a tea ceremony.",
     },
     "journey-thailand-1": {
-      name: "«Journey to Thailand», 1 person",
+      name: "«Journey to Thailand»",
       duration: "150 min",
+      variantLabel: "1 person",
       description: "Hammam or sauna, peeling, scrub, tea ceremony and a 60-minute traditional Thai massage.",
     },
     "journey-thailand-2": {
-      name: "«Journey to Thailand», 2 people",
+      name: "«Journey to Thailand»",
       duration: "150 min",
+      variantLabel: "2 people",
       description: "Hammam or sauna, peeling, scrub, tea ceremony and a 60-minute traditional Thai massage.",
     },
     "journey-bali-1": {

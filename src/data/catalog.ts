@@ -14,6 +14,15 @@ export type Service = {
   /** «ХИТ» — три позиции, прямо названные в ТЗ: Перезагрузка, Королева
    *  Таиланда, Oil-массаж «Абсолютный покой» (все длительности). */
   hit?: boolean;
+  /**
+   * Ключ семьи для группировки в одну карточку, если он не выводится
+   * автоматически из id (см. DURATION_SUFFIX ниже) — например варианты,
+   * различающиеся не длительностью, а количеством персон.
+   */
+  familyKey?: string;
+  /** Подпись варианта в переключателе карточки, если это не длительность
+   *  (например «1 персона» / «2 персоны») — ключ перевода. */
+  variantLabelKey?: string;
 };
 
 export const services: Service[] = [
@@ -369,21 +378,25 @@ export const services: Service[] = [
 
   {
     id: "journey-thailand-1",
-    name: "«Путешествие в Таиланд», 1 персона",
+    name: "«Путешествие в Таиланд»",
     duration: "150 мин",
     price: 47500,
     description:
       "Хамам или сауна, пилинг, скрабирование, мытьё головы, чайная церемония и традиционный тайский массаж 60 минут.",
     group: "travel",
+    familyKey: "journey-thailand",
+    variantLabelKey: "services.journey-thailand-1.variantLabel",
   },
   {
     id: "journey-thailand-2",
-    name: "«Путешествие в Таиланд», 2 персоны",
+    name: "«Путешествие в Таиланд»",
     duration: "150 мин",
     price: 93500,
     description:
       "Хамам или сауна, пилинг, скрабирование, мытьё головы, чайная церемония и традиционный тайский массаж 60 минут.",
     group: "travel",
+    familyKey: "journey-thailand",
+    variantLabelKey: "services.journey-thailand-2.variantLabel",
   },
   {
     id: "journey-bali-1",
@@ -511,7 +524,7 @@ export const services: Service[] = [
     duration: "10 часов + 2 в подарок",
     price: 180000,
     description:
-      "10 часов любых массажей, 2 часа в подарок, парафинотерапия для рук и чайная церемония после каждого посещения. Бессрочный, можно передать близкому человеку.",
+      "10 часов любых массажей, 2 часа в подарок и чайная церемония после каждого посещения. Бессрочный, можно передать близкому человеку.",
     group: "subscription",
   },
 ];
@@ -550,7 +563,7 @@ export const groupServiceFamilies = (list: ReadonlyArray<Service>): ServiceFamil
   const order: string[] = [];
   const byKey = new Map<string, Service[]>();
   for (const s of list) {
-    const key = s.id.replace(DURATION_SUFFIX, "");
+    const key = s.familyKey ?? s.id.replace(DURATION_SUFFIX, "");
     if (!byKey.has(key)) {
       byKey.set(key, []);
       order.push(key);

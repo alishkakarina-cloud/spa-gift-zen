@@ -19,6 +19,11 @@ function useFamilySelection(family: ServiceFamily, selectedIds: ReadonlyArray<st
   return { chosenId, setChosenId, chosen, active };
 }
 
+/** Подпись варианта в переключателе — длительность, либо, если у услуги
+ *  задан `variantLabelKey` (например «1 персона» / «2 персоны»), она. */
+const variantLabel = (v: Service, t: (path: string) => string) =>
+  v.variantLabelKey ? t(v.variantLabelKey) : t(`services.${v.id}.duration`);
+
 function DurationSwitch({
   variants,
   chosenId,
@@ -34,15 +39,15 @@ function DurationSwitch({
 }) {
   if (variants.length <= 1) {
     const only = variants[0]!;
-    return t(`services.${only.id}.duration`) ? (
-      <span className="text-cream/45 text-[0.62rem] tracking-[0.2em] uppercase">
-        {t(`services.${only.id}.duration`)}
-      </span>
+    const l = variantLabel(only, t);
+    return l ? (
+      <span className="text-cream/45 text-[0.62rem] tracking-[0.2em] uppercase">{l}</span>
     ) : null;
   }
   return (
-    // Все варианты видны сразу своей ценой и длительностью — выбор
-    // длительности не прячется за одним числом на карточке.
+    // Все варианты видны сразу своей ценой и подписью (длительность или,
+    // для семей вроде «Путешествие в Таиланд», количество персон) — выбор
+    // не прячется за одним числом на карточке.
     <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={label}>
       {variants.map((v) => (
         <button
@@ -57,7 +62,7 @@ function DurationSwitch({
               : "border-border bg-card text-cream/80 hover:border-gold/60"
           }`}
         >
-          {formatPrice(v.price)} / {t(`services.${v.id}.duration`)}
+          {formatPrice(v.price)} / {variantLabel(v, t)}
         </button>
       ))}
     </div>
@@ -124,7 +129,7 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
             className="aspect-[4/3] w-full object-cover"
           />
           {family.hit && (
-            <span className="bg-gold text-primary-foreground absolute top-2 left-2 rounded-full px-2.5 py-1 text-[0.6rem] font-medium tracking-[0.15em] uppercase">
+            <span className="bg-maroon border-gold/50 text-cream absolute top-2 left-2 rounded-full border px-2.5 py-1 text-[0.6rem] font-medium tracking-[0.15em] uppercase">
               {t("catalog.hitBadge")}
             </span>
           )}
@@ -167,7 +172,7 @@ export function ServiceFamilyRow({ family, selectedIds, onToggle, t }: Props) {
             className="h-24 w-24 rounded-md object-cover sm:h-28 sm:w-28"
           />
           {family.hit && (
-            <span className="bg-gold text-primary-foreground absolute top-1 left-1 rounded-full px-1.5 py-0.5 text-[0.5rem] font-medium tracking-[0.1em] uppercase">
+            <span className="bg-maroon border-gold/50 text-cream absolute top-1 left-1 rounded-full border px-1.5 py-0.5 text-[0.5rem] font-medium tracking-[0.1em] uppercase">
               {t("catalog.hitBadge")}
             </span>
           )}

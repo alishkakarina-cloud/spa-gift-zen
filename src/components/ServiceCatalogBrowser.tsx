@@ -2,16 +2,9 @@ import type { ReactNode } from "react";
 import { AtmosphereGallery } from "@/components/AtmosphereGallery";
 import { CategoryCarousel } from "@/components/CategoryCarousel";
 import { Motif } from "@/components/Motif";
-import { PromotionsGrid } from "@/components/PromotionsGrid";
 import { SelectionSummary } from "@/components/SelectionSummary";
 import { ServiceFamilyRow } from "@/components/ServiceFamilyCard";
-import { groupServiceFamilies } from "@/data/catalog";
-import {
-  SERVICE_GROUPS,
-  serviceGroupCounts,
-  servicesInGroup,
-  type CatalogGroup,
-} from "@/data/serviceGroups";
+import { SERVICE_GROUPS, familiesInGroup, serviceGroupCounts, type CatalogGroup } from "@/data/serviceGroups";
 
 /**
  * Витрина каталога: атмосферная галерея, зациклённая карусель категорий и
@@ -71,41 +64,27 @@ export function ServiceCatalogBrowser({
           </p>
         )}
 
-        {groupId === "promotions" ? (
-          // Акция — не Service: у неё нет цены и её нельзя подарить сертификатом,
-          // поэтому вместо чекбоксов и сводки — те же карточки условий, что и в
-          // блоке «Акции» на главной (PromotionsGrid, тот же компонент).
-          <>
-            <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
-              {t("promo.intro")}
-            </p>
-            <PromotionsGrid t={t} className="mt-6 grid gap-4 sm:grid-cols-2" />
-          </>
-        ) : (
-          <>
-            <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
+        <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
 
-            <div className="mt-4 grid gap-3">
-              {groupServiceFamilies(servicesInGroup(groupId)).map((family) => (
-                <ServiceFamilyRow
-                  key={family.familyKey}
-                  family={family}
-                  selectedIds={selectedIds}
-                  onToggle={onToggle}
-                  t={t}
-                />
-              ))}
-            </div>
-
-            <SelectionSummary
-              ids={selectedIds}
-              onRemove={onToggle}
-              onClear={onClear}
+        <div className="mt-4 grid gap-3">
+          {familiesInGroup(groupId).map((family) => (
+            <ServiceFamilyRow
+              key={family.familyKey}
+              family={family}
+              selectedIds={selectedIds}
+              onToggle={onToggle}
               t={t}
-              action={action}
             />
-          </>
-        )}
+          ))}
+        </div>
+
+        <SelectionSummary
+          ids={selectedIds}
+          onRemove={onToggle}
+          onClear={onClear}
+          t={t}
+          action={action}
+        />
       </div>
     </div>
   );

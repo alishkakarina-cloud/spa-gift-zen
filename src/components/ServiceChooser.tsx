@@ -1,12 +1,6 @@
 import { CategoryCarousel } from "@/components/CategoryCarousel";
 import { ServiceFamilyCard } from "@/components/ServiceFamilyCard";
-import { groupServiceFamilies } from "@/data/catalog";
-import {
-  SERVICE_GROUPS,
-  serviceGroupCounts,
-  servicesInGroup,
-  type CatalogGroup,
-} from "@/data/serviceGroups";
+import { SERVICE_GROUPS, familiesInGroup, serviceGroupCounts, type CatalogGroup } from "@/data/serviceGroups";
 
 /**
  * Выбор программ внутри оформления сертификата.
@@ -35,10 +29,7 @@ export function ServiceChooser({
   return (
     <div className="min-w-0">
       <CategoryCarousel
-        // «Акции» сюда не попадают: это не Service, дарить акцию сертификатом
-        // нельзя — у неё нет ни цены, ни состава. Карусель выбора программы
-        // должна содержать только реально дариваемые категории.
-        categories={serviceGroupCounts().filter((g) => g.id !== "promotions")}
+        categories={serviceGroupCounts()}
         activeId={groupId}
         onSelect={(id) => onGroupChange(id as CatalogGroup)}
         t={t}
@@ -60,7 +51,7 @@ export function ServiceChooser({
         <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {groupServiceFamilies(servicesInGroup(groupId)).map((family) => (
+          {familiesInGroup(groupId).map((family) => (
             <ServiceFamilyCard
               key={family.familyKey}
               family={family}
