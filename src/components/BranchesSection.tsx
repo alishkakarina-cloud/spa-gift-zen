@@ -99,7 +99,7 @@ export function InstagramLinks({ t }: { t: (path: string) => string }) {
         {BRANCHES.map((b) => (
           <article
             key={b.id}
-            className="surface flex flex-col items-center rounded-lg px-6 py-10 sm:px-10 sm:py-12"
+            className="bg-forest border-gold flex flex-col items-center rounded-lg border-2 px-6 py-10 sm:px-10 sm:py-12"
           >
             <img
               src={logoLight}
@@ -117,13 +117,13 @@ export function InstagramLinks({ t }: { t: (path: string) => string }) {
               href={instagramLinkFor(b)}
               target="_blank"
               rel="noopener noreferrer"
-              className="border-gold/50 hover:bg-gold/10 text-cream mt-6 flex w-full max-w-md items-center justify-between rounded-full border px-6 py-3.5 text-sm transition-colors sm:text-base"
+              className="border-gold hover:bg-gold/10 text-cream mt-6 flex w-full max-w-md items-center justify-between rounded-full border px-6 py-3.5 text-sm transition-colors sm:text-base"
             >
               <span>@{b.instagram}</span>
               <Instagram className="text-gold h-5 w-5 shrink-0" aria-hidden="true" />
             </a>
 
-            <div className="text-cream/50 mt-6 flex flex-col items-center gap-1.5 text-xs">
+            <div className="text-cream/70 mt-6 flex flex-col items-center gap-1.5 text-xs">
               <span>
                 {t("branches.hours")}: {b.hours}
               </span>
