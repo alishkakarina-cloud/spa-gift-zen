@@ -585,9 +585,9 @@ export const groupServiceFamilies = (list: ReadonlyArray<Service>): ServiceFamil
   });
 };
 
-import standardDesignPhoto from "@/assets/cert-designs/standard.webp";
-import forHerDesignPhoto from "@/assets/cert-designs/for-her.webp";
-import forHimDesignPhoto from "@/assets/cert-designs/for-him.webp";
+import standardDesignPhoto from "@/assets/cert-designs/standard.jpg";
+import forHerDesignPhoto from "@/assets/cert-designs/for-her.jpg";
+import forHimDesignPhoto from "@/assets/cert-designs/for-him.jpg";
 
 export type CertificateDesign = {
   id: string;
@@ -603,10 +603,14 @@ export type CertificateDesign = {
 };
 
 /**
- * 457×915 — общий для всех трёх файлов размер после переобрезки (см.
- * CertificateCard: `aspectRatio` карточки завязан на эти же числа).
+ * Новые фото дизайнов от заказчика (2026-08-20): 461×818 (for-her/for-him),
+ * 449×799 (standard) — соотношения почти идентичны (~0.562 vs ~0.562),
+ * расхождение <0.3%, незаметно на глаз. Раньше тут стояло 457/915 (≈0.500) —
+ * заметно уже, чем реальные фото (≈0.562); при object-fit: cover это обрезало
+ * бы бока (у "Для неё" — ровно те самые угловые пионы). Теперь aspect-ratio
+ * контейнера (см. CertificateCard) соответствует фото, а не наоборот.
  */
-export const CERT_DESIGN_ASPECT = "457 / 915";
+export const CERT_DESIGN_ASPECT = "461 / 818";
 
 export const designs: CertificateDesign[] = [
   {

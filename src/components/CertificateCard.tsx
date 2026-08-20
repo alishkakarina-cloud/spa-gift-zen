@@ -61,8 +61,8 @@ export function CertificateCard({
         alt=""
         aria-hidden="true"
         loading="lazy"
-        width={457}
-        height={915}
+        width={461}
+        height={818}
         className="absolute inset-0 h-full w-full object-cover object-center"
       />
 

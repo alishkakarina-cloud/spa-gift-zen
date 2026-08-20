@@ -215,7 +215,7 @@ function CertificateFlow() {
   const certificateFileName = `raithai-sertifikat-${certificateNumber ?? "spa"}.png`;
 
   /**
-   * pixelRatio: 2 — карточка компактная (457×915 у.е.), без масштабирования
+   * pixelRatio: 2 — карточка компактная (461×818 у.е.), без масштабирования
    * картинка получалась бы слишком мелкой для печати/шаринга. cacheBust
    * нужен, т.к. фон дизайна — imported-ассет с хэшем в имени, без него
    * html-to-image иногда кэширует старый кадр между разными дизайнами.
