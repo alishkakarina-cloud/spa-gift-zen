@@ -23,6 +23,10 @@ export const Route = createFileRoute("/api/admin/menu")({
         if (file.type !== "application/pdf") {
           return Response.json({ error: "pdf_required" }, { status: 400 });
         }
+        const branch = form.get("branch");
+        if (branch !== "petropavlovsk" && branch !== "kokshetau") {
+          return Response.json({ error: "branch_required" }, { status: 400 });
+        }
 
         let supabase: ReturnType<typeof getSupabaseServerClient>;
         try {
@@ -46,9 +50,11 @@ export const Route = createFileRoute("/api/admin/menu")({
 
         const { data: publicUrlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
 
-        const { error: settingError } = await supabase
-          .from("site_settings")
-          .upsert({ key: "spa_menu_pdf_url", value: publicUrlData.publicUrl, updated_at: new Date().toISOString() });
+        const { error: settingError } = await supabase.from("site_settings").upsert({
+          key: `spa_menu_pdf_url_${branch}`,
+          value: publicUrlData.publicUrl,
+          updated_at: new Date().toISOString(),
+        });
 
         if (settingError) {
           console.error("Failed to save menu PDF setting:", settingError);

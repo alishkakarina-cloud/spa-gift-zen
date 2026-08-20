@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Instagram, MapPin, Check } from "lucide-react";
+import { Instagram, MapPin } from "lucide-react";
+import { CertPerks } from "@/components/CertPerks";
 import { Divider } from "@/components/Divider";
 import { Motif } from "@/components/Motif";
+import { Reveal } from "@/components/Reveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { services, formatPrice, serviceImage } from "@/data/catalog";
@@ -65,7 +67,7 @@ function ServiceCard({ id, t }: { id: string; t: (path: string) => string }) {
             className="aspect-[4/3] w-full object-cover"
           />
           {svc.hit && (
-            <span className="bg-gold text-primary-foreground absolute top-2 left-2 rounded-full px-2.5 py-1 text-[0.6rem] font-medium tracking-[0.15em] uppercase">
+            <span className="bg-maroon border-gold/50 text-cream absolute top-2 left-2 rounded-full border px-2.5 py-1 text-[0.6rem] font-medium tracking-[0.15em] uppercase">
               {t("catalog.hitBadge")}
             </span>
           )}
@@ -87,13 +89,6 @@ function ServicesPage() {
   const [activeBranchId, setActiveBranchId] = useState<Branch>(BRANCHES[0]!.id);
   const activeBranch = BRANCHES.find((b) => b.id === activeBranchId)!;
 
-  const perks = [
-    t("home.heroBadgeTitle"),
-    t("home.certPerk2Title"),
-    t("home.how3Desc"),
-    t("home.certPerk4Title"),
-  ];
-
   return (
     <main>
       <section className="relative overflow-hidden">
@@ -107,7 +102,7 @@ function ServicesPage() {
           контакты. Превью из данных /certificate + PDF-меню. ───────────── */}
       <section id="catalog" className="relative overflow-hidden">
         <Divider motif="swirlLeaf" className="pt-4 sm:pt-6" />
-        <div className="relative mx-auto max-w-6xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
+        <Reveal className="relative mx-auto max-w-6xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
           <div className="flex items-center gap-3">
             <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
             <p className="eyebrow">{t("catalog.title")}</p>
@@ -117,9 +112,13 @@ function ServicesPage() {
             {t("catalog.subtitle")}
           </p>
 
-          <a href={spaMenuPdfFor()} download className="btn-ghost mt-5 text-[0.62rem]">
-            {t("catalog.menuButton")}
-          </a>
+          <div className="mt-5 flex flex-wrap gap-3">
+            {BRANCHES.map((b) => (
+              <a key={b.id} href={spaMenuPdfFor(b.id)} download className="btn-ghost text-[0.62rem]">
+                {t("catalog.menuButton")} — {t(b.labelKey)}
+              </a>
+            ))}
+          </div>
 
           <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
             {featuredServiceIds.map((id) => (
@@ -130,39 +129,16 @@ function ServicesPage() {
           <Link to="/offers" hash="services" className="btn-gold mt-8">
             {t("cert.giftButton")}
           </Link>
-        </div>
+        </Reveal>
       </section>
 
       {/* ── 2. Подарочные сертификаты — 4 пункта с иконкой. ─────────────── */}
-      <section className="relative overflow-hidden">
-        <Divider motif="flowerBurst" className="pt-4 sm:pt-6" />
-        <div className="relative mx-auto max-w-4xl px-5 pt-8 pb-12 sm:px-6 sm:pb-16">
-          <div className="flex items-center gap-3">
-            <Motif name="lotusBloom" className="text-gold h-7 w-7" />
-            <p className="eyebrow">{t("home.certPerksEyebrow")}</p>
-          </div>
-          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("home.certPerksTitle")}</h2>
-          <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
-            {t("home.certPerksText")}
-          </p>
-
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-            {perks.map((perk) => (
-              <li key={perk} className="flex items-start gap-3">
-                <span className="border-gold/45 text-gold flex h-6 w-6 shrink-0 items-center justify-center rounded-full border">
-                  <Check className="h-3.5 w-3.5" />
-                </span>
-                <span className="text-sm">{perk}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      <CertPerks t={t} />
 
       {/* ── 3. Баннер салонов — наша палитра (тёмно-зелёный/золотой), не
           оранжевая, как у layan. ──────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,rgba(14,28,21,0.97),rgba(180,151,117,0.22))]">
-        <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 py-14 text-center sm:px-6 sm:py-20">
+      <section className="relative overflow-hidden bg-[linear-gradient(135deg,rgba(14,28,21,0.97),rgba(127,73,37,0.28)_65%,rgba(180,151,117,0.24))]">
+        <Reveal className="relative mx-auto flex max-w-3xl flex-col items-center px-5 py-14 text-center sm:px-6 sm:py-20">
           <Motif name="templeArch" className="text-gold h-8 w-8" />
           <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("home.salonsBannerTitle")}</h2>
           <p className="text-cream/75 mt-4 max-w-xl text-sm leading-relaxed">
@@ -171,7 +147,7 @@ function ServicesPage() {
           <Link to="/offers" className="btn-beige mt-8">
             {t("home.heroCta")}
           </Link>
-        </div>
+        </Reveal>
       </section>
 
       {/* ── 4. Наши салоны — пилюли-переключатель города, карточка активного
@@ -181,7 +157,7 @@ function ServicesPage() {
           крупный padding/uppercase, непропорционально большие для этого
           компактного переключателя). ────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        <div className="relative mx-auto max-w-3xl px-5 pt-8 pb-12 sm:px-6 sm:pb-16">
+        <Reveal className="relative mx-auto max-w-3xl px-5 pt-8 pb-12 sm:px-6 sm:pb-16">
           <div className="flex items-center gap-3">
             <Motif name="templeArch" className="text-gold h-7 w-7" />
             <p className="eyebrow">{t("branches.eyebrow")}</p>
@@ -239,7 +215,7 @@ function ServicesPage() {
               </a>
             </div>
           </article>
-        </div>
+        </Reveal>
       </section>
 
       <SiteFooter t={t} />

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Check, ChevronDown, Infinity as InfinityIcon, MapPin } from "lucide-react";
 import { useState } from "react";
 import heroPhoto from "@/assets/atmosphere-arch.webp";
@@ -6,6 +6,8 @@ import logoLight from "@/assets/logo-on-dark.webp";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { BRANCHES, type Branch } from "@/data/branches";
 import { OffersSection } from "@/components/OffersSection";
+import { Reveal } from "@/components/Reveal";
+import { ServicesOverlay } from "@/components/ServicesOverlay";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Divider } from "@/components/Divider";
 import { Motif } from "@/components/Motif";
@@ -59,6 +61,9 @@ function Index() {
   // /certificate?branch=... — эта функциональность убрана, реальный выбор
   // города остался в секции ниже (OffersSection).
   const [activeHeroBranch, setActiveHeroBranch] = useState<Branch | null>(null);
+  // «Наши услуги» открывает оверлей поверх страницы (правка владельца), а не
+  // переход на /services — маршрут остаётся живым для прямых ссылок.
+  const [servicesOpen, setServicesOpen] = useState(false);
 
   return (
     <main>
@@ -125,9 +130,9 @@ function Index() {
             <button type="button" onClick={scrollToBuy} className="btn-beige w-full">
               {t("home.heroCta")}
             </button>
-            <Link to="/services" className="btn-gold w-full">
+            <button type="button" onClick={() => setServicesOpen(true)} className="btn-gold w-full">
               {t("home.heroCatalogCta")}
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -141,16 +146,12 @@ function Index() {
         </button>
       </section>
 
-      <OffersSection />
-
-      {/* ── «Почему RAI THAI SPA» — 4 причины из ТЗ. Переводы (whyEyebrow,
-          whyTitle, why1-4Title/Desc) уже были в i18n, блок физически нигде
-          не выводился — восстановлен здесь, на главной, чтобы бессрочность
-          сертификата (why1) была видна и как отдельный пункт преимуществ,
-          не только в hero-бейдже и в FAQ. ──────────────────────────────── */}
+      {/* ── «Почему RAI THAI SPA» — 4 причины из ТЗ. Переставлено выше
+          OffersSection (правка владельца): ценностные блоки должны быть
+          видны до того, как посетителя просят выбрать город/сумму. ────── */}
       <section className="relative overflow-hidden">
         <Divider motif="diamondLattice" className="pt-4 sm:pt-6" />
-        <div className="relative mx-auto max-w-5xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
+        <Reveal className="relative mx-auto max-w-5xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
           <div className="flex items-center justify-center gap-3 text-center sm:justify-start sm:text-left">
             <Motif name="petalDiamond" className="text-gold h-7 w-7 shrink-0" />
             <p className="eyebrow">{t("home.whyEyebrow")}</p>
@@ -172,21 +173,23 @@ function Index() {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* ── «Условия использования сертификата» — по структуре layan.kz
           (заголовок + карточки-плашки сплошным акцентным цветом), но с
-          нашими данными и палитрой (золотой, не их оранжевый). Пункт про
-          возврат сертификата сюда не включён — вопрос ещё не утверждён
-          владельцем (см. FAQ_NUMBERS в certificate.tsx). ─────────────── */}
+          нашими данными и палитрой (золотой, не их оранжевый). Пункты про
+          частичное использование/остаток/возврат сюда не включены — вопрос
+          ещё не утверждён владельцем (см. FAQ_NUMBERS в certificate.tsx).
+          term4-6 добавлены по полному тексту ТЗ (электронная выдача с
+          номером, предварительная запись, передача другому человеку). ── */}
       <section className="relative overflow-hidden">
-        <div className="relative mx-auto max-w-2xl px-5 pb-16 sm:px-6 sm:pb-24">
+        <Reveal className="relative mx-auto max-w-2xl px-5 pb-16 sm:px-6 sm:pb-24">
           <h2 className="font-display text-center text-2xl sm:text-3xl">
             {t("home.termsTitle")}
           </h2>
           <div className="mt-8 flex flex-col gap-3">
-            {([1, 2, 3] as const).map((n) => (
+            {([1, 2, 3, 4, 5, 6] as const).map((n) => (
               <div
                 key={n}
                 className="bg-gold text-primary-foreground flex items-center gap-3 rounded-lg px-5 py-4"
@@ -198,8 +201,10 @@ function Index() {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
+
+      <OffersSection />
 
       {/* ── FAQ — тот же набор вопросов/ответов из официального ТЗ (блок 18),
           что и на /certificate (общий список FAQ_NUMBERS, чтобы решение о
@@ -210,7 +215,7 @@ function Index() {
           после условий сертификата, как продолжение того же разговора. ── */}
       <section className="relative overflow-hidden">
         <Divider motif="dottedWave" className="pt-4 sm:pt-6" />
-        <div className="relative mx-auto max-w-3xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
+        <Reveal className="relative mx-auto max-w-3xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
           <div className="flex items-center gap-3">
             <Motif name="waveCrown" className="text-gold h-7 w-9" />
             <p className="eyebrow">{t("home.faqEyebrow")}</p>
@@ -229,10 +234,12 @@ function Index() {
               </details>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       <SiteFooter t={t} />
+
+      <ServicesOverlay open={servicesOpen} onClose={() => setServicesOpen(false)} t={t} />
     </main>
   );
 }

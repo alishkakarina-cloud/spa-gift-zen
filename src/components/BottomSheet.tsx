@@ -12,11 +12,15 @@ export function BottomSheet({
   onClose,
   closeLabel,
   children,
+  widthClassName = "max-w-xl",
 }: {
   open: boolean;
   onClose: () => void;
   closeLabel: string;
   children: ReactNode;
+  /** Ширина листа — по умолчанию узкая (max-w-xl), но для насыщенного
+   *  контента (например ServicesOverlay) можно передать более широкий класс. */
+  widthClassName?: string;
 }) {
   useEffect(() => {
     if (!open) return;
@@ -47,7 +51,7 @@ export function BottomSheet({
         role="dialog"
         aria-modal="true"
         style={{ maxHeight: "85svh" }}
-        className={`surface relative flex w-full max-w-xl flex-col rounded-t-2xl border-b-0 transition-transform duration-300 ease-out ${
+        className={`surface relative flex w-full ${widthClassName} flex-col rounded-t-2xl border-b-0 transition-transform duration-300 ease-out ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
       >

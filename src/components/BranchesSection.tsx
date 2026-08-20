@@ -1,5 +1,6 @@
 import { Instagram, MapPin } from "lucide-react";
 import { Motif } from "@/components/Motif";
+import { Reveal } from "@/components/Reveal";
 import { BRANCHES, instagramLinkFor, mapLinkFor } from "@/data/branches";
 import logoLight from "@/assets/logo-on-dark.webp";
 
@@ -24,7 +25,7 @@ export function BranchesSection({ t }: { t: (path: string) => string }) {
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 sm:gap-6">
             {BRANCHES.map((b) => (
-              <article key={b.id} className="surface rounded-lg p-6 sm:p-7">
+              <Reveal key={b.id} as="article" className="surface rounded-lg p-6 sm:p-7">
                 <p className="text-cream/45 text-[0.62rem] tracking-[0.24em] uppercase">
                   {t(b.labelKey)}
                 </p>
@@ -68,7 +69,7 @@ export function BranchesSection({ t }: { t: (path: string) => string }) {
                 <p className="border-border text-cream/60 mt-5 border-t pt-4 text-sm">
                   {t("branches.hours")}: {b.hours}
                 </p>
-              </article>
+              </Reveal>
             ))}
           </div>
       </div>
@@ -97,9 +98,10 @@ export function InstagramLinks({ t }: { t: (path: string) => string }) {
       </div>
       <div className="mt-8 flex flex-col gap-6 sm:mt-10 sm:gap-8">
         {BRANCHES.map((b) => (
-          <article
+          <Reveal
             key={b.id}
-            className="bg-forest border-gold flex flex-col items-center rounded-lg border-2 px-6 py-10 sm:px-10 sm:py-12"
+            as="article"
+            className="border-gold flex flex-col items-center rounded-lg border-2 bg-[linear-gradient(155deg,var(--color-forest),color-mix(in_srgb,var(--color-clay)_30%,var(--color-forest)))] px-6 py-10 sm:px-10 sm:py-12"
           >
             <img
               src={logoLight}
@@ -129,7 +131,7 @@ export function InstagramLinks({ t }: { t: (path: string) => string }) {
               </span>
               <span>{b.address}</span>
             </div>
-          </article>
+          </Reveal>
         ))}
       </div>
     </div>
