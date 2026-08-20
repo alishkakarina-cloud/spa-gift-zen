@@ -110,11 +110,22 @@ export const Route = createFileRoute("/api/webhooks/apipay")({
         }
 
         const paidAt = invoice?.["paid_at"];
+        // Асинхронные провайдерские ошибки (например client_not_found —
+        // "телефон не зарегистрирован в Kaspi") приходят только так, в
+        // invoice.error_code — не в ответе на создание счёта. Сохраняем код
+        // как есть; наружу клиенту (через /api/certificates/status/$id) уходит
+        // только безопасная категория из categorizeApipayErrorCode.
+        const providerErrorCode = invoice?.["error_code"];
         const { error: updateError } = await supabase
           .from("certificates")
           .update({
             payment_status: nextStatus,
-            ...(nextStatus === "paid" ? { paid_at: typeof paidAt === "string" ? paidAt : new Date().toISOString() } : {}),
+            ...(nextStatus === "paid"
+              ? { paid_at: typeof paidAt === "string" ? paidAt : new Date().toISOString() }
+              : {}),
+            ...(nextStatus === "failed" && typeof providerErrorCode === "string"
+              ? { provider_error_code: providerErrorCode }
+              : {}),
           })
           .eq("id", existing.id);
 

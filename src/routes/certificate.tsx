@@ -75,6 +75,19 @@ export const Route = createFileRoute("/certificate")({
   component: CertificateFlow,
 });
 
+/** Категория ошибки ApiPay (см. categorizeApipayErrorCode, src/lib/apipay.ts)
+ *  -> ключ перевода. Сырой provider_error_code клиенту никогда не приходит —
+ *  только эти безопасные категории (Блок 2.2: "если код ошибки понятен
+ *  пользователю, например «Проверьте номер телефона»"). */
+const ERROR_CATEGORY_KEY: Record<string, string> = {
+  phone_not_registered: "cert.errPhoneNotRegistered",
+  not_configured: "cert.errApipayNotConfigured",
+  rate_limited: "cert.errRateLimited",
+  validation: "cert.errPaymentValidation",
+};
+const payErrorMessage = (t: (path: string) => string, errorCategory?: string | null) =>
+  t(errorCategory && ERROR_CATEGORY_KEY[errorCategory] ? ERROR_CATEGORY_KEY[errorCategory]! : "cert.errInvoiceCreateFailed");
+
 type Kind = "service" | "amount";
 /** 1 — выбор, 2 — дизайн, 3 — оформление со сводкой, 4 — оплата, 5 — готово. */
 type Step = 1 | 2 | 3 | 4 | 5;
@@ -359,9 +372,16 @@ function CertificateFlow() {
         certificateNumber?: string;
         invoice?: { qrCode: string | null; payUrl: string | null } | null;
         error?: string;
+        errorCategory?: string;
       };
       if (!response.ok || !data.id || !data.certificateNumber) {
-        throw new Error(data.error ?? "save_failed");
+        setInvoiceError(
+          data.error === "apipay_not_configured"
+            ? t("cert.errApipayNotConfigured")
+            : payErrorMessage(t, data.errorCategory),
+        );
+        setInvoicePhase("error");
+        return;
       }
       setCertificateNumber(data.certificateNumber);
       setInvoiceData({
@@ -370,11 +390,9 @@ function CertificateFlow() {
         payUrl: data.invoice?.payUrl ?? null,
       });
       setInvoicePhase("awaiting");
-    } catch (err) {
-      const code = err instanceof Error ? err.message : "save_failed";
-      setInvoiceError(
-        code === "apipay_not_configured" ? t("cert.errApipayNotConfigured") : t("cert.errInvoiceCreateFailed"),
-      );
+    } catch {
+      // Сетевой сбой (fetch сам бросил, до ответа сервера не дошло).
+      setInvoiceError(t("cert.errInvoiceCreateFailed"));
       setInvoicePhase("error");
     }
   };
@@ -391,7 +409,7 @@ function CertificateFlow() {
       try {
         const res = await fetch(`/api/certificates/status/${id}`);
         if (res.ok) {
-          const data = (await res.json()) as { paymentStatus: string };
+          const data = (await res.json()) as { paymentStatus: string; errorCategory?: string };
           if (data.paymentStatus === "paid") {
             clearInterval(interval);
             setStep(5);
@@ -399,7 +417,7 @@ function CertificateFlow() {
           }
           if (data.paymentStatus === "failed") {
             clearInterval(interval);
-            setInvoiceError(t("cert.errInvoiceCreateFailed"));
+            setInvoiceError(payErrorMessage(t, data.errorCategory));
             setInvoicePhase("error");
             return;
           }
@@ -768,20 +786,32 @@ function CertificateFlow() {
                     ))}
                   </div>
 
-                  {payChannel === "phone" && (
-                    <label className="mt-4 block">
-                      <span className="text-cream/70 text-xs">{t("cert.payPhoneLabel")}</span>
-                      <input
-                        type="tel"
-                        inputMode="numeric"
-                        value={payPhone}
-                        onChange={(e) => setPayPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
-                        placeholder={t("cert.payPhonePlaceholder")}
-                        className="input mt-1.5"
-                      />
-                      <span className="text-cream/45 mt-1 block text-xs">{t("cert.payPhoneHint")}</span>
-                    </label>
-                  )}
+                  {payChannel === "phone" &&
+                    (() => {
+                      // Подсказка прямо у поля (Блок 2.1) — красная, как
+                      // только видно, что формат не сойдётся (не просто
+                      // "недописано"), не только в общем списке ошибок внизу.
+                      const phoneInvalid = payPhone.length === 11 && !PAY_PHONE_RE.test(payPhone);
+                      return (
+                        <label className="mt-4 block">
+                          <span className="text-cream/70 text-xs">{t("cert.payPhoneLabel")}</span>
+                          <input
+                            type="tel"
+                            inputMode="numeric"
+                            value={payPhone}
+                            onChange={(e) => setPayPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                            placeholder={t("cert.payPhonePlaceholder")}
+                            aria-invalid={phoneInvalid}
+                            className={`input mt-1.5 ${phoneInvalid ? "border-destructive" : ""}`}
+                          />
+                          <span
+                            className={`mt-1 block text-xs ${phoneInvalid ? "text-destructive" : "text-cream/45"}`}
+                          >
+                            {phoneInvalid ? t("cert.errPayPhoneInvalid") : t("cert.payPhoneHint")}
+                          </span>
+                        </label>
+                      );
+                    })()}
 
                   <label className="text-cream/70 hover:text-cream mt-6 flex cursor-pointer items-start gap-2.5 text-sm transition-colors">
                     <input

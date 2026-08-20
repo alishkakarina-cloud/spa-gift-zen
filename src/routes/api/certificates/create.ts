@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createApipayInvoice } from "@/lib/apipay";
+import { ApipayError, categorizeApipayErrorCode, createApipayInvoice } from "@/lib/apipay";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
 // Freedom Pay was removed as a payment option on the client (2026-08-18) —
@@ -176,12 +176,24 @@ export const Route = createFileRoute("/api/certificates/create")({
                     : null,
               });
             } catch (err) {
+              // Технические детали — только в лог сервера (Блок 2.3), клиенту
+              // уходит лишь безопасная категория (Блок 2.2), не error_code/
+              // message от ApiPay напрямую.
               console.error("ApiPay invoice creation failed:", err);
-              await supabase.from("certificates").update({ payment_status: "failed" }).eq("id", data.id);
-              const isNotConfigured = err instanceof Error && err.message.includes("APIPAY_API_KEY");
+              const providerErrorCode = err instanceof ApipayError ? err.code : null;
+              await supabase
+                .from("certificates")
+                .update({ payment_status: "failed", provider_error_code: providerErrorCode })
+                .eq("id", data.id);
+
+              const isNotConfigured =
+                err instanceof Error && !(err instanceof ApipayError) && err.message.includes("APIPAY_API_KEY");
+              if (isNotConfigured) {
+                return Response.json({ error: "apipay_not_configured" }, { status: 500 });
+              }
               return Response.json(
-                { error: isNotConfigured ? "apipay_not_configured" : "invoice_create_failed" },
-                { status: isNotConfigured ? 500 : 502 },
+                { error: "invoice_create_failed", errorCategory: categorizeApipayErrorCode(providerErrorCode) },
+                { status: 502 },
               );
             }
           }

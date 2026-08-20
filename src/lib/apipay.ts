@@ -30,6 +30,64 @@ export function getApipayConfig(): ApipayConfig {
   };
 }
 
+/** Провайдерская ошибка ApiPay с сохранённым машиночитаемым кодом (не строкой
+ *  внутри message) — см. https://apipay.kz/for-ai, docs/en/errors.md
+ *  (полный список кодов), которую владелец прислал в задаче. */
+export class ApipayError extends Error {
+  code: string;
+  constructor(code: string, message?: string) {
+    super(message ?? `apipay_error: ${code}`);
+    this.code = code;
+    this.name = "ApipayError";
+  }
+}
+
+/**
+ * Безопасная для показа клиенту категория ошибки — сырой код ApiPay (`code`)
+ * никогда не уходит на фронтенд, только одна из этих категорий. Источник —
+ * таблица кодов из документации (Блок 2.2 задачи: "если код ошибки понятен
+ * пользователю, например «Проверьте номер телефона»").
+ *
+ * `client_not_found` — единственный код, который реально означает "проверьте
+ * номер" — и он приходит АСИНХРОННО через вебхук (invoice.status_changed,
+ * status: "error"), а не в ответе на создание счёта, поэтому категория
+ * считается и на синхронном (create.ts), и на асинхронном (webhooks/apipay.ts)
+ * пути одной и той же функцией.
+ */
+export type ApipayErrorCategory =
+  | "phone_not_registered"
+  | "not_configured"
+  | "rate_limited"
+  | "validation"
+  | "unknown";
+
+const NOT_CONFIGURED_CODES = new Set([
+  "organization_required",
+  "kaspi_session_not_configured",
+  "kaspi_session_invalid",
+  "Organization not found or not verified",
+  "http_401",
+  "http_403",
+]);
+const RATE_LIMITED_CODES = new Set([
+  "qr_rate_limit",
+  "kyc_daily_limit_reached",
+  "tariff_limit_reached",
+  "kaspi_throttled",
+  "rate_limited",
+  "http_429",
+]);
+const VALIDATION_CODES = new Set(["amount_must_be_whole_tenge", "http_422"]);
+
+export function categorizeApipayErrorCode(code: string | null | undefined): ApipayErrorCategory {
+  if (!code) return "unknown";
+  if (code === "client_not_found") return "phone_not_registered";
+  if (NOT_CONFIGURED_CODES.has(code)) return "not_configured";
+  if (RATE_LIMITED_CODES.has(code)) return "rate_limited";
+  if (VALIDATION_CODES.has(code)) return "validation";
+  return "unknown";
+}
+
 export type ApipayChannel = "qr" | "phone";
 
 export type ApipayInvoice = {
@@ -82,7 +140,11 @@ export async function createApipayInvoice(params: {
       data && typeof data === "object" && "error_code" in data
         ? String((data as Record<string, unknown>)["error_code"])
         : `http_${res.status}`;
-    throw new Error(`apipay_invoice_failed: ${errorCode}`);
+    const errorMessage =
+      data && typeof data === "object" && "message" in data
+        ? String((data as Record<string, unknown>)["message"])
+        : undefined;
+    throw new ApipayError(errorCode, errorMessage);
   }
   return data as ApipayInvoice;
 }
