@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
@@ -347,46 +347,33 @@ function CertificateFlow() {
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-      {/* Горизонтальный степпер: все этапы в один ряд со стрелками между
-          ними, пройденные — галочкой, активный — золотым. На мобильном не
-          переносится на несколько строк, а скроллится по горизонтали. */}
-      <div className="border-border -mx-6 overflow-x-auto border-y px-6 sm:mx-0 sm:px-0">
-        <ol className="flex items-center gap-1.5 py-3 text-sm">
+      {/* Прогресс-бар: ряд прямых сегментов вместо кружков со стрелками —
+          по образцу layan.kz (там ряд полосок + подпись "N / всего"), но в
+          нашей палитре: пройденные и активный сегмент — золотые, активный
+          дополнительно светится (box-shadow), непройденные — тусклые. */}
+      <div className="border-border -mx-6 border-y px-6 py-4 sm:mx-0 sm:px-0 sm:py-5">
+        <p className="flex items-baseline gap-2">
+          <span className="font-display text-gold text-base">{steps[step - 1]}</span>
+          <span className="text-cream/40 text-xs tracking-[0.15em]">
+            {step} / {steps.length}
+          </span>
+        </p>
+        <div className="mt-3 flex gap-1.5 sm:gap-2">
           {steps.map((s, i) => {
             const n = i + 1;
-            const done = n < step;
+            const filled = n <= step;
             const active = n === step;
             return (
-              <li key={s} className="flex shrink-0 items-center gap-1.5">
-                <span
-                  className={`flex items-center gap-2 whitespace-nowrap ${
-                    active
-                      ? "font-display text-gold"
-                      : done
-                        ? "text-cream/55"
-                        : "text-cream/40"
-                  }`}
-                >
-                  <span
-                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs ${
-                      active
-                        ? "border-gold bg-gold/10 text-gold"
-                        : done
-                          ? "border-cream/35 text-cream/55"
-                          : "border-cream/20 text-cream/40"
-                    }`}
-                  >
-                    {done ? <Check className="h-3.5 w-3.5" /> : n}
-                  </span>
-                  {s}
-                </span>
-                {i < steps.length - 1 && (
-                  <ChevronRight className="text-cream/25 h-4 w-4 shrink-0" aria-hidden="true" />
-                )}
-              </li>
+              <span
+                key={s}
+                aria-hidden="true"
+                className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+                  filled ? "bg-gold" : "bg-cream/15"
+                } ${active ? "shadow-[0_0_10px_2px_rgba(180,151,117,0.65)]" : ""}`}
+              />
             );
           })}
-        </ol>
+        </div>
       </div>
 
       <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_380px] lg:items-start">

@@ -686,7 +686,7 @@ const kz = {
     faq9A: "Қайтару шарттары нақтыланады.",
   },
   cert: {
-    steps: ["Сертификат", "Дизайн", "Деректер", "Тексеру", "Төлем", "Дайын"],
+    steps: ["Сертификат", "Дизайн", "Деректер", "Төлем", "Дайын"],
     stepOf: "Қадам {step}/5 · {name}",
     step1Title: "Сертификатты таңдаңыз",
     choiceServiceTitle: "Кез келген қызметке",
@@ -1184,7 +1184,7 @@ const en = {
     faq9A: "The refund terms are still being finalized.",
   },
   cert: {
-    steps: ["Certificate", "Design", "Details", "Review", "Payment", "Done"],
+    steps: ["Certificate", "Design", "Details", "Payment", "Done"],
     stepOf: "Step {step} of 5 · {name}",
     step1Title: "Choose a certificate",
     choiceServiceTitle: "For any service",
