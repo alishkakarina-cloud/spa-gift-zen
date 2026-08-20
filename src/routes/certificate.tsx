@@ -12,6 +12,7 @@ import type { CatalogGroup } from "@/data/serviceGroups";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
 import { MIN_AMOUNT, designs, fixedAmounts, formatPrice } from "@/data/catalog";
+import { FAQ_NUMBERS } from "@/data/faq";
 import { SelectionSummary } from "@/components/SelectionSummary";
 import {
   parseServiceIds,
@@ -79,18 +80,6 @@ type Kind = "service" | "amount";
 type Step = 1 | 2 | 3 | 4 | 5;
 /** Арка на бланке маленькая — длинный текст туда физически не влезает. */
 const MESSAGE_MAX_LENGTH = 140;
-/**
- * FAQ из официального ТЗ (блок 18) — 9 вопросов, ключи home.faq1Q..faq9A.
- * Вопросы 6 (использование частями) и 9 (возврат) по ТЗ помечены как
- * "необходимо утвердить перед запуском" — владелец подтвердил 2026-08-20,
- * что окончательного правила пока нет (присланные "Правила приобретения и
- * использования сертификатов" — черновик, будет меняться). Поэтому эти два
- * вопроса не выводятся на сайт, пока владелец не подтвердит формулировку —
- * ЖДЁМ ОТВЕТА ОТ КЛИЕНТА. Тексты вопросов/заглушки ответов остаются в
- * translations.ts, чтобы не терять готовые переводы вопроса на 3 языках.
- */
-const FAQ_NUMBERS = [1, 2, 3, 4, 5, 7, 8] as const;
-
 function CertificateFlow() {
   const { t, lang } = useLanguage();
   const {

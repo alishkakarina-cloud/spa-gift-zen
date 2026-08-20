@@ -9,6 +9,7 @@ import { OffersSection } from "@/components/OffersSection";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Divider } from "@/components/Divider";
 import { Motif } from "@/components/Motif";
+import { FAQ_NUMBERS } from "@/data/faq";
 
 // Порядок в hero — Кокшетау → Петропавловск, как и на витрине /offers,
 // а не порядок BRANCHES в данных (тот используется в других местах сайта).
@@ -195,6 +196,37 @@ function Index() {
                 </span>
                 <p className="text-sm leading-snug sm:text-base">{t(`home.term${n}`)}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ — тот же набор вопросов/ответов из официального ТЗ (блок 18),
+          что и на /certificate (общий список FAQ_NUMBERS, чтобы решение о
+          скрытых вопросах 6/9 не разъезжалось по файлам). Раньше FAQ был
+          на главной и его сознательно унесли на /certificate (см. историю
+          задач) — возвращаем сюда по прямой правке, оставляя и на
+          /certificate тоже: там он рядом со шагом оплаты, здесь — сразу
+          после условий сертификата, как продолжение того же разговора. ── */}
+      <section className="relative overflow-hidden">
+        <Divider motif="dottedWave" className="pt-4 sm:pt-6" />
+        <div className="relative mx-auto max-w-3xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
+          <div className="flex items-center gap-3">
+            <Motif name="waveCrown" className="text-gold h-7 w-9" />
+            <p className="eyebrow">{t("home.faqEyebrow")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("home.faqTitle")}</h2>
+          <div className="border-border mt-8 border-t">
+            {FAQ_NUMBERS.map((n) => (
+              <details key={n} className="border-border faq-accordion group border-b" open={n === 1}>
+                <summary className="font-display marker:content-none flex cursor-pointer items-center justify-between gap-4 py-5 text-lg">
+                  {t(`home.faq${n}Q`)}
+                  <span className="text-gold text-sm transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="text-cream/70 pb-5 text-sm leading-relaxed">{t(`home.faq${n}A`)}</p>
+              </details>
             ))}
           </div>
         </div>

@@ -103,6 +103,9 @@ export function InstagramLinks({ t }: { t: (path: string) => string }) {
               <span className="text-cream/45 block text-[0.6rem] tracking-[0.2em] uppercase">
                 {t(b.labelKey)}
               </span>
+              <span className="text-cream/40 mt-0.5 block text-[0.6rem] normal-case">
+                {t("branches.hours")}: {b.hours}
+              </span>
             </span>
           </a>
         ))}
