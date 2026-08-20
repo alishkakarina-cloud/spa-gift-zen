@@ -567,6 +567,9 @@ const ru = {
   footer: {
     contactsTitle: "Контакты",
     rights: "Все права защищены.",
+    legalPrivacy: "Политика конфиденциальности",
+    legalOffer: "Пользовательское соглашение",
+    legalCertRules: "Правила использования сертификатов",
   },
   catalog: {
     title: "Наши услуги",
@@ -1071,6 +1074,9 @@ const kz = {
   footer: {
     contactsTitle: "Байланыс",
     rights: "Барлық құқықтар қорғалған.",
+    legalPrivacy: "Құпиялылық саясаты",
+    legalOffer: "Пайдаланушы келісімі",
+    legalCertRules: "Сертификаттарды пайдалану ережелері",
   },
   catalog: {
     title: "Біздің қызметтер",
@@ -1568,6 +1574,9 @@ const en = {
   footer: {
     contactsTitle: "Contacts",
     rights: "All rights reserved.",
+    legalPrivacy: "Privacy Policy",
+    legalOffer: "Terms of Service",
+    legalCertRules: "Certificate Terms",
   },
   catalog: {
     title: "Our services",

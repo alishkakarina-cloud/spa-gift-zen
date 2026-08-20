@@ -79,8 +79,17 @@ type Kind = "service" | "amount";
 type Step = 1 | 2 | 3 | 4 | 5;
 /** Арка на бланке маленькая — длинный текст туда физически не влезает. */
 const MESSAGE_MAX_LENGTH = 140;
-/** FAQ из официального ТЗ (блок 18) — 9 вопросов, ключи home.faq1Q..faq9A. */
-const FAQ_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+/**
+ * FAQ из официального ТЗ (блок 18) — 9 вопросов, ключи home.faq1Q..faq9A.
+ * Вопросы 6 (использование частями) и 9 (возврат) по ТЗ помечены как
+ * "необходимо утвердить перед запуском" — владелец подтвердил 2026-08-20,
+ * что окончательного правила пока нет (присланные "Правила приобретения и
+ * использования сертификатов" — черновик, будет меняться). Поэтому эти два
+ * вопроса не выводятся на сайт, пока владелец не подтвердит формулировку —
+ * ЖДЁМ ОТВЕТА ОТ КЛИЕНТА. Тексты вопросов/заглушки ответов остаются в
+ * translations.ts, чтобы не терять готовые переводы вопроса на 3 языках.
+ */
+const FAQ_NUMBERS = [1, 2, 3, 4, 5, 7, 8] as const;
 
 function CertificateFlow() {
   const { t, lang } = useLanguage();
@@ -276,9 +285,6 @@ function CertificateFlow() {
     return e;
   };
 
-  // Generic consent — no named/linked documents yet (see chat: legal texts
-  // still pending from the owner), so this only confirms "I agree to the
-  // terms of service", not five specific policies like layan.kz does.
   const validateStep4 = () => (consentAccepted ? [] : [t("cert.errConsentRequired")]);
 
   const next = async () => {
@@ -693,6 +699,15 @@ function CertificateFlow() {
                 />
                 {t("cert.consentLabel")}
               </label>
+              <p className="text-cream/45 mt-2 pl-[1.625rem] text-xs">
+                <Link to="/offer" target="_blank" className="hover:text-gold underline">
+                  {t("footer.legalOffer")}
+                </Link>
+                {" · "}
+                <Link to="/certificate-rules" target="_blank" className="hover:text-gold underline">
+                  {t("footer.legalCertRules")}
+                </Link>
+              </p>
             </div>
           )}
 
