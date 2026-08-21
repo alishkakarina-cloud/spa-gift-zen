@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, ChevronDown, Infinity as InfinityIcon, MapPin } from "lucide-react";
-import { useState } from "react";
 import heroPhoto from "@/assets/atmosphere-arch.webp";
 import logoLight from "@/assets/logo-on-dark.webp";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -27,14 +26,6 @@ const scrollToBuy = () => document.getElementById("buy")?.scrollIntoView({ behav
 /** Доскролл к перенесённым из бывшего оверлея «Наши услуги» разделам
  *  (салоны + условия сертификата) — см. комментарий у секции ниже. */
 const scrollToSalons = () => document.getElementById("salons")?.scrollIntoView({ behavior: "smooth" });
-/** Доскролл к каталогу услуг (id="services" внутри OffersSection ниже на
- *  этой же странице) — правка владельца 2026-08-21: кнопки городов в hero
- *  раньше были формальностью (только подсветка), теперь по клику ведут
- *  прямо к каталогу. Каталог один и тот же для обоих городов (Branch и
- *  Service в данных проекта никак не связаны — ни цен, ни состава по
- *  городам нет), поэтому фильтровать нечего, только скроллим. */
-const scrollToServices = () =>
-  document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" });
 
 /**
  * Главная "/" — hero, а сразу под ним, без перехода на другой маршрут, —
@@ -72,11 +63,6 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useLanguage();
-  // Город в hero — формальность (правка клиента): клик только подсвечивает
-  // кнопку, никуда не ведёт и ни на что не влияет. Раньше вёл прямо в
-  // /certificate?branch=... — эта функциональность убрана, реальный выбор
-  // города остался в секции ниже (OffersSection).
-  const [activeHeroBranch, setActiveHeroBranch] = useState<Branch | null>(null);
 
   return (
     <main>
@@ -100,44 +86,25 @@ function Index() {
         <div className="absolute inset-0 bg-[radial-gradient(140%_120%_at_50%_50%,rgba(37,48,39,0.62)_0%,rgba(37,48,39,0.58)_50%,rgba(37,48,39,0.42)_80%,rgba(37,48,39,0.26)_100%)]" />
 
         <div className="relative mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-5 py-14 text-center sm:px-6">
-          {/* Пилюли выбора города — по структуре layan.kz, но в нашей
-              палитре (тёмно-зелёный/золотой, не их цвета). Правка владельца
-              2026-08-21: клик по пилюле ТОЛЬКО подсвечивает город — переход
-              к каталогу живёт в отдельной кнопке «Далее» ниже, неактивной
-              до выбора города (был краткий вариант со скроллом сразу на
-              клик по пилюле — владелец отменил, разделил на два шага). */}
-          <div className="mb-3 flex items-center justify-center gap-2">
-            {heroBranches.map((id) => {
-              const active = activeHeroBranch === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setActiveHeroBranch(id)}
-                  aria-pressed={active}
-                  className={`flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-[0.68rem] whitespace-nowrap backdrop-blur-sm transition-colors sm:gap-1.5 sm:px-5 sm:py-2 sm:text-sm ${
-                    active
-                      ? "border-gold bg-gold text-primary-foreground"
-                      : "border-gold/50 text-gold bg-forest-deep/60 hover:bg-gold/10"
-                  }`}
-                >
-                  <MapPin className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
-                  {t(branchById(id).labelKey)}
-                </button>
-              );
-            })}
+          {/* Пилюли городов — чисто визуальный декор hero (атмосфера), без
+              клика и без какой-либо связи с логикой страницы. Правка
+              владельца 2026-08-21: рабочий выбор города (с активацией
+              «Далее» и скроллом к каталогу) переехал в блок «Купить
+              сертификат» ниже (OffersSection) — в hero и раньше пробовали
+              разные варианты клика (подсветка, потом ещё и скролл), но
+              владелец решил, что здесь кнопки не должны делать вообще
+              ничего — только показывать города для атмосферы. */}
+          <div className="mb-6 flex items-center justify-center gap-2 sm:mb-8">
+            {heroBranches.map((id) => (
+              <span
+                key={id}
+                className="border-gold/50 text-gold bg-forest-deep/60 flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-[0.68rem] whitespace-nowrap backdrop-blur-sm sm:gap-1.5 sm:px-5 sm:py-2 sm:text-sm"
+              >
+                <MapPin className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+                {t(branchById(id).labelKey)}
+              </span>
+            ))}
           </div>
-
-          {/* «Далее» — активна только после выбора города выше, ведёт
-              доскроллом к каталогу услуг (id="services", OffersSection). */}
-          <button
-            type="button"
-            onClick={scrollToServices}
-            disabled={!activeHeroBranch}
-            className="btn-gold mb-6 px-6 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-40 sm:mb-8 sm:text-sm"
-          >
-            {t("cert.nextButton")}
-          </button>
 
           <img
             src={logoLight}

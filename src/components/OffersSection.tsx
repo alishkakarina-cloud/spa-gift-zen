@@ -45,12 +45,15 @@ export function OffersSection() {
   // своей — открытие панели само по себе выбором не считается.
   const [amountPicked, setAmountPicked] = useState(false);
 
-  // Город — формальность: клик только подсвечивает кнопку, никуда не ведёт
-  // и не влияет на «Далее» ниже (та кнопка — про выбранную сумму, к городу
-  // отношения не имеет). Правка владельца 2026-08-21: скролл к каталогу по
-  // клику на город добавляли, затем отменили именно здесь — эта же
-  // функция сделана только в hero (см. index.tsx, scrollToServices).
+  // Город — клик только выбирает/подсвечивает, сам по себе никуда не
+  // ведёт. Переход к каталогу — через отдельную кнопку «Далее» ниже (см.
+  // scrollToServices), неактивную, пока город не выбран. Правка владельца
+  // 2026-08-21: эту же логику пробовали вешать в hero — там оказалось не
+  // нужно, hero остаётся чисто декоративным (см. index.tsx), а рабочий
+  // выбор города живёт здесь.
   const [activeCity, setActiveCity] = useState<Branch | null>(null);
+  const scrollToServices = () =>
+    document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const parsedCustom = Number(customAmount);
   const effectiveAmount =
@@ -197,16 +200,29 @@ export function OffersSection() {
             </div>
           </div>
 
+          {/* «Далее» для города — отдельная от «Далее» для суммы ниже: город
+              не ведёт в мастер оформления, а доскраливает к каталогу услуг
+              (та же страница, id="services"). Неактивна, пока город не
+              выбран. */}
+          <button
+            type="button"
+            onClick={scrollToServices}
+            disabled={!activeCity}
+            className="btn-gold mt-8 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {t("cert.nextButton")}
+          </button>
+
           {selection?.kind === "amount" && amountPicked ? (
             <Link
               to="/certificate"
               search={{ kind: "amount", amount: effectiveAmount }}
-              className="btn-gold mt-8"
+              className="btn-gold mt-3"
             >
               {t("cert.nextButton")}
             </Link>
           ) : (
-            <button type="button" disabled className="btn-gold mt-8 cursor-not-allowed opacity-40">
+            <button type="button" disabled className="btn-gold mt-3 cursor-not-allowed opacity-40">
               {t("cert.nextButton")}
             </button>
           )}
