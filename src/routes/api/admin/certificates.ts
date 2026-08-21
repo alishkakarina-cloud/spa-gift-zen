@@ -26,7 +26,7 @@ export const Route = createFileRoute("/api/admin/certificates")({
         let query = supabase
           .from("certificates")
           .select(
-            "id, certificate_number, amount, certificate_type, buyer_name, buyer_contact, recipient_name, branch, payment_method, payment_status, status, created_at",
+            "id, certificate_number, amount, certificate_type, buyer_name, buyer_contact, recipient_name, branch, payment_method, payment_status, status, created_at, services",
           )
           .order("created_at", { ascending: false })
           .limit(200);

@@ -30,6 +30,7 @@ const emptyForm = {
   price: "",
   groupName: "",
   photoUrl: "",
+  isActive: true,
 };
 
 /**
@@ -69,6 +70,7 @@ function ServicesPage() {
       price: String(row.price),
       groupName: row.group_name ?? "",
       photoUrl: row.photo_url ?? "",
+      isActive: row.is_active,
     });
   };
 
@@ -94,6 +96,7 @@ function ServicesPage() {
         price,
         groupName: form.groupName.trim() || null,
         photoUrl: form.photoUrl.trim() || null,
+        isActive: form.isActive,
       };
       const res = await fetch(editingId ? `/api/admin/services/${editingId}` : "/api/admin/services", {
         method: editingId ? "PATCH" : "POST",
@@ -119,6 +122,20 @@ function ServicesPage() {
       return;
     }
     if (editingId === id) resetForm();
+    await load();
+  };
+
+  const toggleActive = async (row: ServiceRow) => {
+    const res = await fetch(`/api/admin/services/${row.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isActive: !row.is_active }),
+    });
+    if (!res.ok) {
+      setError("Не удалось изменить видимость услуги.");
+      return;
+    }
+    if (editingId === row.id) setForm((f) => ({ ...f, isActive: !row.is_active }));
     await load();
   };
 
@@ -169,6 +186,15 @@ function ServicesPage() {
           placeholder="Ссылка на фото"
           className="rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-500"
         />
+        <label className="flex items-center gap-2 text-sm text-zinc-300 sm:col-span-2">
+          <input
+            type="checkbox"
+            checked={form.isActive}
+            onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
+            className="h-4 w-4 rounded border-zinc-700 bg-zinc-900"
+          />
+          Показывать (снимите галочку, чтобы временно скрыть услугу)
+        </label>
         <div className="flex gap-2 sm:col-span-2">
           <button
             type="submit"
@@ -199,30 +225,42 @@ function ServicesPage() {
               <th className="px-3 py-2 font-medium">Категория</th>
               <th className="px-3 py-2 font-medium">Длительность</th>
               <th className="px-3 py-2 font-medium">Цена</th>
+              <th className="px-3 py-2 font-medium">Видимость</th>
               <th className="px-3 py-2 font-medium" />
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
             {rows === null && (
               <tr>
-                <td colSpan={5} className="px-3 py-6 text-center text-zinc-500">
+                <td colSpan={6} className="px-3 py-6 text-center text-zinc-500">
                   Загрузка…
                 </td>
               </tr>
             )}
             {rows?.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-3 py-6 text-center text-zinc-500">
+                <td colSpan={6} className="px-3 py-6 text-center text-zinc-500">
                   Пока нет ни одной услуги в этом списке.
                 </td>
               </tr>
             )}
             {rows?.map((r) => (
-              <tr key={r.id} className="hover:bg-zinc-900/60">
+              <tr key={r.id} className={`hover:bg-zinc-900/60 ${!r.is_active ? "opacity-50" : ""}`}>
                 <td className="px-3 py-2">{r.name}</td>
                 <td className="px-3 py-2 text-zinc-400">{r.group_name ?? "—"}</td>
                 <td className="px-3 py-2 text-zinc-400">{r.duration ?? "—"}</td>
                 <td className="px-3 py-2">{r.price.toLocaleString("ru-RU")} ₸</td>
+                <td className="px-3 py-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleActive(r)}
+                    className={`rounded-full px-2.5 py-1 text-xs ${
+                      r.is_active ? "bg-emerald-950 text-emerald-400" : "bg-zinc-800 text-zinc-400"
+                    }`}
+                  >
+                    {r.is_active ? "Показана" : "Скрыта"}
+                  </button>
+                </td>
                 <td className="px-3 py-2 text-right">
                   <button type="button" onClick={() => startEdit(r)} className="text-zinc-400 hover:text-zinc-100">
                     Изменить

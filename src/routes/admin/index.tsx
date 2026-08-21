@@ -24,6 +24,7 @@ type CertificateRow = {
   payment_status: string;
   status: "active" | "used" | "cancelled";
   created_at: string;
+  services: Array<{ id: string; name: string; price: number }> | null;
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -31,6 +32,20 @@ const STATUS_LABEL: Record<string, string> = {
   used: "Использован",
   cancelled: "Отменён",
 };
+
+const BRANCH_LABEL: Record<string, string> = {
+  petropavlovsk: "Петропавловск",
+  kokshetau: "Кокшетау",
+};
+
+/** ТЗ (Блок 8): «видеть программу» — в списке заказов раньше не было видно
+ *  ни состава, ни того, что это сертификат на сумму (только в карточке
+ *  заказа). Показываем то же самое коротко прямо в таблице. */
+function programLabel(r: Pick<CertificateRow, "certificate_type" | "services">): string {
+  if (r.certificate_type === "amount") return "На сумму";
+  if (r.services && r.services.length > 0) return r.services.map((s) => s.name).join(", ");
+  return "—";
+}
 
 const PAYMENT_STATUS_LABEL: Record<string, string> = {
   pending: "Не оплачен",
@@ -126,6 +141,8 @@ function OrdersPage() {
               <th className="px-3 py-2 font-medium">Дата</th>
               <th className="px-3 py-2 font-medium">Покупатель</th>
               <th className="px-3 py-2 font-medium">Получатель</th>
+              <th className="px-3 py-2 font-medium">Услуга</th>
+              <th className="px-3 py-2 font-medium">Филиал</th>
               <th className="px-3 py-2 font-medium">Сумма</th>
               <th className="px-3 py-2 font-medium">Оплата</th>
               <th className="px-3 py-2 font-medium">Статус</th>
@@ -134,14 +151,14 @@ function OrdersPage() {
           <tbody className="divide-y divide-zinc-800">
             {rows === null && (
               <tr>
-                <td colSpan={7} className="px-3 py-6 text-center text-zinc-500">
+                <td colSpan={9} className="px-3 py-6 text-center text-zinc-500">
                   Загрузка…
                 </td>
               </tr>
             )}
             {rows?.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-3 py-6 text-center text-zinc-500">
+                <td colSpan={9} className="px-3 py-6 text-center text-zinc-500">
                   Ничего не найдено.
                 </td>
               </tr>
@@ -159,6 +176,8 @@ function OrdersPage() {
                   {r.buyer_contact && <div className="text-xs text-zinc-500">{r.buyer_contact}</div>}
                 </td>
                 <td className="px-3 py-2 text-zinc-300">{r.recipient_name ?? "—"}</td>
+                <td className="px-3 py-2 text-zinc-300">{programLabel(r)}</td>
+                <td className="px-3 py-2 text-zinc-400">{r.branch ? (BRANCH_LABEL[r.branch] ?? r.branch) : "—"}</td>
                 <td className="px-3 py-2">{r.amount.toLocaleString("ru-RU")} ₸</td>
                 <td className="px-3 py-2 text-zinc-400">{PAYMENT_STATUS_LABEL[r.payment_status] ?? r.payment_status}</td>
                 <td className="px-3 py-2">
