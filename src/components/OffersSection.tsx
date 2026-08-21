@@ -46,14 +46,20 @@ export function OffersSection() {
   const [amountPicked, setAmountPicked] = useState(false);
 
   // Город — клик только выбирает/подсвечивает, сам по себе никуда не
-  // ведёт. Переход к каталогу — через отдельную кнопку «Далее» ниже (см.
-  // scrollToServices), неактивную, пока город не выбран. Правка владельца
-  // 2026-08-21: эту же логику пробовали вешать в hero — там оказалось не
-  // нужно, hero остаётся чисто декоративным (см. index.tsx), а рабочий
-  // выбор города живёт здесь.
+  // ведёт. Переход к каталогу — общей кнопкой «Далее» ниже (см.
+  // scrollToServices), неактивной, пока не выбран ни город, ни сумма.
+  // Город и сумма — взаимоисключающие варианты одного и того же
+  // трёхпунктового переключателя (см. комментарий у return ниже): выбор
+  // одного снимает выбор другого, иначе для одной кнопки «Далее» было бы
+  // неясно, куда вести при выбранных обоих сразу.
   const [activeCity, setActiveCity] = useState<Branch | null>(null);
   const scrollToServices = () =>
     document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const pickCity = (id: Branch) => {
+    setActiveCity(id);
+    setAmountPicked(false);
+  };
 
   const parsedCustom = Number(customAmount);
   const effectiveAmount =
@@ -95,7 +101,7 @@ export function OffersSection() {
                 <button
                   key={b.id}
                   type="button"
-                  onClick={() => setActiveCity(b.id)}
+                  onClick={() => pickCity(b.id)}
                   aria-pressed={selected}
                   className={`surface p-6 text-left transition-colors ${
                     selected ? "border-gold bg-gold/10" : "hover:border-gold/60"
@@ -150,6 +156,7 @@ export function OffersSection() {
                             setSelectedAmount(a);
                             setCustomAmount("");
                             setAmountPicked(true);
+                            setActiveCity(null);
                           }}
                           aria-pressed={amountPicked && !customAmount && selectedAmount === a}
                           className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
@@ -187,7 +194,9 @@ export function OffersSection() {
                           // (меньше MIN_AMOUNT) — явно снимаем выбор.
                           if (next) {
                             const v = Number(next);
-                            setAmountPicked(Number.isFinite(v) && v >= MIN_AMOUNT);
+                            const valid = Number.isFinite(v) && v >= MIN_AMOUNT;
+                            setAmountPicked(valid);
+                            if (valid) setActiveCity(null);
                           }
                         }}
                         placeholder={String(MIN_AMOUNT)}
@@ -200,29 +209,27 @@ export function OffersSection() {
             </div>
           </div>
 
-          {/* «Далее» для города — отдельная от «Далее» для суммы ниже: город
-              не ведёт в мастер оформления, а доскраливает к каталогу услуг
-              (та же страница, id="services"). Неактивна, пока город не
-              выбран. */}
-          <button
-            type="button"
-            onClick={scrollToServices}
-            disabled={!activeCity}
-            className="btn-gold mt-8 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {t("cert.nextButton")}
-          </button>
-
+          {/* Одна общая «Далее» на все три пункта переключателя выше — город
+              и сумма взаимоисключающие (см. pickCity/onClick сумм: выбор
+              одного снимает выбор другого), поэтому в любой момент активен
+              максимум один путь. Сумма выбрана → ведёт в мастер оформления
+              (Link). Город выбран → доскраливает к каталогу услуг тут же
+              на странице (обычная кнопка, не переход). Ничего не выбрано →
+              неактивна. */}
           {selection?.kind === "amount" && amountPicked ? (
             <Link
               to="/certificate"
               search={{ kind: "amount", amount: effectiveAmount }}
-              className="btn-gold mt-3"
+              className="btn-gold mt-8"
             >
               {t("cert.nextButton")}
             </Link>
+          ) : activeCity ? (
+            <button type="button" onClick={scrollToServices} className="btn-gold mt-8">
+              {t("cert.nextButton")}
+            </button>
           ) : (
-            <button type="button" disabled className="btn-gold mt-3 cursor-not-allowed opacity-40">
+            <button type="button" disabled className="btn-gold mt-8 cursor-not-allowed opacity-40">
               {t("cert.nextButton")}
             </button>
           )}
