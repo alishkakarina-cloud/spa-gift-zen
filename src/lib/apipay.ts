@@ -63,6 +63,12 @@ export type ApipayErrorCategory =
 
 const NOT_CONFIGURED_CODES = new Set([
   "organization_required",
+  // Реальный код из полной документации apipay.kz/docs.html (раздел
+  // «Сценарии реагирования»): «к организации не подключён кассир Kaspi» —
+  // организационная проблема (ЛК → Настройки → Авторизация Kaspi), не то,
+  // что может починить сам покупатель на сайте. Найдено при сверке кода с
+  // полной документацией 2026-08-21 — раньше это падало в "unknown".
+  "organization_not_configured",
   "kaspi_session_not_configured",
   "kaspi_session_invalid",
   "Organization not found or not verified",
