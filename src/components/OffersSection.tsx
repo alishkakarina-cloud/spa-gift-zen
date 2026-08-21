@@ -45,9 +45,11 @@ export function OffersSection() {
   // своей — открытие панели само по себе выбором не считается.
   const [amountPicked, setAmountPicked] = useState(false);
 
-  // Город — теперь формальность: клик только подсвечивает кнопку, никуда
-  // не ведёт и не влияет на «Далее» (убрана функция по правке клиента —
-  // раньше клик сразу выставлял город и активировал переход).
+  // Город — формальность: клик только подсвечивает кнопку, никуда не ведёт
+  // и не влияет на «Далее» ниже (та кнопка — про выбранную сумму, к городу
+  // отношения не имеет). Правка владельца 2026-08-21: скролл к каталогу по
+  // клику на город добавляли, затем отменили именно здесь — эта же
+  // функция сделана только в hero (см. index.tsx, scrollToServices).
   const [activeCity, setActiveCity] = useState<Branch | null>(null);
 
   const parsedCustom = Number(customAmount);
@@ -59,15 +61,6 @@ export function OffersSection() {
   const amountOpen = selection?.kind === "amount";
 
   const toggleAmount = () => setSelection((s) => (s?.kind === "amount" ? null : { kind: "amount" }));
-
-  // Каталог услуг одинаковый для обоих городов (Branch/Service в данных
-  // проекта никак не связаны — ни цен, ни состава по городам нет), поэтому
-  // выбор города фильтровать нечего — только подсветка + доскролл к
-  // каталогу (id="services" ниже, в этом же компоненте).
-  const selectCity = (id: Branch) => {
-    setActiveCity(id);
-    document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
 
   return (
     <>
@@ -99,7 +92,7 @@ export function OffersSection() {
                 <button
                   key={b.id}
                   type="button"
-                  onClick={() => selectCity(b.id)}
+                  onClick={() => setActiveCity(b.id)}
                   aria-pressed={selected}
                   className={`surface p-6 text-left transition-colors ${
                     selected ? "border-gold bg-gold/10" : "hover:border-gold/60"

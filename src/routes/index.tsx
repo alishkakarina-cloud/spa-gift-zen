@@ -102,21 +102,18 @@ function Index() {
         <div className="relative mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-5 py-14 text-center sm:px-6">
           {/* Пилюли выбора города — по структуре layan.kz, но в нашей
               палитре (тёмно-зелёный/золотой, не их цвета). Правка владельца
-              2026-08-21: клик подсвечивает город (как и раньше) И теперь
-              доскраливает к каталогу услуг — каталог общий для обоих
-              городов, отдельной city-фильтрации нет и не нужно (см.
-              scrollToServices выше). */}
-          <div className="mb-6 flex items-center justify-center gap-2 sm:mb-8">
+              2026-08-21: клик по пилюле ТОЛЬКО подсвечивает город — переход
+              к каталогу живёт в отдельной кнопке «Далее» ниже, неактивной
+              до выбора города (был краткий вариант со скроллом сразу на
+              клик по пилюле — владелец отменил, разделил на два шага). */}
+          <div className="mb-3 flex items-center justify-center gap-2">
             {heroBranches.map((id) => {
               const active = activeHeroBranch === id;
               return (
                 <button
                   key={id}
                   type="button"
-                  onClick={() => {
-                    setActiveHeroBranch(id);
-                    scrollToServices();
-                  }}
+                  onClick={() => setActiveHeroBranch(id)}
                   aria-pressed={active}
                   className={`flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-[0.68rem] whitespace-nowrap backdrop-blur-sm transition-colors sm:gap-1.5 sm:px-5 sm:py-2 sm:text-sm ${
                     active
@@ -130,6 +127,17 @@ function Index() {
               );
             })}
           </div>
+
+          {/* «Далее» — активна только после выбора города выше, ведёт
+              доскроллом к каталогу услуг (id="services", OffersSection). */}
+          <button
+            type="button"
+            onClick={scrollToServices}
+            disabled={!activeHeroBranch}
+            className="btn-gold mb-6 px-6 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-40 sm:mb-8 sm:text-sm"
+          >
+            {t("cert.nextButton")}
+          </button>
 
           <img
             src={logoLight}
