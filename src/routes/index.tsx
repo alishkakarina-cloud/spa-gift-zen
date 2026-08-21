@@ -27,6 +27,14 @@ const scrollToBuy = () => document.getElementById("buy")?.scrollIntoView({ behav
 /** Доскролл к перенесённым из бывшего оверлея «Наши услуги» разделам
  *  (салоны + условия сертификата) — см. комментарий у секции ниже. */
 const scrollToSalons = () => document.getElementById("salons")?.scrollIntoView({ behavior: "smooth" });
+/** Доскролл к каталогу услуг (id="services" внутри OffersSection ниже на
+ *  этой же странице) — правка владельца 2026-08-21: кнопки городов в hero
+ *  раньше были формальностью (только подсветка), теперь по клику ведут
+ *  прямо к каталогу. Каталог один и тот же для обоих городов (Branch и
+ *  Service в данных проекта никак не связаны — ни цен, ни состава по
+ *  городам нет), поэтому фильтровать нечего, только скроллим. */
+const scrollToServices = () =>
+  document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" });
 
 /**
  * Главная "/" — hero, а сразу под ним, без перехода на другой маршрут, —
@@ -93,9 +101,11 @@ function Index() {
 
         <div className="relative mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-5 py-14 text-center sm:px-6">
           {/* Пилюли выбора города — по структуре layan.kz, но в нашей
-              палитре (тёмно-зелёный/золотой, не их цвета). Ведут сразу в
-              мастер оформления с выставленным городом — та же
-              city-фильтрация /certificate, что уже используется на /offers. */}
+              палитре (тёмно-зелёный/золотой, не их цвета). Правка владельца
+              2026-08-21: клик подсвечивает город (как и раньше) И теперь
+              доскраливает к каталогу услуг — каталог общий для обоих
+              городов, отдельной city-фильтрации нет и не нужно (см.
+              scrollToServices выше). */}
           <div className="mb-6 flex items-center justify-center gap-2 sm:mb-8">
             {heroBranches.map((id) => {
               const active = activeHeroBranch === id;
@@ -103,7 +113,10 @@ function Index() {
                 <button
                   key={id}
                   type="button"
-                  onClick={() => setActiveHeroBranch(id)}
+                  onClick={() => {
+                    setActiveHeroBranch(id);
+                    scrollToServices();
+                  }}
                   aria-pressed={active}
                   className={`flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-[0.68rem] whitespace-nowrap backdrop-blur-sm transition-colors sm:gap-1.5 sm:px-5 sm:py-2 sm:text-sm ${
                     active

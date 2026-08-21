@@ -60,6 +60,15 @@ export function OffersSection() {
 
   const toggleAmount = () => setSelection((s) => (s?.kind === "amount" ? null : { kind: "amount" }));
 
+  // Каталог услуг одинаковый для обоих городов (Branch/Service в данных
+  // проекта никак не связаны — ни цен, ни состава по городам нет), поэтому
+  // выбор города фильтровать нечего — только подсветка + доскролл к
+  // каталогу (id="services" ниже, в этом же компоненте).
+  const selectCity = (id: Branch) => {
+    setActiveCity(id);
+    document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <>
       {/* ── Выбор: город или сумма — три равноправных пункта-переключателя.
@@ -90,7 +99,7 @@ export function OffersSection() {
                 <button
                   key={b.id}
                   type="button"
-                  onClick={() => setActiveCity(b.id)}
+                  onClick={() => selectCity(b.id)}
                   aria-pressed={selected}
                   className={`surface p-6 text-left transition-colors ${
                     selected ? "border-gold bg-gold/10" : "hover:border-gold/60"
