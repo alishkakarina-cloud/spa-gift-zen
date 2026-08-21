@@ -36,6 +36,14 @@ export function OffersSection() {
   const [selection, setSelection] = useState<Selection>(null);
   const [selectedAmount, setSelectedAmount] = useState<number>(fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
+  // Раньше просто разворот панели «Указать сумму» (toggleAmount) сразу же
+  // включал «Далее» на молчаливом дефолте fixedAmounts[0] (20 000 ₸) — кто
+  // хотел выбрать услугу, но из любопытства открывал панель суммы, мог
+  // случайно улететь в оформление на 20 000 ₸, вообще не выбрав сумму
+  // (баг, воспроизведённый и подтверждённый владельцем 2026-08-21). Теперь
+  // «Далее» появляется только после явного клика по конкретной сумме/ввода
+  // своей — открытие панели само по себе выбором не считается.
+  const [amountPicked, setAmountPicked] = useState(false);
 
   // Город — теперь формальность: клик только подсвечивает кнопку, никуда
   // не ведёт и не влияет на «Далее» (убрана функция по правке клиента —
@@ -136,10 +144,11 @@ export function OffersSection() {
                           onClick={() => {
                             setSelectedAmount(a);
                             setCustomAmount("");
+                            setAmountPicked(true);
                           }}
-                          aria-pressed={!customAmount && selectedAmount === a}
+                          aria-pressed={amountPicked && !customAmount && selectedAmount === a}
                           className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
-                            !customAmount && selectedAmount === a
+                            amountPicked && !customAmount && selectedAmount === a
                               ? "border-gold bg-gold text-primary-foreground"
                               : "border-border bg-card text-cream hover:border-gold/60"
                           }`}
@@ -164,7 +173,18 @@ export function OffersSection() {
                         min={MIN_AMOUNT}
                         step={1000}
                         value={customAmount}
-                        onChange={(e) => setCustomAmount(e.target.value)}
+                        onChange={(e) => {
+                          const next = e.target.value;
+                          setCustomAmount(next);
+                          // Пустое поле — просто вернулись к ранее нажатой
+                          // фиксированной сумме (если она была), трогать
+                          // amountPicked не нужно; невалидное значение
+                          // (меньше MIN_AMOUNT) — явно снимаем выбор.
+                          if (next) {
+                            const v = Number(next);
+                            setAmountPicked(Number.isFinite(v) && v >= MIN_AMOUNT);
+                          }
+                        }}
                         placeholder={String(MIN_AMOUNT)}
                         className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
                       />
@@ -175,7 +195,7 @@ export function OffersSection() {
             </div>
           </div>
 
-          {selection?.kind === "amount" ? (
+          {selection?.kind === "amount" && amountPicked ? (
             <Link
               to="/certificate"
               search={{ kind: "amount", amount: effectiveAmount }}

@@ -27,6 +27,17 @@ export function SelectionSummary({
   if (chosen.length === 0) return null;
 
   return (
+    // На мобильном эта прилипающая к низу панель визуально совпадала с
+    // плавающей кнопкой WhatsApp в правом нижнем углу (WhatsAppButton.tsx,
+    // fixed right-5 bottom-5) — тап по правому краю кнопки «Далее»/
+    // «Подарить» на самом деле попадал в WhatsApp (подтверждено через
+    // elementFromPoint). Поднять z-index тут не помогает: родительский
+    // <section className="step-fade-in"> в certificate.tsx анимирует
+    // transform/opacity, а это само по себе создаёт новый stacking context
+    // — z-index внутри него не может «пробить» независимый fixed-слой
+    // WhatsApp снаружи. Поэтому чиним геометрией: pr-16 на нижней строке
+    // ниже резервирует место под кнопку WhatsApp (~44px + отступ), кнопка
+    // «Далее» туда просто не долетает.
     <div className="sticky bottom-4 z-20 mt-6">
       <div className="border-gold/40 bg-background/95 rounded-lg border p-4 shadow-2xl backdrop-blur sm:p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -61,7 +72,11 @@ export function SelectionSummary({
           ))}
         </ul>
 
-        <div className="border-border mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3">
+        {/* pr-16 держим до lg: — панель до этого брейкпоинта идёт во всю
+            ширину контента (двухколоночная сетка мастера появляется только
+            с lg:), поэтому риск перекрытия с WhatsApp-кнопкой в углу
+            экрана сохраняется и на планшетах, не только на телефоне. */}
+        <div className="border-border mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3 pr-16 lg:pr-0">
           <div className="flex items-baseline gap-3">
             <span className="text-cream/60 text-sm">{t("cert.selectionTotal")}</span>
             <span className="font-display text-gold text-xl">

@@ -5,9 +5,10 @@ import heroPhoto from "@/assets/atmosphere-arch.webp";
 import logoLight from "@/assets/logo-on-dark.webp";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { BRANCHES, type Branch } from "@/data/branches";
+import { BranchesSection } from "@/components/BranchesSection";
+import { CertPerks } from "@/components/CertPerks";
 import { OffersSection } from "@/components/OffersSection";
 import { Reveal } from "@/components/Reveal";
-import { ServicesOverlay } from "@/components/ServicesOverlay";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Divider } from "@/components/Divider";
 import { Motif } from "@/components/Motif";
@@ -23,6 +24,9 @@ const branchById = (id: Branch) => BRANCHES.find((b) => b.id === id)!;
  *  теперь этот же контент физически на этой же странице (см.
  *  OffersSection), клиенты просили, чтобы листалось вниз без переходов. */
 const scrollToBuy = () => document.getElementById("buy")?.scrollIntoView({ behavior: "smooth" });
+/** Доскролл к перенесённым из бывшего оверлея «Наши услуги» разделам
+ *  (салоны + условия сертификата) — см. комментарий у секции ниже. */
+const scrollToSalons = () => document.getElementById("salons")?.scrollIntoView({ behavior: "smooth" });
 
 /**
  * Главная "/" — hero, а сразу под ним, без перехода на другой маршрут, —
@@ -31,9 +35,13 @@ const scrollToBuy = () => document.getElementById("buy")?.scrollIntoView({ behav
  * Одна страница, один скролл — /offers как маршрут остался жив для прямых
  * ссылок, но на главной больше не нужен переход, чтобы это увидеть.
  *
- * «Наши услуги» и стрелка внизу hero ведут дальше — на /services (салоны,
- * Instagram, условия сертификата, футер) — эта страница в текущей задаче
- * не объединялась, остаётся отдельным маршрутом.
+ * «Наши услуги» раньше открывала оверлей/модалку поверх страницы
+ * (ServicesOverlay, см. историю задач) — по правке владельца 2026-08-21
+ * модальное поведение убрано: контент оверлея (салоны + условия
+ * сертификата) перенесён обычными секциями в этот же скролл, кнопка теперь
+ * плавно доскраливает к ним. Каталог услуг и футер из оверлея НЕ
+ * перенесены — они уже есть на этой странице (OffersSection, SiteFooter),
+ * дублировать не стали. Компонент ServicesOverlay.tsx удалён.
  */
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -61,9 +69,6 @@ function Index() {
   // /certificate?branch=... — эта функциональность убрана, реальный выбор
   // города остался в секции ниже (OffersSection).
   const [activeHeroBranch, setActiveHeroBranch] = useState<Branch | null>(null);
-  // «Наши услуги» открывает оверлей поверх страницы (правка владельца), а не
-  // переход на /services — маршрут остаётся живым для прямых ссылок.
-  const [servicesOpen, setServicesOpen] = useState(false);
 
   return (
     <main>
@@ -139,7 +144,7 @@ function Index() {
             <button type="button" onClick={scrollToBuy} className="btn-beige w-full">
               {t("home.heroCta")}
             </button>
-            <button type="button" onClick={() => setServicesOpen(true)} className="btn-gold w-full">
+            <button type="button" onClick={scrollToSalons} className="btn-gold w-full">
               {t("home.heroCatalogCta")}
             </button>
           </div>
@@ -213,6 +218,17 @@ function Index() {
         </Reveal>
       </section>
 
+      {/* ── «Наши салоны» + «Подарочные сертификаты» — перенесены сюда из
+          бывшего оверлея «Наши услуги» (см. комментарий над Index выше),
+          в том же порядке, в котором шли там. id="salons" — цель доскролла
+          с кнопки «Наши услуги» в hero. Каталог услуг и футер из того же
+          оверлея не дублируются — они уже есть ниже (OffersSection,
+          SiteFooter). ────────────────────────────────────────────────── */}
+      <div id="salons">
+        <BranchesSection t={t} />
+      </div>
+      <CertPerks t={t} />
+
       <OffersSection />
 
       {/* ── FAQ — тот же набор вопросов/ответов из официального ТЗ (блок 18),
@@ -247,8 +263,6 @@ function Index() {
       </section>
 
       <SiteFooter t={t} />
-
-      <ServicesOverlay open={servicesOpen} onClose={() => setServicesOpen(false)} t={t} />
     </main>
   );
 }
