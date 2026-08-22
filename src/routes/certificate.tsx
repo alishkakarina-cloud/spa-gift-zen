@@ -487,7 +487,13 @@ function CertificateFlow() {
         </div>
       </div>
 
-      <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_380px] lg:items-start">
+      {/* Превью-карточка сертификата (aside ниже) на шаге 1 (выбор услуги/
+          суммы) не нужна — это ещё не заказ, показывать сертификат с
+          суммой рано (правка владельца 2026-08-22). Убрана условно только
+          там; на шаге 2 («Проверьте заказ») и далее остаётся как была.
+          lg:grid-cols-[1fr_380px] тоже только когда aside реально есть —
+          иначе на шаге 1 остаётся пустая зарезервированная колонка. */}
+      <div className={`mt-12 grid gap-12 lg:items-start ${step === 1 ? "" : "lg:grid-cols-[1fr_380px]"}`}>
         {/* key={step} размонтирует и заново монтирует блок при смене шага —
             это и запускает step-fade-in заново на каждом переходе, раньше
             переключение шагов было мгновенным. */}
@@ -1059,30 +1065,32 @@ function CertificateFlow() {
 
         </section>
 
-        <aside className="lg:sticky lg:top-10">
-          <CertificateCard
-            design={design}
-            valueLabel={valueLabel}
-            items={cardItems}
-            recipient={recipientFullName || undefined}
-            sender={sender || undefined}
-            message={message || undefined}
-            number={certificateNumber ?? undefined}
-            // Раньше превью не имело ограничения ширины и на мобильном
-            // занимало весь экран по высоте (380px-колонка десктопа
-            // растягивалась на всю ширину экрана). 200px (~30-37% высоты
-            // экрана на типичном мобильном, при aspect-ratio 461/697) —
-            // карточка ещё хорошо читается, но не доминирует над экраном.
-            // lg:max-w-none — на десктопе снова во всю 380px-колонку.
-            className="mx-auto max-w-[200px] sm:max-w-[240px] lg:max-w-none"
-          />
-          <div className="mt-5 flex items-baseline justify-between border-t border-border pt-4 text-sm">
-            <span className="text-cream/60">{t("cert.payTotal")}</span>
-            <span className="font-display text-2xl text-gold">
-              {formatPrice(total || 0)}
-            </span>
-          </div>
-        </aside>
+        {step !== 1 && (
+          <aside className="lg:sticky lg:top-10">
+            <CertificateCard
+              design={design}
+              valueLabel={valueLabel}
+              items={cardItems}
+              recipient={recipientFullName || undefined}
+              sender={sender || undefined}
+              message={message || undefined}
+              number={certificateNumber ?? undefined}
+              // Раньше превью не имело ограничения ширины и на мобильном
+              // занимало весь экран по высоте (380px-колонка десктопа
+              // растягивалась на всю ширину экрана). 200px (~30-37% высоты
+              // экрана на типичном мобильном, при aspect-ratio 461/697) —
+              // карточка ещё хорошо читается, но не доминирует над экраном.
+              // lg:max-w-none — на десктопе снова во всю 380px-колонку.
+              className="mx-auto max-w-[200px] sm:max-w-[240px] lg:max-w-none"
+            />
+            <div className="mt-5 flex items-baseline justify-between border-t border-border pt-4 text-sm">
+              <span className="text-cream/60">{t("cert.payTotal")}</span>
+              <span className="font-display text-2xl text-gold">
+                {formatPrice(total || 0)}
+              </span>
+            </div>
+          </aside>
+        )}
       </div>
 
       {/* Кнопки навигации — раньше жили в конце <section> (левая колонка),
