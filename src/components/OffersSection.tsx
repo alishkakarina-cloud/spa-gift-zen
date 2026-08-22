@@ -108,16 +108,27 @@ export function OffersSection() {
                   onClick={() => setActiveCity(b.id)}
                   aria-pressed={selected}
                   className={`surface px-6 py-4 text-left transition-colors ${
-                    selected ? "border-gold bg-gold" : "hover:border-gold/60"
+                    selected ? "border-gold!" : "hover:border-gold/60"
                   }`}
                 >
+                  {/* Цвет текста фиксированный в обоих состояниях (правка
+                      2026-08-22 — откат полной заливки: та давала нечитаемый
+                      бледный текст на карточке «Петропавловск»). Выбор
+                      сигнализирует только рамка и золотое свечение текста
+                      (.text-glow-gold, см. styles.css).
+                      border-gold! (важность) — реальный найденный баг:
+                      .surface задаёт border одной сокращённой записью
+                      (border: 1px solid var(--color-border)), той же
+                      специфичности, что и border-gold, и побеждала в
+                      каскаде — рамка на выбранной карточке молча оставалась
+                      дефолтной, а не золотой. */}
                   <span
-                    className={`font-display block text-lg sm:text-xl ${selected ? "text-primary-foreground" : "text-cream"}`}
+                    className={`font-display block text-lg sm:text-xl text-cream ${selected ? "text-glow-gold" : ""}`}
                   >
                     {t("home.buyCityPrefix")} {t(b.labelKey)}
                   </span>
                   <span
-                    className={`mt-1 block text-sm ${selected ? "text-primary-foreground/70" : "text-cream/65"}`}
+                    className={`mt-1 block text-sm text-cream/65 ${selected ? "text-glow-gold" : ""}`}
                   >
                     {b.address}
                   </span>
@@ -127,7 +138,7 @@ export function OffersSection() {
 
             <div
               className={`surface overflow-hidden text-left transition-colors ${
-                amountOpen ? "border-gold bg-gold/10" : "hover:border-gold/60"
+                amountOpen ? "border-gold!" : "hover:border-gold/60"
               }`}
             >
               <button
@@ -136,10 +147,14 @@ export function OffersSection() {
                 aria-expanded={amountOpen}
                 className="w-full px-6 py-4 text-left"
               >
-                <span className={`font-display block text-lg sm:text-xl ${amountOpen ? "text-gold" : "text-cream"}`}>
+                <span
+                  className={`font-display block text-lg sm:text-xl text-cream ${amountOpen ? "text-glow-gold" : ""}`}
+                >
                   {t("home.buyAmountToggle")}
                 </span>
-                <span className="text-cream/65 mt-1 block text-sm">
+                <span
+                  className={`text-cream/65 mt-1 block text-sm ${amountOpen ? "text-glow-gold" : ""}`}
+                >
                   {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
                 </span>
               </button>
