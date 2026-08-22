@@ -48,14 +48,16 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useLanguage();
-  // «Наши услуги» — скролл на этой же странице к блоку «Сертификаты Rai
-  // Thai Spa» / «Условия использования сертификата» (правка 2026-08-22,
-  // уточнение после разделения на 2 страницы — раньше цель была секция
-  // контактов/салонов, теперь это информация о самом сертификате). id
-  // на обёртке CertPerks ниже; scroll-mt-24 резервирует отступ под
-  // sticky-хедер, чтобы заголовок не оказался под ним при скролле.
+  // «Наши услуги» — скролл на этой же странице точно к секции «Условия
+  // использования сертификата» (уточнение: раньше цель была id="cert-info"
+  // на блоке ВЫШЕ по странице — блок «Сертификаты Rai Thai Spa» с
+  // чеклистом, — из-за этого после скролла заголовок «Условия
+  // использования» оставался ниже экрана, а не был виден сразу). id
+  // на самой секции условий (id="cert-terms"); scroll-mt-24 там же
+  // резервирует отступ под sticky-хедер, чтобы заголовок не оказался под
+  // ним при скролле.
   const scrollToCertInfo = useCallback(() => {
-    document.getElementById("cert-info")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("cert-terms")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   return (
@@ -151,8 +153,11 @@ function Index() {
           частичное использование/остаток/возврат сюда не включены — вопрос
           ещё не утверждён владельцем (см. FAQ_NUMBERS в certificate.tsx).
           term4-6 добавлены по полному тексту ТЗ (электронная выдача с
-          номером, предварительная запись, передача другому человеку). ── */}
-      <section className="relative overflow-hidden">
+          номером, предварительная запись, передача другому человеку).
+          id="cert-terms" + scroll-mt-24 — цель скролла кнопки «Наши услуги»
+          в hero (правка, было id="cert-info" на блоке ВЫШЕ — заголовок
+          «Условия использования» оказывался ниже экрана после скролла). ── */}
+      <section id="cert-terms" className="relative overflow-hidden scroll-mt-24">
         <Reveal className="relative mx-auto max-w-2xl px-5 pb-16 sm:px-6 sm:pb-24">
           <h2 className="font-display text-center text-2xl sm:text-3xl">
             {t("home.termsTitle")}
