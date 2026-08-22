@@ -230,46 +230,6 @@ export const services: Service[] = [
     group: "massage",
   },
   {
-    id: "mom-to-be-60",
-    name: "Массаж для будущих мам, 60 минут",
-    duration: "60 мин",
-    price: 18000,
-    description:
-      "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку со специальной подушкой.",
-    group: "massage",
-    pregnancySafe: true,
-  },
-  {
-    id: "mom-to-be-90",
-    name: "Массаж для будущих мам, 90 минут",
-    duration: "90 мин",
-    price: 26500,
-    description:
-      "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку со специальной подушкой.",
-    group: "massage",
-    pregnancySafe: true,
-  },
-  {
-    id: "mom-to-be-120",
-    name: "Массаж для будущих мам, 120 минут",
-    duration: "120 мин",
-    price: 34500,
-    description:
-      "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку со специальной подушкой.",
-    group: "massage",
-    pregnancySafe: true,
-  },
-  {
-    id: "mom-to-be-160",
-    name: "Массаж для будущих мам, 160 минут",
-    duration: "160 мин",
-    price: 48000,
-    description:
-      "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку со специальной подушкой.",
-    group: "massage",
-    pregnancySafe: true,
-  },
-  {
     id: "complex-calm-harmony",
     name: "«Спокойствие и гармония»",
     duration: "90 мин",
@@ -400,57 +360,47 @@ export const services: Service[] = [
   },
   {
     id: "journey-bali-1",
-    name: "«Путешествие на Бали», 1 персона",
+    name: "«Путешествие на Бали»",
     duration: "180 мин",
     price: 53000,
     description:
       "Хамам, пилинг, скрабирование, обёртывание тела, чайная церемония, массаж лица травяными мешочками и балийский массаж 60 минут.",
     group: "travel",
+    familyKey: "journey-bali",
+    variantLabelKey: "services.journey-bali-1.variantLabel",
   },
   {
     id: "journey-bali-2",
-    name: "«Путешествие на Бали», 2 персоны",
+    name: "«Путешествие на Бали»",
     duration: "180 мин",
     price: 105000,
     description:
       "Хамам, пилинг, скрабирование, обёртывание тела, чайная церемония, массаж лица травяными мешочками и балийский массаж 60 минут.",
     group: "travel",
-  },
-  {
-    id: "journey-bali-3",
-    name: "«Путешествие на Бали», 3 персоны",
-    duration: "180 мин",
-    price: 155000,
-    description:
-      "Хамам, пилинг, скрабирование, обёртывание тела, чайная церемония, массаж лица травяными мешочками и балийский массаж 60 минут.",
-    group: "travel",
+    familyKey: "journey-bali",
+    variantLabelKey: "services.journey-bali-2.variantLabel",
   },
   {
     id: "journey-malaysia-1",
-    name: "«Путешествие в Малайзию», 1 персона",
+    name: "«Путешествие в Малайзию»",
     duration: "240 мин",
     price: 62000,
     description:
       "Хамам, пилинг, скрабирование, обёртывание, чайная церемония, массаж лица травяными мешочками и арома-oil массаж 60 минут.",
     group: "travel",
+    familyKey: "journey-malaysia",
+    variantLabelKey: "services.journey-malaysia-1.variantLabel",
   },
   {
     id: "journey-malaysia-2",
-    name: "«Путешествие в Малайзию», 2 персоны",
+    name: "«Путешествие в Малайзию»",
     duration: "240 мин",
     price: 122000,
     description:
       "Хамам, пилинг, скрабирование, обёртывание, чайная церемония, массаж лица травяными мешочками и арома-oil массаж 60 минут.",
     group: "travel",
-  },
-  {
-    id: "journey-malaysia-3",
-    name: "«Путешествие в Малайзию», 3 персоны",
-    duration: "240 мин",
-    price: 180000,
-    description:
-      "Хамам, пилинг, скрабирование, обёртывание, чайная церемония, массаж лица травяными мешочками и арома-oil массаж 60 минут.",
-    group: "travel",
+    familyKey: "journey-malaysia",
+    variantLabelKey: "services.journey-malaysia-2.variantLabel",
   },
 
   {

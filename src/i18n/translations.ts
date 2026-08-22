@@ -151,7 +151,7 @@ const ru = {
     groupMassage: "Массаж",
     groupComplex: "Комплексные массажи",
     groupSpa: "SPA-программы",
-    groupTravel: "SPA-путешествия на 1/2/3 персон",
+    groupTravel: "SPA-путешествия на 1/2 персон",
     groupKids: "Детская линия",
     groupPregnancy: "Для беременных",
     groupSubscription: "SPA-абонементы",
@@ -391,26 +391,6 @@ const ru = {
       duration: "120 мин",
       description: "Горячие мешочки со сборами целебных тайских трав: ароматерапия и глубокий прогрев.",
     },
-    "mom-to-be-60": {
-      name: "Массаж для будущих мам, 60 минут",
-      duration: "60 мин",
-      description: "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку.",
-    },
-    "mom-to-be-90": {
-      name: "Массаж для будущих мам, 90 минут",
-      duration: "90 мин",
-      description: "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку.",
-    },
-    "mom-to-be-120": {
-      name: "Массаж для будущих мам, 120 минут",
-      duration: "120 мин",
-      description: "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку.",
-    },
-    "mom-to-be-160": {
-      name: "Массаж для будущих мам, 160 минут",
-      duration: "160 мин",
-      description: "Бережная забота о будущей маме: снятие нагрузки с поясницы и ног, положение на боку.",
-    },
     "complex-calm-harmony": {
       name: "«Спокойствие и гармония»",
       duration: "90 мин",
@@ -479,33 +459,27 @@ const ru = {
       description: "Хамам или сауна, пилинг, скрабирование, чайная церемония и традиционный тайский массаж 60 минут.",
     },
     "journey-bali-1": {
-      name: "«Путешествие на Бали», 1 персона",
+      name: "«Путешествие на Бали»",
       duration: "180 мин",
+      variantLabel: "1 персона",
       description: "Хамам, пилинг, обёртывание тела, чайная церемония, массаж лица травяными мешочками и балийский массаж.",
     },
     "journey-bali-2": {
-      name: "«Путешествие на Бали», 2 персоны",
+      name: "«Путешествие на Бали»",
       duration: "180 мин",
-      description: "Хамам, пилинг, обёртывание тела, чайная церемония, массаж лица травяными мешочками и балийский массаж.",
-    },
-    "journey-bali-3": {
-      name: "«Путешествие на Бали», 3 персоны",
-      duration: "180 мин",
+      variantLabel: "2 персоны",
       description: "Хамам, пилинг, обёртывание тела, чайная церемония, массаж лица травяными мешочками и балийский массаж.",
     },
     "journey-malaysia-1": {
-      name: "«Путешествие в Малайзию», 1 персона",
+      name: "«Путешествие в Малайзию»",
       duration: "240 мин",
+      variantLabel: "1 персона",
       description: "Хамам, пилинг, обёртывание, чайная церемония, массаж лица травяными мешочками и арома-oil массаж.",
     },
     "journey-malaysia-2": {
-      name: "«Путешествие в Малайзию», 2 персоны",
+      name: "«Путешествие в Малайзию»",
       duration: "240 мин",
-      description: "Хамам, пилинг, обёртывание, чайная церемония, массаж лица травяными мешочками и арома-oil массаж.",
-    },
-    "journey-malaysia-3": {
-      name: "«Путешествие в Малайзию», 3 персоны",
-      duration: "240 мин",
+      variantLabel: "2 персоны",
       description: "Хамам, пилинг, обёртывание, чайная церемония, массаж лица травяными мешочками и арома-oil массаж.",
     },
     "kids-thai-60": {
@@ -959,16 +933,6 @@ const kz = {
       duration: "120 мин",
       description: "Емдік тай шөптері салынған ыстық қапшықтар: ароматерапия және терең жылыту.",
     },
-    "mom-to-be-60": {
-      name: "Болашақ аналарға арналған массаж, 60 минут",
-      duration: "60 мин",
-      description: "Болашақ анаға ұқыпты қамқорлық: бел мен аяққа түсетін жүктемені азайту, бүйірде жату.",
-    },
-    "mom-to-be-90": {
-      name: "Болашақ аналарға арналған массаж, 90 минут",
-      duration: "90 мин",
-      description: "Болашақ анаға ұқыпты қамқорлық: бел мен аяққа түсетін жүктемені азайту, бүйірде жату.",
-    },
     "complex-calm-harmony": {
       name: "«Тыныштық пен үйлесім»",
       duration: "90 мин",
@@ -1037,33 +1001,27 @@ const kz = {
       description: "Хамам немесе сауна, пилинг, скраб, шәй рәсімі және 60 минуттық дәстүрлі тай массажы.",
     },
     "journey-bali-1": {
-      name: "«Балиге саяхат», 1 адам",
+      name: "«Балиге саяхат»",
       duration: "180 мин",
+      variantLabel: "1 адам",
       description: "Хамам, пилинг, дене орамасы, шәй рәсімі, шөп қапшықтарымен бет массажы және Бали массажы.",
     },
     "journey-bali-2": {
-      name: "«Балиге саяхат», 2 адам",
+      name: "«Балиге саяхат»",
       duration: "180 мин",
-      description: "Хамам, пилинг, дене орамасы, шәй рәсімі, шөп қапшықтарымен бет массажы және Бали массажы.",
-    },
-    "journey-bali-3": {
-      name: "«Балиге саяхат», 3 адам",
-      duration: "180 мин",
+      variantLabel: "2 адам",
       description: "Хамам, пилинг, дене орамасы, шәй рәсімі, шөп қапшықтарымен бет массажы және Бали массажы.",
     },
     "journey-malaysia-1": {
-      name: "«Малайзияға саяхат», 1 адам",
+      name: "«Малайзияға саяхат»",
       duration: "240 мин",
+      variantLabel: "1 адам",
       description: "Хамам, пилинг, орама, шәй рәсімі, шөп қапшықтарымен бет массажы және арома-oil массаж.",
     },
     "journey-malaysia-2": {
-      name: "«Малайзияға саяхат», 2 адам",
+      name: "«Малайзияға саяхат»",
       duration: "240 мин",
-      description: "Хамам, пилинг, орама, шәй рәсімі, шөп қапшықтарымен бет массажы және арома-oil массаж.",
-    },
-    "journey-malaysia-3": {
-      name: "«Малайзияға саяхат», 3 адам",
-      duration: "240 мин",
+      variantLabel: "2 адам",
       description: "Хамам, пилинг, орама, шәй рәсімі, шөп қапшықтарымен бет массажы және арома-oil массаж.",
     },
     "kids-thai-60": {
@@ -1487,16 +1445,6 @@ const en = {
       duration: "120 min",
       description: "Hot pouches filled with healing Thai herbs: aromatherapy and deep warming.",
     },
-    "mom-to-be-60": {
-      name: "Massage for mums-to-be, 60 minutes",
-      duration: "60 min",
-      description: "Gentle care for the mother-to-be: relief for the lower back and legs, side-lying position.",
-    },
-    "mom-to-be-90": {
-      name: "Massage for mums-to-be, 90 minutes",
-      duration: "90 min",
-      description: "Gentle care for the mother-to-be: relief for the lower back and legs, side-lying position.",
-    },
     "complex-calm-harmony": {
       name: "«Calm and Harmony»",
       duration: "90 min",
@@ -1565,33 +1513,27 @@ const en = {
       description: "Hammam or sauna, peeling, scrub, tea ceremony and a 60-minute traditional Thai massage.",
     },
     "journey-bali-1": {
-      name: "«Journey to Bali», 1 person",
+      name: "«Journey to Bali»",
       duration: "180 min",
+      variantLabel: "1 person",
       description: "Hammam, peeling, body wrap, tea ceremony, herbal pouch face massage and a Balinese massage.",
     },
     "journey-bali-2": {
-      name: "«Journey to Bali», 2 people",
+      name: "«Journey to Bali»",
       duration: "180 min",
-      description: "Hammam, peeling, body wrap, tea ceremony, herbal pouch face massage and a Balinese massage.",
-    },
-    "journey-bali-3": {
-      name: "«Journey to Bali», 3 people",
-      duration: "180 min",
+      variantLabel: "2 people",
       description: "Hammam, peeling, body wrap, tea ceremony, herbal pouch face massage and a Balinese massage.",
     },
     "journey-malaysia-1": {
-      name: "«Journey to Malaysia», 1 person",
+      name: "«Journey to Malaysia»",
       duration: "240 min",
+      variantLabel: "1 person",
       description: "Hammam, peeling, wrap, tea ceremony, herbal pouch face massage and an aroma-oil massage.",
     },
     "journey-malaysia-2": {
-      name: "«Journey to Malaysia», 2 people",
+      name: "«Journey to Malaysia»",
       duration: "240 min",
-      description: "Hammam, peeling, wrap, tea ceremony, herbal pouch face massage and an aroma-oil massage.",
-    },
-    "journey-malaysia-3": {
-      name: "«Journey to Malaysia», 3 people",
-      duration: "240 min",
+      variantLabel: "2 people",
       description: "Hammam, peeling, wrap, tea ceremony, herbal pouch face massage and an aroma-oil massage.",
     },
     "kids-thai-60": {

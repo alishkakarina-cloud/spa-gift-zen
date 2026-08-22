@@ -50,7 +50,10 @@ export const SERVICE_GROUPS: ReadonlyArray<{
     id: "pregnancy",
     motif: "lotusBloom",
     labelKey: "cert.groupPregnancy",
-    imageFrom: "mom-to-be-60",
+    // "mom-to-be-*" (единственные услуги специально ДЛЯ беременных) убраны
+    // из каталога — эта категория теперь только из подборки pregnancySafe
+    // среди остальных услуг, imageFrom указывает на одну из них.
+    imageFrom: "queen-of-thailand",
     coverImage: pregnancyCover,
     noteKey: "cert.pregnancyNote",
   },
