@@ -108,13 +108,19 @@ export function OffersSection() {
                   onClick={() => setActiveCity(b.id)}
                   aria-pressed={selected}
                   className={`surface px-6 py-4 text-left transition-colors ${
-                    selected ? "border-gold bg-gold/10" : "hover:border-gold/60"
+                    selected ? "border-gold bg-gold" : "hover:border-gold/60"
                   }`}
                 >
-                  <span className={`font-display block text-lg sm:text-xl ${selected ? "text-gold" : ""}`}>
+                  <span
+                    className={`font-display block text-lg sm:text-xl ${selected ? "text-primary-foreground" : ""}`}
+                  >
                     {t("home.buyCityPrefix")} {t(b.labelKey)}
                   </span>
-                  <span className="text-cream/65 mt-1 block text-sm">{b.address}</span>
+                  <span
+                    className={`mt-1 block text-sm ${selected ? "text-primary-foreground/70" : "text-cream/65"}`}
+                  >
+                    {b.address}
+                  </span>
                 </button>
               );
             })}
@@ -204,6 +210,29 @@ export function OffersSection() {
                         className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
                       />
                     </label>
+
+                    {/* «Далее» — часть этой же раскрывающейся карточки
+                        (правка 2026-08-22: раньше кнопка стояла отдельным
+                        элементом в самом низу секции, под всем каталогом
+                        услуг, — теперь сворачивается/раскрывается вместе с
+                        блоком «Указать сумму», сразу под полем суммы). */}
+                    {amountPicked ? (
+                      <Link
+                        to="/certificate"
+                        search={{ kind: "amount", amount: effectiveAmount }}
+                        className="btn-gold mt-4 inline-flex"
+                      >
+                        {t("cert.nextButton")}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        className="btn-gold mt-4 inline-flex cursor-not-allowed opacity-40"
+                      >
+                        {t("cert.nextButton")}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -251,25 +280,6 @@ export function OffersSection() {
               />
             </div>
           </div>
-
-          {/* «Указать сумму» — самостоятельный путь, не связан с каталогом
-              выше (Блок 3.3 задачи 2026-08-22: работает как раньше).
-              Неактивна, пока сумма не выбрана явно (см. amountPicked). */}
-          {selection?.kind === "amount" && amountPicked ? (
-            <Link
-              to="/certificate"
-              search={{ kind: "amount", amount: effectiveAmount }}
-              className="btn-gold mt-10"
-            >
-              {t("cert.nextButton")}
-            </Link>
-          ) : (
-            selection?.kind === "amount" && (
-              <button type="button" disabled className="btn-gold mt-10 cursor-not-allowed opacity-40">
-                {t("cert.nextButton")}
-              </button>
-            )
-          )}
         </div>
       </section>
     </>

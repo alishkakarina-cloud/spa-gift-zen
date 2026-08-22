@@ -563,7 +563,7 @@ function CertificateFlow() {
                             setCustomAmount("");
                           }}
                           aria-pressed={active}
-                          className={`rounded-md border px-6 py-3 text-sm transition-colors ${active ? "border-gold bg-gold/10 text-gold" : "border-border text-cream/75 hover:border-gold/60"}`}
+                          className={`rounded-md border px-6 py-3 text-sm transition-colors ${active ? "border-gold bg-gold text-primary-foreground" : "border-border text-cream/75 hover:border-gold/60"}`}
                         >
                           {formatPrice(a)}
                         </button>
@@ -615,13 +615,20 @@ function CertificateFlow() {
                     key={d.id}
                     type="button"
                     onClick={() => setDesignId(d.id)}
-                    className={`w-full overflow-hidden rounded-2xl border text-left transition-colors ${designId === d.id ? "border-gold" : "border-border/40 hover:border-gold/60"}`}
+                    className={`w-full overflow-hidden rounded-2xl border text-left transition-colors ${designId === d.id ? "border-gold bg-gold" : "border-border/40 hover:border-gold/60"}`}
                   >
                     <CertificateCard design={d} valueLabel={valueLabel} items={cardItems} compact />
                     {/* Новые фото дизайна (2026-08-21) — без золотой плашки
                         с названием внизу, поэтому название снова выводится
-                        текстом на сайте, а не как часть картинки. */}
-                    <p className="py-2.5 text-center text-[0.62rem] tracking-[0.14em] text-cream/70 uppercase">
+                        текстом на сайте, а не как часть картинки. Полная
+                        заливка кнопки золотым при выборе (правка 2026-08-22)
+                        видна именно тут, под фото — сам текст переключается
+                        на тёмный, иначе на золотом фоне нечитаем. */}
+                    <p
+                      className={`py-2.5 text-center text-[0.62rem] tracking-[0.14em] uppercase ${
+                        designId === d.id ? "text-primary-foreground" : "text-cream/70"
+                      }`}
+                    >
                       {t(`designs.${d.id}.title`)}
                     </p>
                   </button>
@@ -1140,10 +1147,10 @@ function Choice({
     <button
       type="button"
       onClick={onClick}
-      className={`surface p-6 text-left transition-colors ${active ? "border-gold" : "hover:border-gold/60"}`}
+      className={`surface p-6 text-left transition-colors ${active ? "border-gold bg-gold" : "hover:border-gold/60"}`}
     >
-      <span className="block font-display text-2xl">{title}</span>
-      <span className="mt-2 block text-sm text-cream/65">{desc}</span>
+      <span className={`block font-display text-2xl ${active ? "text-primary-foreground" : ""}`}>{title}</span>
+      <span className={`mt-2 block text-sm ${active ? "text-primary-foreground/70" : "text-cream/65"}`}>{desc}</span>
     </button>
   );
 }
