@@ -53,6 +53,15 @@ export function OffersSection() {
   // для обоих городов, не блокирует/разблокирует ничего).
   const [activeCity, setActiveCity] = useState<Branch | null>(null);
 
+  // Сумма для перехода в оформление по кнопке внутри панели «Указать
+  // сумму»: своя валидная сумма приоритетнее пресета, иначе — выбранный
+  // пресет.
+  const parsedCustom = Number(customAmount);
+  const effectiveAmount =
+    customAmount && Number.isFinite(parsedCustom) && parsedCustom >= MIN_AMOUNT
+      ? parsedCustom
+      : selectedAmount;
+
   const amountOpen = selection?.kind === "amount";
 
   const toggleAmount = () => setSelection((s) => (s?.kind === "amount" ? null : { kind: "amount" }));
@@ -232,6 +241,33 @@ export function OffersSection() {
                         className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
                       />
                     </label>
+
+                    {/* «Далее» для сценария «сертификат на сумму» — свой,
+                        маленький, справа. Ведёт сразу в оформление на
+                        effectiveAmount, а не к каталогу услуг: это отдельный
+                        сценарий от внешней кнопки «Далее» под всем блоком
+                        (та — для «выбор города → услуги», её не трогаем).
+                        Активна только когда сумма явно выбрана (amountPicked),
+                        как и раньше. */}
+                    <div className="mt-3 flex justify-end">
+                      {amountPicked ? (
+                        <Link
+                          to="/certificate"
+                          search={{ kind: "amount", amount: effectiveAmount }}
+                          className="border-gold bg-gold text-primary-foreground inline-flex items-center rounded-md border px-4 py-2 text-xs tracking-wide transition-opacity hover:opacity-90"
+                        >
+                          {t("cert.nextButton")}
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled
+                          className="border-border bg-card text-cream/40 inline-flex cursor-not-allowed items-center rounded-md border px-4 py-2 text-xs tracking-wide"
+                        >
+                          {t("cert.nextButton")}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
