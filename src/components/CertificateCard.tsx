@@ -1,17 +1,23 @@
-import { CERT_DESIGN_ASPECT, CERT_HEADER_ASPECT, type CertificateDesign } from "@/data/catalog";
+import { CERT_DESIGN_ASPECT, type CertificateDesign } from "@/data/catalog";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 /**
- * Цвет текста на дизайне (номинал, состав, "бессрочный" и т.п.) — зависит от
- * тона дизайна: "dark" — тёмно-золотой текст для светлого бежевого фона
- * (for-her), "light" — светлый бежево-золотой текст для тёмных фонов
- * (бордовый standard, тёмно-зелёный for-him), иначе не читается. Применяется
- * и к строке-эйбрау поверх фото, и ко всему тексту в растягиваемом "теле"
- * карточки ниже — там ровно тот же фоновый цвет, что и на фото (см.
- * design.bodyColor в catalog.ts), поэтому и цвет текста тот же.
+ * Цвет текста внутри рамки (номинал, "бессрочный" и т.п.) — зависит от фона
+ * фото: "dark" — тёмно-золотой текст для светлого бежевого фона (for-her),
+ * "light" — светлый бежево-золотой текст для тёмных фонов (бордовый
+ * standard, тёмно-зелёный for-him), иначе на них не читается.
  */
 const ARCH_INK_DARK = "#3a2a1a";
 const ARCH_INK_LIGHT = "#edcea5";
+
+/**
+ * Начиная с какого числа строк список услуг переключается в режим
+ * внутреннего скролла (Блок 4.2 задачи об увеличении карточки) — сумма и
+ * "бессрочный сертификат" при этом всегда закреплены и видны, скроллится
+ * только сам список. При меньшем числе строк список просто ужимается по
+ * шрифту (см. classNamе ниже) и умещается в safe zone без скролла.
+ */
+const SCROLL_THRESHOLD = 6;
 
 type Props = {
   design: CertificateDesign;
@@ -50,58 +56,77 @@ export function CertificateCard({
 }: Props) {
   const { t } = useLanguage();
   const lines = items && items.length > 0 ? items : null;
+  const { archBox } = design;
   const archInk = design.textTone === "light" ? ARCH_INK_LIGHT : ARCH_INK_DARK;
 
-  // Фото-фон сертификата — цельный файл (арка/лого/линия впечатаны в кадр
-  // заказчиком), нарастить его низ без искажения нельзя. Поэтому картинка
-  // используется только как ШАПКА фиксированной высоты (обрезана снизу
-  // сразу после разделительной линии — CERT_HEADER_ASPECT, см. catalog.ts),
-  // а дальше идёт обычный div, залитый тем же цветом фона, что и на фото
-  // (design.bodyColor) с такой же тонкой золотой рамкой (design.borderColor)
-  // — этот div растёт по высоте (height: auto) вслед за реальным объёмом
-  // текста: 1 услуга — короткий, 5+ услуг — длинный, наложений и обрезки
-  // не может быть в принципе, т.к. содержимого просто не во что упираться.
-  return (
-    <div className={`w-full ${className}`} style={{ boxShadow: "0 24px 60px -30px rgba(0,0,0,0.75)" }}>
-      {/* Шапка — обрезанный кроп картинки (арка, лого RaiThai, линия). */}
-      <div
-        className="relative w-full overflow-hidden rounded-t-2xl"
-        style={{ aspectRatio: CERT_HEADER_ASPECT }}
-      >
-        {/* Сама картинка рендерится в СВОИХ полных пропорциях (CERT_DESIGN_ASPECT,
-            т.е. на всю высоту сертификата) и просто обрезается родителем,
-            у которого высота — только доля CERT_HEADER_ASPECT. object-position:
-            top — показывает верх картинки (то, что нужно), не центр. */}
-        <img
-          src={design.photo}
-          alt=""
-          aria-hidden="true"
-          width={461}
-          height={801}
-          className="absolute top-0 left-0 w-full object-contain object-top"
-          style={{ aspectRatio: CERT_DESIGN_ASPECT, height: "auto" }}
-        />
+  // Один цельный файл дизайна (без нарезки на части) — растягивать/резать
+  // картинку нельзя. Вместо этого: сама карточка отображается крупнее (см.
+  // className в certificate.tsx, где задаётся max-width превью), а
+  // текстовый блок строго внутри реальных границ золотой рамки на фото
+  // (archBox — измерено попиксельно, см. catalog.ts), с шрифтом, который
+  // сам подстраивается под число строк услуг — чем больше позиций, тем
+  // мельче текст, но не мельче ~10-11px. Если и это не спасает (6+ услуг),
+  // скроллится только сам список услуг, сумма и "бессрочный" всегда видны.
+  const lineCount = lines?.length ?? 0;
+  const useScroll = lineCount >= SCROLL_THRESHOLD;
+  const itemsFontClass = compact
+    ? "text-[0.6rem]"
+    : lineCount <= 2
+      ? "text-sm sm:text-base"
+      : lineCount <= 4
+        ? "text-xs sm:text-sm"
+        : "text-[0.65rem] sm:text-[0.7rem]";
 
-        {/* «Подарочный сертификат» — единственная строка, которая печатается
-            поверх фото: она всегда ровно одна и той же длины независимо от
-            состава сертификата, переполниться не может ни при каких услугах. */}
+  return (
+    <div
+      className={`relative w-full overflow-hidden rounded-2xl ${className}`}
+      style={{ aspectRatio: CERT_DESIGN_ASPECT, boxShadow: "0 24px 60px -30px rgba(0,0,0,0.75)" }}
+    >
+      {/* Логотип, рамка, арка и золотая плашка с названием — всё уже
+          впечатано в фото заказчиком, это часть дизайна, не обрезаем и не
+          растягиваем. object-fit: contain — показывает фото целиком без
+          обрезки на любом из трёх дизайнов, даже с чуть разными
+          пропорциями файлов (см. CERT_DESIGN_ASPECT в catalog.ts). */}
+      <img
+        src={design.photo}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        width={461}
+        height={801}
+        className="absolute inset-0 h-full w-full object-contain object-center"
+      />
+
+      {/* Текстовый блок — строго внутри измеренных границ золотой рамки
+          (archBox), координаты свои под каждое фото (декор не симметричен).
+          grid-rows: auto-1fr-auto — эйбрау и низ (сумма/пожелание/
+          получатель/филиал/бессрочный) всегда полностью видны, список
+          услуг — средний ряд, при коротком контенте просто центрируется
+          вместе с остальным (align-content: center на всём блоке), при
+          длинном (useScroll) — сам список получает свой скролл, не толкая
+          сумму за пределы рамки. */}
+      <div
+        className={`absolute flex flex-col items-center overflow-hidden text-center ${useScroll ? "" : "justify-center"}`}
+        style={{
+          top: `${archBox.top}%`,
+          height: `${archBox.bottom - archBox.top}%`,
+          left: `${archBox.centerX}%`,
+          width: `${archBox.width}%`,
+          transform: "translateX(-50%)",
+          color: archInk,
+        }}
+      >
         <p
-          className={`font-display absolute right-0 bottom-[6%] left-0 text-center tracking-[0.28em] uppercase opacity-75 ${compact ? "text-[0.5rem]" : "text-[0.6rem]"}`}
-          style={{ color: archInk }}
+          className={`font-display shrink-0 tracking-[0.28em] uppercase opacity-75 ${compact ? "text-[0.5rem]" : "text-[0.6rem]"}`}
         >
           {t("cert.cardEyebrow")}
         </p>
-      </div>
 
-      {/* Тело — растягиваемый CSS-блок, залитый цветом фона дизайна, с той
-          же рамкой, что и на фото. Весь динамический текст — тут. */}
-      <div
-        className={`flex flex-col items-center rounded-b-2xl border-x border-b text-center ${compact ? "px-3 py-3" : "px-6 py-5"}`}
-        style={{ backgroundColor: design.bodyColor, borderColor: design.borderColor, color: archInk }}
-      >
         {lines ? (
           <ul
-            className={`font-display flex flex-col leading-[1.3] italic ${compact ? "text-xs" : "text-sm sm:text-base"}`}
+            className={`font-display mt-1 flex w-full flex-col leading-[1.25] italic ${itemsFontClass} ${
+              useScroll ? "no-scrollbar min-h-0 flex-1 overflow-y-auto" : "shrink-0"
+            }`}
           >
             {lines.map((line) => (
               <li key={line}>{line}</li>
@@ -109,13 +134,13 @@ export function CertificateCard({
           </ul>
         ) : null}
         <p
-          className={`font-display shrink-0 leading-[1.1] italic ${lines ? "mt-1.5" : ""} ${compact ? "text-base" : "text-xl sm:text-2xl"}`}
+          className={`font-display mt-1 shrink-0 leading-[1.1] italic ${compact ? "text-base" : "text-xl sm:text-2xl"}`}
         >
           {valueLabel}
         </p>
 
         {/* Пожелание — то, что пользователь ввёл в форме; если поле пустое,
-            дальше строки просто нет. */}
+            дальше строки просто нет (эйбрау выше уже несёт роль подписи). */}
         {message && (
           <p
             className={`font-display mt-2 shrink-0 leading-snug italic opacity-90 ${compact ? "text-[0.65rem]" : "text-sm"}`}
