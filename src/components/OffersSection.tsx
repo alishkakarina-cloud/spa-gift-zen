@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Divider } from "@/components/Divider";
 import { Motif } from "@/components/Motif";
@@ -53,9 +53,8 @@ export function OffersSection() {
   // для обоих городов, не блокирует/разблокирует ничего).
   const [activeCity, setActiveCity] = useState<Branch | null>(null);
 
-  // Сумма для перехода в оформление по кнопке внутри панели «Указать
-  // сумму»: своя валидная сумма приоритетнее пресета, иначе — выбранный
-  // пресет.
+  // Сумма для перехода в оформление сертификата на сумму: своя валидная
+  // сумма приоритетнее пресета, иначе — выбранный пресет.
   const parsedCustom = Number(customAmount);
   const effectiveAmount =
     customAmount && Number.isFinite(parsedCustom) && parsedCustom >= MIN_AMOUNT
@@ -66,18 +65,30 @@ export function OffersSection() {
 
   const toggleAmount = () => setSelection((s) => (s?.kind === "amount" ? null : { kind: "amount" }));
 
-  // Кнопка «Далее» под рядом город/город/сумма — НЕ прячет и не блокирует
-  // каталог (он как был всегда виден сразу под этим рядом по сегодняшней
-  // сверке с layan.kz, так и остаётся), а просто докручивает к нему для тех,
-  // кто предпочитает клик скроллу. Активна после явного выбора города ИЛИ
-  // суммы — клик по городу по-прежнему только подсветка, ничего больше не
-  // блокирует и не меняет. Цель скролла — "categories-block" внутри
-  // ServiceCatalogBrowser (карусель категорий + заголовок текущей категории),
-  // а не верх раздела «Каталог» — так после клика сразу видно категории и
-  // карточки услуг, без галереи и общего заголовка над ними.
-  const canProceedToCatalog = activeCity !== null || amountPicked;
-  const scrollToCatalog = () =>
+  // Единственная кнопка «Далее» ведёт по одному из двух сценариев в
+  // зависимости от того, что выбрал пользователь — город (→ выбор услуг,
+  // докрутка к каталогу) или сумму (→ оформление сертификата на эту сумму).
+  // Если выбрано и то, и другое — по явному решению владельца (2026-08-22)
+  // побеждает то, что было выбрано последним, поэтому здесь же трекается
+  // lastChoice, а не просто "город всегда/сумма всегда".
+  const navigate = useNavigate();
+  const [lastChoice, setLastChoice] = useState<"city" | "amount" | null>(null);
+  const canGoCity = activeCity !== null;
+  const canGoAmount = amountPicked;
+  const canProceed = canGoCity || canGoAmount;
+  const targetIsAmount = canGoAmount && (!canGoCity || lastChoice === "amount");
+  const handleNext = () => {
+    if (!canProceed) return;
+    if (targetIsAmount) {
+      navigate({ to: "/certificate", search: { kind: "amount", amount: effectiveAmount } });
+      return;
+    }
+    // Цель скролла — "categories-block" внутри ServiceCatalogBrowser
+    // (карусель категорий + заголовок текущей категории), а не верх раздела
+    // «Каталог» — так после клика сразу видно категории и карточки услуг,
+    // без галереи и общего заголовка над ними.
     document.getElementById("categories-block")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <>
@@ -121,7 +132,10 @@ export function OffersSection() {
                 <button
                   key={b.id}
                   type="button"
-                  onClick={() => setActiveCity(b.id)}
+                  onClick={() => {
+                    setActiveCity(b.id);
+                    setLastChoice("city");
+                  }}
                   aria-pressed={selected}
                   className={`surface px-6 py-4 text-left transition-colors ${
                     selected ? "border-gold!" : "hover:border-gold/60"
@@ -197,6 +211,7 @@ export function OffersSection() {
                             setSelectedAmount(a);
                             setCustomAmount("");
                             setAmountPicked(true);
+                            setLastChoice("amount");
                           }}
                           aria-pressed={amountPicked && !customAmount && selectedAmount === a}
                           className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
@@ -234,56 +249,31 @@ export function OffersSection() {
                           // (меньше MIN_AMOUNT) — явно снимаем выбор.
                           if (next) {
                             const v = Number(next);
-                            setAmountPicked(Number.isFinite(v) && v >= MIN_AMOUNT);
+                            const valid = Number.isFinite(v) && v >= MIN_AMOUNT;
+                            setAmountPicked(valid);
+                            if (valid) setLastChoice("amount");
                           }
                         }}
                         placeholder={String(MIN_AMOUNT)}
                         className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
                       />
                     </label>
-
-                    {/* «Далее» для сценария «сертификат на сумму» — свой,
-                        маленький, справа. Ведёт сразу в оформление на
-                        effectiveAmount, а не к каталогу услуг: это отдельный
-                        сценарий от внешней кнопки «Далее» под всем блоком
-                        (та — для «выбор города → услуги», её не трогаем).
-                        Активна только когда сумма явно выбрана (amountPicked),
-                        как и раньше. */}
-                    <div className="mt-3 flex justify-end">
-                      {amountPicked ? (
-                        <Link
-                          to="/certificate"
-                          search={{ kind: "amount", amount: effectiveAmount }}
-                          className="border-gold bg-gold text-primary-foreground inline-flex items-center rounded-md border px-4 py-2 text-xs tracking-wide transition-opacity hover:opacity-90"
-                        >
-                          {t("cert.nextButton")}
-                        </Link>
-                      ) : (
-                        <button
-                          type="button"
-                          disabled
-                          className="border-border bg-card text-cream/40 inline-flex cursor-not-allowed items-center rounded-md border px-4 py-2 text-xs tracking-wide"
-                        >
-                          {t("cert.nextButton")}
-                        </button>
-                      )}
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ── «Далее» под рядом город/город/сумма — только докручивает к
-              каталогу ниже (он остаётся всегда видимым, ничего не прячет и
-              не блокирует — см. комментарий про layan.kz под каталогом).
-              Активна, когда выбран город ИЛИ явно указана сумма. ────────── */}
+          {/* ── Единственная кнопка «Далее» под рядом город/город/сумма —
+              ведёт к каталогу услуг (город) либо в оформление на сумму
+              (сумма), см. handleNext выше. Активна, когда выбран город ИЛИ
+              явно указана сумма. ─────────────────────────────────────── */}
           <div className="mt-6 flex justify-center">
             <button
               type="button"
-              onClick={scrollToCatalog}
-              disabled={!canProceedToCatalog}
-              className={`btn-gold inline-flex ${canProceedToCatalog ? "" : "cursor-not-allowed opacity-40"}`}
+              onClick={handleNext}
+              disabled={!canProceed}
+              className={`btn-gold inline-flex ${canProceed ? "" : "cursor-not-allowed opacity-40"}`}
             >
               {t("cert.nextButton")}
             </button>
