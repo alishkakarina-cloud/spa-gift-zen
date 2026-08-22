@@ -116,6 +116,12 @@ function CertificateFlow() {
   // услуг), следующий за выбором шаг фактически никогда не показывался.
   const hasPreset = Boolean(presetIds.length > 0 || presetAmount);
   const [step, setStep] = useState<Step>(hasPreset ? 2 : 1);
+  // Пользователь зашёл в каталог (шаг 1) не с нуля, а через «Выбрать
+  // доп.услуги» с шага 2 — показываем плавающую кнопку возврата и не даём
+  // обычным кнопкам шага 1 затереть kind/serviceIds уже начатого заказа.
+  // Объявлено здесь (выше остальных состояний шага 1), т.к. нужно уже в
+  // эффекте скролла ниже.
+  const [addingExtraServices, setAddingExtraServices] = useState(false);
 
   /**
    * Переключение шага (next/back) — это setStep, а не переход по роуту, URL
@@ -127,8 +133,16 @@ function CertificateFlow() {
    * пользователя визуально бросало к футеру/FAQ, а не к началу формы.
    */
   useEffect(() => {
+    // Заход в каталог через «Выбрать доп.услуги» (шаг 2 -> шаг 1) — не в
+    // самый верх страницы (там блок город/сумма, уже выбранный и тут не
+    // нужный), а сразу к разделу «КАТЕГОРИИ» — та же точка, куда ведёт
+    // «Далее» на обычном шаге 1 при выборе города (см. handleStep1Next).
+    if (step === 1 && addingExtraServices) {
+      document.getElementById("categories-block")?.scrollIntoView();
+      return;
+    }
     window.scrollTo(0, 0);
-  }, [step]);
+  }, [step, addingExtraServices]);
   // Пришли с конкретной услугой (?services=) — сразу «service», иначе
   // амаунт по умолчанию; клик по каталогу/сумме на шаге 1 ниже переключает
   // явно (см. кнопки «Подарить»/«Далее»), а не наоборот.
@@ -142,10 +156,6 @@ function CertificateFlow() {
   // (см. onToggle каталога ниже) — там расчёт суммы и так уже поддерживает
   // несколько позиций, отдельного списка не требуется.
   const [extraServiceIds, setExtraServiceIds] = useState<string[]>([]);
-  // Пользователь зашёл в каталог (шаг 1) не с нуля, а через «Выбрать
-  // доп.услуги» с шага 2 — показываем плавающую кнопку возврата и не даём
-  // обычным кнопкам шага 1 затереть kind/serviceIds уже начатого заказа.
-  const [addingExtraServices, setAddingExtraServices] = useState(false);
   const [amount, setAmount] = useState<number>(presetAmount ?? fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
   // Активирует собственную кнопку «Далее» под панелью суммы (см. JSX шага 1)
@@ -789,18 +799,13 @@ function CertificateFlow() {
                     }
                     t={t}
                     action={
-                      addingExtraServices ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAddingExtraServices(false);
-                            setStep(2);
-                          }}
-                          className="btn-gold"
-                        >
-                          {t("cert.returnToOrderButton")}
-                        </button>
-                      ) : (
+                      // В режиме доп.услуг возврат уже обеспечивает внешняя
+                      // плавающая кнопка «Вернуться к оформлению» (видна
+                      // всегда, а не только когда что-то выбрано, как этот
+                      // action внутри «Выбрано/Итого») — тут дублировать её
+                      // не нужно, блок «Выбрано/Итого» остаётся как есть,
+                      // просто без второй такой же кнопки.
+                      addingExtraServices ? null : (
                         <button
                           type="button"
                           onClick={() => {
