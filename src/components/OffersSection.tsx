@@ -45,21 +45,13 @@ export function OffersSection() {
   // своей — открытие панели само по себе выбором не считается.
   const [amountPicked, setAmountPicked] = useState(false);
 
-  // Город — клик только выбирает/подсвечивает, сам по себе никуда не
-  // ведёт. Переход к каталогу — общей кнопкой «Далее» ниже (см.
-  // scrollToServices), неактивной, пока не выбран ни город, ни сумма.
-  // Город и сумма — взаимоисключающие варианты одного и того же
-  // трёхпунктового переключателя (см. комментарий у return ниже): выбор
-  // одного снимает выбор другого, иначе для одной кнопки «Далее» было бы
-  // неясно, куда вести при выбранных обоих сразу.
+  // Город — структура точно по layan.kz (проверено вживую 2026-08-22):
+  // там кнопки города/суммы — верхний ряд переключателей ЧИСТО визуальный,
+  // каталог услуг открыт сразу под ними на той же странице, без перехода/
+  // скролла/кнопки «Далее» между ними. Клик по городу — только подсветка,
+  // ни на что больше не влияет (не фильтрует каталог — он один и тот же
+  // для обоих городов, не блокирует/разблокирует ничего).
   const [activeCity, setActiveCity] = useState<Branch | null>(null);
-  const scrollToServices = () =>
-    document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" });
-
-  const pickCity = (id: Branch) => {
-    setActiveCity(id);
-    setAmountPicked(false);
-  };
 
   const parsedCustom = Number(customAmount);
   const effectiveAmount =
@@ -73,12 +65,16 @@ export function OffersSection() {
 
   return (
     <>
-      {/* ── Выбор: город или сумма — три равноправных пункта-переключателя.
-          Переход к мастеру — только по «Далее» внизу, не по самим кнопкам
-          (по образцу layan.kz). ─────────────────────────────────────────── */}
+      {/* ── Ряд переключателей (город/город/сумма) + каталог услуг сразу под
+          ним, одним непрерывным блоком — точная структура layan.kz
+          (buy-certificate: ряд кнопок → каталог с ценами сразу под ним,
+          без перехода). Клик по городу — чистая подсветка. Клик по услуге
+          в каталоге сам решает, что делать (см. ServiceCatalogBrowser) —
+          этот компонент их поведение не трогает. «Указать сумму» — свой
+          отдельный путь со своей кнопкой «Далее» в конце блока. ────────── */}
       <section id="buy" className="relative overflow-hidden">
         <Divider motif="waveCrown" className="pt-12 sm:pt-16 lg:pt-20" />
-        <div className="relative mx-auto max-w-5xl px-5 pt-10 pb-12 sm:px-6 sm:pt-12 sm:pb-16">
+        <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-24">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Motif name="petalDiamond" className="text-gold h-7 w-7" />
@@ -101,7 +97,7 @@ export function OffersSection() {
                 <button
                   key={b.id}
                   type="button"
-                  onClick={() => pickCity(b.id)}
+                  onClick={() => setActiveCity(b.id)}
                   aria-pressed={selected}
                   className={`surface p-6 text-left transition-colors ${
                     selected ? "border-gold bg-gold/10" : "hover:border-gold/60"
@@ -156,7 +152,6 @@ export function OffersSection() {
                             setSelectedAmount(a);
                             setCustomAmount("");
                             setAmountPicked(true);
-                            setActiveCity(null);
                           }}
                           aria-pressed={amountPicked && !customAmount && selectedAmount === a}
                           className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
@@ -194,9 +189,7 @@ export function OffersSection() {
                           // (меньше MIN_AMOUNT) — явно снимаем выбор.
                           if (next) {
                             const v = Number(next);
-                            const valid = Number.isFinite(v) && v >= MIN_AMOUNT;
-                            setAmountPicked(valid);
-                            if (valid) setActiveCity(null);
+                            setAmountPicked(Number.isFinite(v) && v >= MIN_AMOUNT);
                           }
                         }}
                         placeholder={String(MIN_AMOUNT)}
@@ -209,73 +202,66 @@ export function OffersSection() {
             </div>
           </div>
 
-          {/* Одна общая «Далее» на все три пункта переключателя выше — город
-              и сумма взаимоисключающие (см. pickCity/onClick сумм: выбор
-              одного снимает выбор другого), поэтому в любой момент активен
-              максимум один путь. Сумма выбрана → ведёт в мастер оформления
-              (Link). Город выбран → доскраливает к каталогу услуг тут же
-              на странице (обычная кнопка, не переход). Ничего не выбрано →
-              неактивна. */}
+          {/* ── Каталог услуг — по структуре layan.kz (проверено вживую
+              2026-08-22): открыт сразу под рядом город/город/сумма, без
+              перехода, скролла или кнопки между ними — тот же компонент,
+              что и на шаге 1 мастера оформления, единый источник правды по
+              ценам и описаниям. ──────────────────────────────────────── */}
+          <div className="mt-12">
+            <div className="flex items-center gap-3">
+              <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
+              <p className="eyebrow">{t("catalog.title")}</p>
+            </div>
+            <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
+              {t("catalog.title")}
+            </h2>
+            <p className="text-cream/65 mt-3 max-w-lg text-sm leading-relaxed">
+              {t("catalog.subtitle")}
+            </p>
+
+            <a href={spaMenuPdfFor()} download className="btn-ghost mt-5 text-[0.62rem]">
+              {t("catalog.menuButton")}
+            </a>
+
+            <div className="mt-10">
+              <ServiceCatalogBrowser
+                groupId={servicesGroupId}
+                onGroupChange={setServicesGroupId}
+                selectedIds={selectedServiceIds}
+                onToggle={toggleService}
+                onClear={clearServices}
+                t={t}
+                action={
+                  <Link
+                    to="/certificate"
+                    search={{ services: serializeServiceIds(selectedServiceIds) }}
+                    className="btn-gold"
+                  >
+                    {t("cert.giftButton")}
+                  </Link>
+                }
+              />
+            </div>
+          </div>
+
+          {/* «Указать сумму» — самостоятельный путь, не связан с каталогом
+              выше (Блок 3.3 задачи 2026-08-22: работает как раньше).
+              Неактивна, пока сумма не выбрана явно (см. amountPicked). */}
           {selection?.kind === "amount" && amountPicked ? (
             <Link
               to="/certificate"
               search={{ kind: "amount", amount: effectiveAmount }}
-              className="btn-gold mt-8"
+              className="btn-gold mt-10"
             >
               {t("cert.nextButton")}
             </Link>
-          ) : activeCity ? (
-            <button type="button" onClick={scrollToServices} className="btn-gold mt-8">
-              {t("cert.nextButton")}
-            </button>
           ) : (
-            <button type="button" disabled className="btn-gold mt-8 cursor-not-allowed opacity-40">
-              {t("cert.nextButton")}
-            </button>
+            selection?.kind === "amount" && (
+              <button type="button" disabled className="btn-gold mt-10 cursor-not-allowed opacity-40">
+                {t("cert.nextButton")}
+              </button>
+            )
           )}
-        </div>
-      </section>
-
-      {/* ── Каталог услуг — тот же компонент, что и на шаге 1 мастера
-          оформления (/certificate) — единый источник правды по ценам и
-          описаниям. ────────────────────────────────────────────────────── */}
-      <section id="services" className="relative overflow-hidden">
-        <Divider motif="swirlLeaf" className="pt-8 sm:pt-10" />
-        <div className="relative mx-auto max-w-6xl px-5 pt-6 pb-16 sm:px-6 sm:pb-24">
-          <div className="flex items-center gap-3">
-            <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
-            <p className="eyebrow">{t("catalog.title")}</p>
-          </div>
-          <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
-            {t("catalog.title")}
-          </h2>
-          <p className="text-cream/65 mt-3 max-w-lg text-sm leading-relaxed">
-            {t("catalog.subtitle")}
-          </p>
-
-          <a href={spaMenuPdfFor()} download className="btn-ghost mt-5 text-[0.62rem]">
-            {t("catalog.menuButton")}
-          </a>
-
-          <div className="mt-10">
-            <ServiceCatalogBrowser
-              groupId={servicesGroupId}
-              onGroupChange={setServicesGroupId}
-              selectedIds={selectedServiceIds}
-              onToggle={toggleService}
-              onClear={clearServices}
-              t={t}
-              action={
-                <Link
-                  to="/certificate"
-                  search={{ services: serializeServiceIds(selectedServiceIds) }}
-                  className="btn-gold"
-                >
-                  {t("cert.giftButton")}
-                </Link>
-              }
-            />
-          </div>
         </div>
       </section>
     </>
