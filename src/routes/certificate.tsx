@@ -135,6 +135,17 @@ function CertificateFlow() {
   const [kind, setKind] = useState<Kind>(presetKind ?? (presetIds.length > 0 ? "service" : "amount"));
   const [groupId, setGroupId] = useState<CatalogGroup>(presetFirst?.group ?? "massage");
   const [serviceIds, setServiceIds] = useState<string[]>(presetIds);
+  // Доп.услуги, добавленные к уже оформляемому сертификату «на сумму»
+  // (кнопка «Выбрать доп.услуги» на шаге 2) — отдельный список, а не тот же
+  // serviceIds: тот привязан к режиму «на услугу» и его логику трогать не
+  // нужно. Для режима «на услугу» доп.услуги добавляются прямо в serviceIds
+  // (см. onToggle каталога ниже) — там расчёт суммы и так уже поддерживает
+  // несколько позиций, отдельного списка не требуется.
+  const [extraServiceIds, setExtraServiceIds] = useState<string[]>([]);
+  // Пользователь зашёл в каталог (шаг 1) не с нуля, а через «Выбрать
+  // доп.услуги» с шага 2 — показываем плавающую кнопку возврата и не даём
+  // обычным кнопкам шага 1 затереть kind/serviceIds уже начатого заказа.
+  const [addingExtraServices, setAddingExtraServices] = useState(false);
   const [amount, setAmount] = useState<number>(presetAmount ?? fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
   // Активирует собственную кнопку «Далее» под панелью суммы (см. JSX шага 1)
@@ -203,14 +214,27 @@ function CertificateFlow() {
 
   const design = designs.find((d) => d.id === designId)!;
   const chosen = selectedServices(serviceIds);
+  // Доп.услуги поверх сертификата «на сумму» — сумма и услуги хранятся
+  // раздельно (номинал остаётся номиналом), но складываются в общий итог.
+  const extraChosen = selectedServices(extraServiceIds);
+  const extraTotal = selectionTotal(extraServiceIds);
   const effectiveAmount = customAmount ? Number(customAmount) : amount;
-  const total = kind === "service" ? selectionTotal(serviceIds) : effectiveAmount;
+  const total =
+    kind === "service" ? selectionTotal(serviceIds) : effectiveAmount + extraTotal;
   // На бланке сертификата состав печатается списком названий; сертификат на
-  // сумму — одной строкой с номиналом.
+  // сумму без доп.услуг — одной строкой с номиналом. Если к сертификату «на
+  // сумму» добавили доп.услуги — номинал идёт первой строкой списка (Блок 2,
+  // «хранить раздельно»), дальше — добавленные услуги, тем же списком, что
+  // и у обычного сертификата «на услугу».
   const cardItems =
     kind === "service" && chosen.length > 0
       ? chosen.map((s) => t(`services.${s.id}.name`))
-      : undefined;
+      : extraChosen.length > 0
+        ? [
+            t("cert.nominalLineLabel", { amount: formatPrice(effectiveAmount) }),
+            ...extraChosen.map((s) => t(`services.${s.id}.name`)),
+          ]
+        : undefined;
   const valueLabel = formatPrice(total || 0);
   const buyerFullName = `${buyerFirstName} ${buyerLastName}`.trim();
   // «Покупаю для себя» — получатель и отправитель берутся из данных покупателя.
@@ -241,7 +265,10 @@ function CertificateFlow() {
     if (!canProceedStep1) return;
     if (targetIsAmountStep1) {
       setErrors([]);
-      setKind("amount");
+      // В режиме «Выбрать доп.услуги» (addingExtraServices) сюда попадают,
+      // только если случайно тронули блок город/сумма — kind уже начатого
+      // заказа трогать не нужно, просто вернуться на шаг 2.
+      if (!addingExtraServices) setKind("amount");
       setStep(2);
       return;
     }
@@ -407,7 +434,11 @@ function CertificateFlow() {
           designId,
           message: message.trim() || null,
           // Состав сертификата на момент покупки — раньше нигде не
-          // сохранялся, хотя форма его собирает (chosen).
+          // сохранялся, хотя форма его собирает (chosen). Для сертификата
+          // «на сумму» с добавленными доп.услугами номинал уходит первой
+          // строкой состава (та же «раздельно, но в одном списке» логика,
+          // что и в cardItems/сводке выше) — amount ниже уже несёт
+          // объединённый итог (total), это не меняет расчёт на бэкенде.
           services:
             kind === "service" && chosen.length > 0
               ? chosen.map((s) => ({
@@ -415,7 +446,20 @@ function CertificateFlow() {
                   name: t(`services.${s.id}.name`),
                   price: s.price,
                 }))
-              : null,
+              : kind === "amount" && extraChosen.length > 0
+                ? [
+                    {
+                      id: "nominal",
+                      name: t("cert.nominalLineLabel", { amount: formatPrice(effectiveAmount) }),
+                      price: effectiveAmount,
+                    },
+                    ...extraChosen.map((s) => ({
+                      id: s.id,
+                      name: t(`services.${s.id}.name`),
+                      price: s.price,
+                    })),
+                  ]
+                : null,
         }),
       });
       const data = (await response.json()) as {
@@ -727,25 +771,48 @@ function CertificateFlow() {
                   <ServiceCatalogBrowser
                     groupId={groupId}
                     onGroupChange={setGroupId}
-                    selectedIds={serviceIds}
+                    // Пока добавляем доп.услуги к сертификату «на сумму» —
+                    // отмечаем/считаем их в extraServiceIds, а не в
+                    // serviceIds (тот остаётся логикой обычного сертификата
+                    // «на услугу», см. комментарий у объявления состояния).
+                    selectedIds={kind === "amount" ? extraServiceIds : serviceIds}
                     onToggle={(id) => {
-                      setServiceIds((ids) => toggleServiceId(ids, id));
+                      if (kind === "amount") {
+                        setExtraServiceIds((ids) => toggleServiceId(ids, id));
+                      } else {
+                        setServiceIds((ids) => toggleServiceId(ids, id));
+                      }
                       setErrors([]);
                     }}
-                    onClear={() => setServiceIds([])}
+                    onClear={() =>
+                      kind === "amount" ? setExtraServiceIds([]) : setServiceIds([])
+                    }
                     t={t}
                     action={
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setErrors([]);
-                          setKind("service");
-                          setStep(2);
-                        }}
-                        className="btn-gold"
-                      >
-                        {t("cert.giftButton")}
-                      </button>
+                      addingExtraServices ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAddingExtraServices(false);
+                            setStep(2);
+                          }}
+                          className="btn-gold"
+                        >
+                          {t("cert.returnToOrderButton")}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setErrors([]);
+                            setKind("service");
+                            setStep(2);
+                          }}
+                          className="btn-gold"
+                        >
+                          {t("cert.giftButton")}
+                        </button>
+                      )
                     }
                   />
                 </div>
@@ -935,7 +1002,15 @@ function CertificateFlow() {
                     />
                   ))
                 ) : (
-                  <Row k={t("cert.rowNominal")} v={formatPrice(total || 0)} />
+                  <>
+                    <Row k={t("cert.rowNominal")} v={formatPrice(effectiveAmount || 0)} />
+                    {/* Доп.услуги, добавленные через «Выбрать доп.услуги» —
+                        отдельными строками рядом с номиналом (хранятся и
+                        показываются раздельно, суммируются только в «Итого»). */}
+                    {extraChosen.map((s) => (
+                      <Row key={s.id} k={t(`services.${s.id}.name`)} v={formatPrice(s.price)} />
+                    ))}
+                  </>
                 )}
                 <Row k={t("cert.rowBranch")} v={branchLabel} />
                 <Row k={t("cert.rowTotal")} v={formatPrice(total || 0)} />
@@ -1221,7 +1296,11 @@ function CertificateFlow() {
           JSX шага 1 выше) с собственной логикой город/сумма, и отдельная
           «Подарить» под каталогом услуг. */}
       {step > 1 && step < 5 && step !== 4 && (
-        <div className="mt-10 flex items-center gap-3">
+        // justify-between — «Назад» у левого края контейнера, «Далее» у
+        // правого: равное расстояние от каждой кнопки до края, вместо
+        // прежнего gap-3 (обе кнопки жались к левому краю, «Далее» не была
+        // выровнена по правому краю контейнера — Блок 1 задачи на правку кнопок).
+        <div className="mt-10 flex items-center justify-between">
           <button
             type="button"
             onClick={back}
@@ -1241,10 +1320,46 @@ function CertificateFlow() {
           </button>
         </div>
       )}
+
+      {/* «Выбрать доп.услуги» — только на экране просмотра заказа (шаг 2,
+          «Оформление»), одинаково доступна и для сертификата «на услугу»,
+          и «на сумму» (Блок 2.5). Ведёт в тот же каталог, что и на шаге 1. */}
+      {step === 2 && (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={() => {
+              setAddingExtraServices(true);
+              setStep(1);
+            }}
+            className="btn-beige"
+          >
+            {t("cert.addExtraServicesButton")}
+          </button>
+        </div>
+      )}
       {step === 4 && invoicePhase === "choose" && (
         <div className="mt-6">
           <button type="button" onClick={back} className="btn-ghost">
             {t("cert.backButton")}
+          </button>
+        </div>
+      )}
+
+      {/* Плавающая кнопка возврата — видна только когда в каталог (шаг 1)
+          зашли именно через «Выбрать доп.услуги» с шага 2 (Блок 2.3),
+          а не с нуля. Зафиксирована внизу экрана, поверх любого скролла. */}
+      {step === 1 && addingExtraServices && (
+        <div className="fixed inset-x-0 bottom-6 z-40 flex justify-center px-6 print:hidden">
+          <button
+            type="button"
+            onClick={() => {
+              setAddingExtraServices(false);
+              setStep(2);
+            }}
+            className="btn-gold shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)]"
+          >
+            {t("cert.returnToOrderButton")}
           </button>
         </div>
       )}
