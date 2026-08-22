@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
@@ -6,7 +6,9 @@ import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
 import { Motif } from "@/components/Motif";
 import { Divider } from "@/components/Divider";
-import { BRANCHES, type Branch } from "@/data/branches";
+import { ServiceCatalogBrowser } from "@/components/ServiceCatalogBrowser";
+import { BRANCHES, spaMenuPdfFor, type Branch } from "@/data/branches";
+import type { CatalogGroup } from "@/data/serviceGroups";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
 import { MIN_AMOUNT, designs, fixedAmounts, formatPrice } from "@/data/catalog";
@@ -16,6 +18,7 @@ import {
   selectedServices,
   selectionTotal,
   serializeServiceIds,
+  toggleServiceId,
 } from "@/data/selection";
 
 type CertificateSearch = {
@@ -103,6 +106,7 @@ function CertificateFlow() {
   // Пришли с /catalog или из коммерческого блока главной — открываем шаг 1
   // сразу на нужном варианте и с отмеченными услугами либо номиналом.
   const presetIds = parseServiceIds(presetServices);
+  const presetFirst = selectedServices(presetIds)[0] ?? null;
   const steps = translations[lang].cert.steps;
   // Пришли с готовым выбором («Подарить» под сводкой) — пропускаем только
   // экран выбора услуги/суммы (шаг 1), а не весь путь целиком. Шаг 2
@@ -112,22 +116,6 @@ function CertificateFlow() {
   // услуг), следующий за выбором шаг фактически никогда не показывался.
   const hasPreset = Boolean(presetIds.length > 0 || presetAmount);
   const [step, setStep] = useState<Step>(hasPreset ? 2 : 1);
-
-  /**
-   * Прямой заход на /certificate без пресета (без города/суммы/услуги в
-   * URL) раньше показывал собственный шаг 1 этого компонента (город/сумма/
-   * каталог) — с 2026-08-22 это дублирующая, менее декорированная копия
-   * того же экрана «Выберите сертификат», который теперь единственно живёт
-   * на главной (OffersSection, id="buy"). Редиректим туда вместо показа
-   * дубликата; сам JSX шага 1 ниже (step === 1) оставлен нетронутым как
-   * запасной вариант на случай сбоя редиректа — реального пользователя он
-   * больше не должен встречать.
-   */
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!hasPreset) navigate({ to: "/", hash: "buy" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   /**
    * Переключение шага (next/back) — это setStep, а не переход по роуту, URL
@@ -141,13 +129,12 @@ function CertificateFlow() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [step]);
-  // «На любую услугу» убрана как переключатель на шаге 1 (правка 2026-08-22)
-  // — «Указать сумму» единственный путь без пресета. Выбор конкретной
-  // услуги по-прежнему доступен из каталога услуг на сайте (ведёт сюда с
-  // ?services=..., минуя этот шаг целиком через hasPreset выше) — поэтому
-  // дефолт всё равно должен уважать presetIds, а не всегда быть "amount".
-  const [kind] = useState<Kind>(presetKind ?? (presetIds.length > 0 ? "service" : "amount"));
-  const [serviceIds] = useState<string[]>(presetIds);
+  // Пришли с конкретной услугой (?services=) — сразу «service», иначе
+  // амаунт по умолчанию; клик по каталогу/сумме на шаге 1 ниже переключает
+  // явно (см. кнопки «Подарить»/«Далее»), а не наоборот.
+  const [kind, setKind] = useState<Kind>(presetKind ?? (presetIds.length > 0 ? "service" : "amount"));
+  const [groupId, setGroupId] = useState<CatalogGroup>(presetFirst?.group ?? "massage");
+  const [serviceIds, setServiceIds] = useState<string[]>(presetIds);
   const [amount, setAmount] = useState<number>(presetAmount ?? fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
   // Активирует собственную кнопку «Далее» под панелью суммы (см. JSX шага 1)
@@ -155,6 +142,11 @@ function CertificateFlow() {
   // сами по себе выбором не считаются (тот же принцип и баг, что уже
   // исправляли в OffersSection, см. src/components/OffersSection.tsx).
   const [amountPicked, setAmountPicked] = useState(false);
+  // Аккордеон «Указать сумму» (правка 2026-08-22, возврат на отдельную
+  // страницу покупки: город/сумма + каталог снова один непрерывный экран,
+  // как уже было реализовано в OffersSection.tsx, — карточка суммы того же
+  // компактного размера, что «Петропавловск»/«Кокшетау», пока не раскрыта).
+  const [amountOpen, setAmountOpen] = useState(false);
   const [designId, setDesignId] = useState(designs[0]!.id);
   const [buyerFirstName, setBuyerFirstName] = useState("");
   const [buyerLastName, setBuyerLastName] = useState("");
@@ -557,107 +549,178 @@ function CertificateFlow() {
                   );
                 })}
 
-                {/* Заголовок слева / значение справа в одну строку и чуть
-                    мельче (Блок 3 задачи 2026-08-22) — раньше шли
-                    столбиком, как в кликабельных карточках выше, хотя сама
-                    карточка больше не кликабельна. */}
-                <div className="surface px-5 py-3 text-left">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-display text-cream text-sm">
-                      {t("cert.choiceAmountTitle")}
-                    </span>
-                    <span className="text-cream/65 text-[0.68rem]">
-                      {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
-                    </span>
+                {/* «Указать сумму» — аккордеон (правка 2026-08-22, возврат
+                    на отдельную страницу покупки): свёрнута до размера
+                    карточек городов выше, разворачивается по клику плавно
+                    (grid-template-rows 0fr→1fr, тот же паттерн, что уже был
+                    в OffersSection.tsx). */}
+                <div
+                  className={`surface overflow-hidden text-left transition-colors ${
+                    amountOpen ? "border-gold!" : "hover:border-gold/60"
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setAmountOpen((o) => !o)}
+                    aria-expanded={amountOpen}
+                    className="w-full px-5 py-3 text-left"
+                  >
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span
+                        className={`font-display text-cream text-sm ${amountOpen ? "text-glow-gold" : ""}`}
+                      >
+                        {t("cert.choiceAmountTitle")}
+                      </span>
+                      <span
+                        className={`text-cream/65 text-[0.68rem] ${amountOpen ? "text-glow-gold" : ""}`}
+                      >
+                        {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
+                      </span>
+                    </div>
+                  </button>
+
+                  <div
+                    className="grid transition-[grid-template-rows] duration-[350ms] ease-in-out"
+                    style={{ gridTemplateRows: amountOpen ? "1fr" : "0fr" }}
+                  >
+                    <div className="overflow-hidden">
+                      <div
+                        className={`px-5 pb-5 transition-opacity duration-300 ${
+                          amountOpen ? "opacity-100 delay-100" : "opacity-0"
+                        }`}
+                      >
+                        <div className="flex flex-wrap gap-2">
+                          {fixedAmounts.map((a) => {
+                            const active = !customAmount && amount === a;
+                            return (
+                              <button
+                                key={a}
+                                type="button"
+                                onClick={() => {
+                                  setAmount(a);
+                                  setCustomAmount("");
+                                  setAmountPicked(true);
+                                  setKind("amount");
+                                }}
+                                aria-pressed={active}
+                                className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
+                                  active
+                                    ? "border-gold bg-gold text-primary-foreground"
+                                    : "border-border bg-card text-cream hover:border-gold/60"
+                                }`}
+                              >
+                                {formatPrice(a)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {/* Своя сумма подсвечивается так же, как выбранный
+                            номинал, иначе клик по ней выглядит как «ничего
+                            не произошло». */}
+                        <label
+                          className={`bg-card mt-3 block rounded-md border p-3 transition-colors ${
+                            customAmount ? "border-gold" : "border-border"
+                          }`}
+                        >
+                          <span
+                            className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
+                          >
+                            {t("cert.customAmountLabel")}
+                          </span>
+                          <input
+                            type="number"
+                            min={MIN_AMOUNT}
+                            step={1000}
+                            value={customAmount}
+                            onChange={(e) => {
+                              const next = e.target.value;
+                              setCustomAmount(next);
+                              // Пустое поле — вернулись к ранее нажатому
+                              // пресету (amountPicked трогать не нужно);
+                              // невалидное значение явно снимает выбор.
+                              if (next) {
+                                const v = Number(next);
+                                const valid = Number.isFinite(v) && v >= MIN_AMOUNT;
+                                setAmountPicked(valid);
+                                if (valid) setKind("amount");
+                              }
+                            }}
+                            placeholder={String(MIN_AMOUNT)}
+                            className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
+                          />
+                        </label>
+
+                        {/* «Далее» — переход в оформление на выбранную
+                            сумму. Компактнее и справа, а не на всю ширину. */}
+                        {amountPicked && (
+                          <div className="mt-4 flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setErrors([]);
+                                setStep(2);
+                              }}
+                              className="btn-gold px-5 py-2.5 text-[0.62rem]"
+                            >
+                              {t("cert.nextButton")}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-10">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <Motif name="petalDiamond" className="text-gold h-7 w-7" />
-                    <p className="eyebrow">{t("cert.amountEyebrow")}</p>
-                  </div>
-                  {/* Точка бессрочности рядом с выбором номинала. */}
-                  <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.62rem] tracking-[0.2em] uppercase">
-                    {t("cert.endless")}
-                  </span>
+              {/* Каталог услуг — сразу под рядом город/город/сумма, без
+                  перехода между ними (правка 2026-08-22, возврат на
+                  отдельную страницу покупки: тот же непрерывный экран, что
+                  уже был реализован в OffersSection.tsx). «Подарить» под
+                  сводкой выбранных услуг переключает kind на "service" и
+                  переходит на шаг 2 локально — переход по роуту здесь не
+                  нужен, это уже тот самый /certificate. */}
+              <div id="services-catalog" className="mt-12 scroll-mt-24">
+                <div className="flex items-center gap-3">
+                  <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
+                  <p className="eyebrow">{t("catalog.title")}</p>
                 </div>
-                {/* gap-3→gap-2 (Блок 2 задачи 2026-08-22, «сократить
-                    средний зазор») — тот же отступ, что и раньше был между
-                    кнопками сетки, просто плотнее. */}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {fixedAmounts.map((a) => {
-                    const active = !customAmount && amount === a;
-                    return (
+                <h2 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
+                  {t("catalog.title")}
+                </h2>
+                <p className="text-cream/65 mt-3 max-w-lg text-sm leading-relaxed">
+                  {t("catalog.subtitle")}
+                </p>
+
+                <a href={spaMenuPdfFor()} download className="btn-ghost mt-5 text-[0.62rem]">
+                  {t("catalog.menuButton")}
+                </a>
+
+                <div className="mt-10">
+                  <ServiceCatalogBrowser
+                    groupId={groupId}
+                    onGroupChange={setGroupId}
+                    selectedIds={serviceIds}
+                    onToggle={(id) => {
+                      setServiceIds((ids) => toggleServiceId(ids, id));
+                      setErrors([]);
+                    }}
+                    onClear={() => setServiceIds([])}
+                    t={t}
+                    action={
                       <button
-                        key={a}
                         type="button"
                         onClick={() => {
-                          setAmount(a);
-                          setCustomAmount("");
-                          setAmountPicked(true);
+                          setErrors([]);
+                          setKind("service");
+                          setStep(2);
                         }}
-                        aria-pressed={active}
-                        className={`rounded-md border px-6 py-3 text-sm transition-colors ${active ? "border-gold bg-gold text-primary-foreground" : "border-border text-cream/75 hover:border-gold/60"}`}
+                        className="btn-gold"
                       >
-                        {formatPrice(a)}
+                        {t("cert.giftButton")}
                       </button>
-                    );
-                  })}
-                </div>
-                {/* Своя сумма подсвечивается так же, как выбранный номинал,
-                    иначе клик по ней выглядит как «ничего не произошло». */}
-                <label
-                  className={`mt-6 block max-w-xs rounded-md border p-4 transition-colors ${customAmount ? "border-gold bg-gold/10" : "border-border"}`}
-                >
-                  <span
-                    className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
-                  >
-                    {t("cert.customAmountLabel")}
-                  </span>
-                  <input
-                    type="number"
-                    min={MIN_AMOUNT}
-                    step={1000}
-                    value={customAmount}
-                    onChange={(e) => {
-                      const next = e.target.value;
-                      setCustomAmount(next);
-                      // Пустое поле — вернулись к ранее нажатому пресету
-                      // (amountPicked трогать не нужно); невалидное
-                      // значение явно снимает выбор — тот же принцип, что
-                      // и в OffersSection.
-                      if (next) {
-                        const v = Number(next);
-                        setAmountPicked(Number.isFinite(v) && v >= MIN_AMOUNT);
-                      }
-                    }}
-                    placeholder="20000"
-                    className={`border-input mt-2 w-full border bg-transparent px-4 py-3 text-sm outline-none focus:border-gold ${customAmount ? "border-gold text-gold" : ""}`}
+                    }
                   />
-                </label>
-
-                {/* «Далее» — единственная кнопка перехода с этого шага
-                    (правка 2026-08-22: убрали дублирующую «Подарить» из
-                    общей нижней панели навигации для step===1, см. условие
-                    рендера этой панели ниже в файле). Компактнее и справа,
-                    а не на всю ширину слева. */}
-                {amountPicked && (
-                  <div className="mt-6 flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setErrors([]);
-                        setStep(2);
-                      }}
-                      className="btn-gold px-5 py-2.5 text-[0.62rem]"
-                    >
-                      {t("cert.nextButton")}
-                    </button>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           )}

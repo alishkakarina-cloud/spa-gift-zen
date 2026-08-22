@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback } from "react";
 import { Check, ChevronDown, Infinity as InfinityIcon, MapPin } from "lucide-react";
 import heroPhoto from "@/assets/atmosphere-arch.webp";
@@ -7,7 +7,6 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { BRANCHES, type Branch } from "@/data/branches";
 import { BranchesSection } from "@/components/BranchesSection";
 import { CertPerks } from "@/components/CertPerks";
-import { OffersSection } from "@/components/OffersSection";
 import { Reveal } from "@/components/Reveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Divider } from "@/components/Divider";
@@ -20,20 +19,13 @@ const heroBranches: Branch[] = ["kokshetau", "petropavlovsk"];
 const branchById = (id: Branch) => BRANCHES.find((b) => b.id === id)!;
 
 /**
- * Главная "/" — hero + встроенный шаг 1 мастера оформления (OffersSection:
- * город/сумма + каталог услуг) + общая информация о спа (сертификаты,
- * условия, «Почему RaiThai», салоны, FAQ).
- *
- * История секции OffersSection (важно для будущих правок): изначально жила
- * только здесь → была вынесена на отдельный /certificate шаг 1 → владелец
- * обнаружил, что это создало на сайте ДВЕ разные версии экрана «Выберите
- * сертификат» (эту, декорированную, и минималистичную на /certificate) и
- * попросил вернуть её сюда как единственную (правка 2026-08-22). Шаги 2-5
- * мастера (данные/дизайн/оплата/готово) остаются на /certificate — кнопка
- * «Далее» здесь уносит туда сразу с готовым пресетом (см. handleNext в
- * OffersSection.tsx), поэтому степпер на /certificate продолжает именно с
- * шага 2. /offers как маршрут не трогали — рендерит тот же компонент, для
- * прямых ссылок (см. src/routes/offers.tsx).
+ * Главная "/" — СТРОГО только информация о спа: hero, «Сертификаты Rai Thai
+ * Spa», «Почему RaiThai», условия использования, салоны/контакты, FAQ,
+ * футер. Никакого функционала выбора/покупки здесь нет (правка 2026-08-22,
+ * владелец отменил более раннее решение объединять весь сайт в одну
+ * длинную страницу) — «Купить сертификат» настоящим переходом уводит на
+ * /certificate, где теперь живёт весь путь целиком: выбор города/суммы,
+ * каталог услуг и весь мастер оформления с единым степпером.
  */
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -56,14 +48,6 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useLanguage();
-  // «Купить сертификат» и стрелка вниз — скролл к встроенной секции
-  // «Выберите сертификат» (OffersSection, id="buy") на этой же странице
-  // (правка 2026-08-22: раньше был переход на /certificate — с ним на
-  // сайте существовали одновременно две разные версии этого экрана,
-  // decision — оставить только эту, декорированную, здесь).
-  const scrollToBuy = useCallback(() => {
-    document.getElementById("buy")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
   // «Наши услуги» — скролл на этой же странице к секции с информацией о
   // салоне (правка 2026-08-22: раньше вела на /certificate тем же переходом,
   // что и «Купить сертификат» — обе кнопки указывали в одну точку, хотя по
@@ -136,27 +120,23 @@ function Index() {
           </div>
 
           <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
-            <button type="button" onClick={scrollToBuy} className="btn-beige w-full">
+            <Link to="/certificate" className="btn-beige w-full">
               {t("home.heroCta")}
-            </button>
+            </Link>
             <button type="button" onClick={scrollToSalons} className="btn-gold w-full">
               {t("home.heroCatalogCta")}
             </button>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={scrollToBuy}
+        <Link
+          to="/certificate"
           aria-label={t("home.heroCta")}
           className="border-gold/50 text-gold hover:bg-gold/10 relative mx-auto mb-6 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors sm:mb-8"
         >
           <ChevronDown className="h-5 w-5" />
-        </button>
+        </Link>
       </section>
-
-      {/* ── Шаг 1 мастера оформления — город/сумма + каталог услуг. ──────── */}
-      <OffersSection />
 
       {/* ── «Подарочные сертификаты» — описание + 4 пункта. ─────────────── */}
       <CertPerks t={t} />
