@@ -48,7 +48,7 @@ function DurationSwitch({
     // Все варианты видны сразу своей ценой и подписью (длительность или,
     // для семей вроде «Путешествие в Таиланд», количество персон) — выбор
     // не прячется за одним числом на карточке.
-    <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={label}>
+    <div className="flex flex-wrap gap-1" role="radiogroup" aria-label={label}>
       {variants.map((v) => (
         <button
           key={v.id}
@@ -56,7 +56,7 @@ function DurationSwitch({
           role="radio"
           aria-checked={v.id === chosenId}
           onClick={() => onChoose(v.id)}
-          className={`rounded-md border px-2.5 py-1.5 text-[0.68rem] whitespace-nowrap transition-colors ${
+          className={`rounded-md border px-2 py-1 text-[0.62rem] whitespace-nowrap transition-colors ${
             v.id === chosenId
               ? "border-gold bg-gold text-primary-foreground"
               : "border-border bg-card text-cream/80 hover:border-gold/60"
@@ -68,6 +68,7 @@ function DurationSwitch({
     </div>
   );
 }
+
 
 function SelectPill({
   active,
@@ -120,7 +121,7 @@ export function ServiceFamilyRow({ family, selectedIds, onToggle, t }: Props) {
   const name = t(`services.${variants[0]!.id}.name`).replace(NAME_DURATION_SUFFIX, "");
 
   return (
-    <article className={`surface flex gap-2.5 overflow-hidden p-3 transition-colors sm:gap-4 ${active ? "border-gold" : ""}`}>
+    <article className={`surface flex gap-2 overflow-hidden p-2 transition-colors sm:gap-3 ${active ? "border-gold" : ""}`}>
       {image && (
         <div className="relative shrink-0 self-center">
           <img
@@ -130,7 +131,7 @@ export function ServiceFamilyRow({ family, selectedIds, onToggle, t }: Props) {
             height={720}
             loading="lazy"
             decoding="async"
-            className="h-16 w-16 rounded-md object-cover sm:h-28 sm:w-28"
+            className="h-14 w-14 rounded-md object-cover sm:h-24 sm:w-24"
           />
           {family.hit && (
             <span className="bg-maroon border-gold/50 text-cream absolute top-1 left-1 rounded-full border px-1.5 py-0.5 text-[0.5rem] font-medium tracking-[0.1em] uppercase">
@@ -139,7 +140,7 @@ export function ServiceFamilyRow({ family, selectedIds, onToggle, t }: Props) {
           )}
         </div>
       )}
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5 py-1 pr-2">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5 pr-2">
         {/* Заголовок и цена раньше делили одну flex-строку (justify-between) —
             на узком мобильном название реально зажималось уже соседством с
             ценой в той же строке, а не только шириной всей колонки, из-за
@@ -149,7 +150,13 @@ export function ServiceFamilyRow({ family, selectedIds, onToggle, t }: Props) {
         <h3 className="font-display text-base leading-tight sm:text-lg">{name}</h3>
         <span className="text-gold text-sm">{formatPrice(chosen.price)}</span>
         <DurationSwitch variants={variants} chosenId={chosenId} onChoose={setChosenId} label={name} t={t} />
-        <p className="text-cream/70 line-clamp-2 text-sm leading-relaxed">
+        {/* Раньше line-clamp-2 обрезал описание многоточием — по правке
+            владельца текст должен быть виден целиком. Карточка при этом
+            получалась слишком высокой из-за узкой текстовой колонки на
+            мобильном (много строк переноса) — компенсируем уменьшенными
+            отступами/фото вокруг (см. выше) и более плотным шрифтом самого
+            описания (не заголовка, не цены; правка 2026-08-22). */}
+        <p className="text-cream/70 text-[0.7rem] leading-tight">
           {t(`services.${chosen.id}.description`)}
         </p>
       </div>
