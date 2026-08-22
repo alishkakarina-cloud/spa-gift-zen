@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import { CERT_DESIGN_ASPECT, type CertificateDesign } from "@/data/catalog";
 import { useLanguage } from "@/i18n/LanguageContext";
 
@@ -8,7 +7,9 @@ import { useLanguage } from "@/i18n/LanguageContext";
  * бордовом/зелёном фонах (standard/for-him) тот же тёмный текст почти не
  * виден, поэтому там нужен светлый. ARCH_INK_LIGHT — не новый цвет, а
  * фирменный --gold-soft (#edcea5) из styles.css, тот же, что на золотой
- * рамке и орнаменте этих карточек.
+ * рамке и орнаменте этих карточек. Применяется только к строке-эйбрау
+ * внутри арки (см. ниже, почему) — состав/сумма сидят на теме страницы,
+ * не на фото, им archInk не подходит.
  */
 const ARCH_INK_DARK = "#3a2a1a";
 const ARCH_INK_LIGHT = "#edcea5";
@@ -53,74 +54,34 @@ export function CertificateCard({
   const { archBox } = design;
   const archInk = design.textTone === "light" ? ARCH_INK_LIGHT : ARCH_INK_DARK;
 
-  // Фото-фон сертификата — цельное изображение (рамка/лого/арка впечатаны
-  // заказчиком), растягивать или обрезать его нельзя. Раньше текст внутри
-  // арки был жёстко ограничен её высотой (% от картинки, overflow-y-auto +
-  // скрытый скроллбар) — при нескольких услугах (после «Выбрать доп.услуги»)
-  // строки не помещались и накладывались друг на друга.
+  // Фото-фон сертификата — цельное изображение заказчика (рамка/лого/арка
+  // впечатаны в кадр), растягивать или обрезать его нельзя. Раньше весь
+  // динамический текст (эйбрау + состав + сумма + пожелание + получатель)
+  // печатался ПОВЕРХ картинки, внутри арки фиксированной % высоты — при
+  // нескольких услугах (после «Выбрать доп.услуги») текст туда физически
+  // не помещался.
   //
-  // Теперь картинка (imageBoxRef) остаётся фиксированного размера как была,
-  // а блок с текстом (archRef) позиционируется по факту отрисованной высоты
-  // картинки (в пикселях, не в %) и может расти НИЖЕ картинки, если контент
-  // не помещается в изначально отведённую под арку высоту. Внешний
-  // контейнер (outerRef) при этом растягивается вслед за текстом — сначала
-  // отрисовывается без явной высоты (=aspect-ratio, точь-в-точь как раньше,
-  // для одной услуги ничего не меняется визуально), затем эффект ниже
-  // измеряет реальную высоту и, если нужно, увеличивает min-height.
-  const outerRef = useRef<HTMLDivElement>(null);
-  const imageBoxRef = useRef<HTMLDivElement>(null);
-  const archRef = useRef<HTMLDivElement>(null);
-  const [archTopPx, setArchTopPx] = useState<number | null>(null);
-  const [archMinHeightPx, setArchMinHeightPx] = useState<number | null>(null);
-  const [outerMinHeightPx, setOuterMinHeightPx] = useState<number | null>(null);
-
-  useEffect(() => {
-    const imageEl = imageBoxRef.current;
-    const archEl = archRef.current;
-    if (!imageEl || !archEl) return;
-
-    const recalc = () => {
-      const imageHeight = imageEl.getBoundingClientRect().height;
-      if (imageHeight <= 0) return;
-      const top = imageHeight * (archBox.top / 100);
-      const minHeight = imageHeight * ((archBox.bottom - archBox.top) / 100);
-      const archHeight = archEl.getBoundingClientRect().height;
-      // Небольшой отступ снизу, чтобы длинный список услуг не упирался
-      // прямо в нижний край карточки — 2% высоты картинки, как и внутренние
-      // отступы самой арки.
-      const bottomGap = imageHeight * 0.02;
-      setArchTopPx(top);
-      setArchMinHeightPx(minHeight);
-      setOuterMinHeightPx(Math.max(imageHeight, top + archHeight + bottomGap));
-    };
-
-    recalc();
-    const ro = new ResizeObserver(recalc);
-    ro.observe(imageEl);
-    ro.observe(archEl);
-    return () => ro.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [archBox.top, archBox.bottom, items, valueLabel, message, recipient, sender, branch, bookingNote, number, compact]);
-
+  // Первая попытка (растягивать зону текста через JS-измерение реальной
+  // высоты картинки/контента и вслед за этим — высоту всего блока) на деле
+  // не сработала надёжно — сам механизм заточен под точный тайминг первого
+  // рендера/загрузки шрифта, а это ненадёжно. Поэтому — другая структура:
+  // внутри арки остаётся только короткая, гарантированно однострочная
+  // подпись «Подарочный сертификат» (archInk/золотое свечение сохранены
+  // именно для неё — эта строка по-прежнему печатается поверх фото и её
+  // должно быть видно на любом фоне). Весь остальной, потенциально длинный
+  // контент — состав, сумма, пожелание, получатель/отправитель, филиал,
+  // номер — идёт ПОД картинкой обычным текстовым блоком в естественном
+  // потоке документа: растёт на любую высоту сам по себе, без каких-либо
+  // измерений и без риска наложения или обрезки.
   return (
-    <div
-      ref={outerRef}
-      className={`relative w-full ${className}`}
-      style={{
-        minHeight: outerMinHeightPx ?? undefined,
-        boxShadow: "0 24px 60px -30px rgba(0,0,0,0.75)",
-      }}
-    >
-      {/* Картинка — рамка/лого/арка заказчика, фиксированного размера,
-          не растягивается и не искажается ни при каком количестве услуг. */}
+    <div className={`w-full ${className}`}>
       <div
-        ref={imageBoxRef}
         // w-full — обязателен: без явной ширины блок с aspect-ratio внутри
         // <button> (у него нет собственной ширины) считает размеры непредсказуемо,
         // из-за чего три карточки на шаге выбора дизайна могли обрезаться
         // по-разному. С явной шириной все три получают одинаковый бокс.
         className="relative w-full overflow-hidden rounded-2xl"
-        style={{ aspectRatio: CERT_DESIGN_ASPECT }}
+        style={{ aspectRatio: CERT_DESIGN_ASPECT, boxShadow: "0 24px 60px -30px rgba(0,0,0,0.75)" }}
       >
         {/* Логотип, рамка, арка и золотая плашка с названием — всё уже
             впечатано в фото заказчиком, это часть дизайна, не обрезаем.
@@ -136,48 +97,38 @@ export function CertificateCard({
           height={801}
           className="absolute inset-0 h-full w-full object-contain object-center"
         />
+
+        {/* Единственная строка поверх фото — короткая по определению,
+            переполниться не может ни при каком составе сертификата. */}
+        <div
+          className="absolute flex flex-col items-center text-center"
+          style={{
+            top: `${archBox.top}%`,
+            height: `${archBox.bottom - archBox.top}%`,
+            left: `${archBox.centerX}%`,
+            width: `${archBox.width}%`,
+            transform: "translateX(-50%)",
+            color: archInk,
+            justifyContent: "center",
+          }}
+        >
+          <p
+            className={`font-display shrink-0 tracking-[0.28em] uppercase opacity-75 ${compact ? "text-[0.5rem]" : "text-[0.6rem]"}`}
+          >
+            {t("cert.cardEyebrow")}
+          </p>
+        </div>
       </div>
 
-      {/* Текстовый блок — координаты свои под каждое фото (декор на кадре
-          не симметричен), но логика вставки одна на все три. top/min-height
-          в пикселях (см. эффект выше) — привязаны к реальной высоте картинки,
-          а не к высоте внешнего контейнера, поэтому при росте контейнера
-          (много услуг) блок остаётся на месте арки, а не «уезжает» вместе
-          с новой высотой. min-height вместо height + flex-центрирование —
-          короткий текст выглядит как раньше (по центру арки), длинный
-          просто перестаёт помещаться в min-height и растёт вниз, ничего не
-          обрезая и не накладывая друг на друга. */}
-      <div
-        ref={archRef}
-        className="absolute flex flex-col items-center text-center"
-        style={{
-          top: archTopPx ?? `${archBox.top}%`,
-          minHeight: archMinHeightPx ?? `${archBox.bottom - archBox.top}%`,
-          left: `${archBox.centerX}%`,
-          width: `${archBox.width}%`,
-          transform: "translateX(-50%)",
-          color: archInk,
-          justifyContent: "center",
-        }}
-      >
-        <p
-          className={`font-display shrink-0 tracking-[0.28em] uppercase opacity-75 ${compact ? "text-[0.5rem]" : "text-[0.6rem]"}`}
-        >
-          {t("cert.cardEyebrow")}
-        </p>
-
+      {/* Состав, сумма и остальные динамические данные — под картинкой,
+          обычный поток документа: сколько бы строк ни было, блок просто
+          растёт по высоте, ничего не обрезается и не накладывается. Цвета —
+          обычные токены темы страницы (cream/gold), не archInk: этот текст
+          сидит на фоне карточки-страницы, а не на фото. */}
+      <div className={`flex flex-col items-center text-center text-cream ${compact ? "mt-2" : "mt-4"}`}>
         {lines ? (
           <ul
-            className={`font-display mt-1 flex shrink-0 flex-col leading-[1.15] italic ${
-              compact
-                ? "text-xs"
-                : // 5+ строк услуг — вторичная мера поверх растягивания
-                  // карточки (Блок 2.3): чуть уменьшаем шрифт названий,
-                  // сам список всё равно не обрезается и не накладывается.
-                  lines.length >= 5
-                  ? "text-[clamp(0.7rem,2.2vw,0.9rem)]"
-                  : "text-sm sm:text-base"
-            }`}
+            className={`font-display flex flex-col leading-[1.3] italic ${compact ? "text-xs" : "text-sm sm:text-base"}`}
           >
             {lines.map((line) => (
               <li key={line}>{line}</li>
@@ -185,23 +136,23 @@ export function CertificateCard({
           </ul>
         ) : null}
         <p
-          className={`font-display mt-1 shrink-0 leading-[1.1] italic ${compact ? "text-base" : "text-xl sm:text-2xl"}`}
+          className={`font-display text-gold shrink-0 leading-[1.1] italic ${lines ? "mt-1.5" : ""} ${compact ? "text-base" : "text-xl sm:text-2xl"}`}
         >
           {valueLabel}
         </p>
 
         {/* Пожелание — то, что пользователь ввёл в форме; если поле пустое,
-            дальше строки просто нет (эйбрау выше уже несёт роль подписи). */}
+            дальше строки просто нет. */}
         {message && (
           <p
-            className={`font-display mt-2 shrink-0 leading-snug italic opacity-90 ${compact ? "text-[0.65rem]" : "text-sm"}`}
+            className={`font-display mt-2 shrink-0 leading-snug italic text-cream/90 ${compact ? "text-[0.65rem]" : "text-sm"}`}
           >
             «{message}»
           </p>
         )}
 
         {!compact && (recipient || sender) && (
-          <p className="mt-2 shrink-0 text-[0.6rem] opacity-80">
+          <p className="mt-2 shrink-0 text-[0.65rem] text-cream/70">
             {recipient && `${t("cert.cardTo")}: ${recipient}`}
             {recipient && sender && " · "}
             {sender && `${t("cert.cardFrom")}: ${sender}`}
@@ -209,7 +160,7 @@ export function CertificateCard({
         )}
 
         {!compact && (branch || bookingNote) && (
-          <p className="mt-1 shrink-0 text-[0.56rem] leading-relaxed opacity-70">
+          <p className="mt-1 shrink-0 text-[0.62rem] leading-relaxed text-cream/55">
             {branch && `${t("cert.cardBranch")}: ${branch}`}
             {branch && bookingNote && " · "}
             {bookingNote}
@@ -217,7 +168,7 @@ export function CertificateCard({
         )}
 
         {!compact && (
-          <p className="mt-2 shrink-0 text-[0.56rem] tracking-[0.2em] uppercase opacity-80">
+          <p className="mt-2 shrink-0 text-[0.6rem] tracking-[0.2em] text-cream/60 uppercase">
             {t("cert.cardValidity")}
             {number && ` · № ${number}`}
           </p>
