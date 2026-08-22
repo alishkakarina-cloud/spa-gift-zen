@@ -63,6 +63,16 @@ export function OffersSection() {
 
   const toggleAmount = () => setSelection((s) => (s?.kind === "amount" ? null : { kind: "amount" }));
 
+  // Кнопка «Далее» под рядом город/город/сумма — НЕ прячет и не блокирует
+  // каталог (он как был всегда виден сразу под этим рядом по сегодняшней
+  // сверке с layan.kz, так и остаётся), а просто докручивает к нему для тех,
+  // кто предпочитает клик скроллу. Активна после явного выбора города ИЛИ
+  // суммы — клик по городу по-прежнему только подсветка, ничего больше не
+  // блокирует и не меняет.
+  const canProceedToCatalog = activeCity !== null || amountPicked;
+  const scrollToCatalog = () =>
+    document.getElementById("services-catalog")?.scrollIntoView({ behavior: "smooth" });
+
   return (
     <>
       {/* ── Ряд переключателей (город/город/сумма) + каталог услуг сразу под
@@ -254,12 +264,27 @@ export function OffersSection() {
             </div>
           </div>
 
+          {/* ── «Далее» под рядом город/город/сумма — только докручивает к
+              каталогу ниже (он остаётся всегда видимым, ничего не прячет и
+              не блокирует — см. комментарий про layan.kz под каталогом).
+              Активна, когда выбран город ИЛИ явно указана сумма. ────────── */}
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              onClick={scrollToCatalog}
+              disabled={!canProceedToCatalog}
+              className={`btn-gold inline-flex ${canProceedToCatalog ? "" : "cursor-not-allowed opacity-40"}`}
+            >
+              {t("cert.nextButton")}
+            </button>
+          </div>
+
           {/* ── Каталог услуг — по структуре layan.kz (проверено вживую
               2026-08-22): открыт сразу под рядом город/город/сумма, без
               перехода, скролла или кнопки между ними — тот же компонент,
               что и на шаге 1 мастера оформления, единый источник правды по
               ценам и описаниям. ──────────────────────────────────────── */}
-          <div className="mt-12">
+          <div id="services-catalog" className="mt-12 scroll-mt-24">
             <div className="flex items-center gap-3">
               <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
               <p className="eyebrow">{t("catalog.title")}</p>
