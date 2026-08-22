@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
@@ -112,6 +112,22 @@ function CertificateFlow() {
   // услуг), следующий за выбором шаг фактически никогда не показывался.
   const hasPreset = Boolean(presetIds.length > 0 || presetAmount);
   const [step, setStep] = useState<Step>(hasPreset ? 2 : 1);
+
+  /**
+   * Прямой заход на /certificate без пресета (без города/суммы/услуги в
+   * URL) раньше показывал собственный шаг 1 этого компонента (город/сумма/
+   * каталог) — с 2026-08-22 это дублирующая, менее декорированная копия
+   * того же экрана «Выберите сертификат», который теперь единственно живёт
+   * на главной (OffersSection, id="buy"). Редиректим туда вместо показа
+   * дубликата; сам JSX шага 1 ниже (step === 1) оставлен нетронутым как
+   * запасной вариант на случай сбоя редиректа — реального пользователя он
+   * больше не должен встречать.
+   */
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!hasPreset) navigate({ to: "/", hash: "buy" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Переключение шага (next/back) — это setStep, а не переход по роуту, URL

@@ -9,6 +9,7 @@ import { BRANCHES, spaMenuPdfFor, type Branch } from "@/data/branches";
 import type { CatalogGroup } from "@/data/serviceGroups";
 import { serializeServiceIds } from "@/data/selection";
 import { useCart } from "@/context/CartContext";
+import { translations } from "@/i18n/translations";
 
 type Selection = { kind: "amount" } | null;
 
@@ -24,7 +25,14 @@ type Selection = { kind: "amount" } | null;
  * сертификат» в hero главной.
  */
 export function OffersSection() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  // Степпер этапов мастера оформления (правка 2026-08-22: этот шаг —
+  // «Сертификат», первый из общего steps[] мастера, см. cert.steps в
+  // translations.ts) — тот же список, что рендерится на /certificate,
+  // здесь просто зафиксирован на первом шаге (сюда никогда не возвращаются
+  // со 2-го и дальше, это не state, а константа).
+  const steps = translations[lang].cert.steps;
+  const CURRENT_STEP = 1;
 
   const [servicesGroupId, setServicesGroupId] = useState<CatalogGroup>("massage");
   // Общее на весь сайт состояние (CartContext) — то же самое, что показывает
@@ -99,10 +107,40 @@ export function OffersSection() {
           в каталоге сам решает, что делать (см. ServiceCatalogBrowser) —
           этот компонент их поведение не трогает. «Указать сумму» — свой
           отдельный путь со своей кнопкой «Далее» в конце блока. ────────── */}
-      <section id="buy" className="relative overflow-hidden">
+      <section id="buy" className="relative scroll-mt-24 overflow-hidden">
         <Divider motif="waveCrown" className="pt-12 sm:pt-16 lg:pt-20" />
         <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-24">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Степпер — тот же визуальный паттерн, что и на /certificate
+              (полоски-сегменты + подпись «N / всего»), здесь всегда на
+              первом шаге: дальше мастер продолжается на /certificate,
+              куда «Далее» уносит с уже готовым пресетом (см. handleNext),
+              и степпер там сам продолжит с шага 2. */}
+          <div className="border-border border-b pb-4 sm:pb-5">
+            <p className="flex items-baseline gap-2">
+              <span className="font-display text-gold text-base">{steps[CURRENT_STEP - 1]}</span>
+              <span className="text-cream/40 text-xs tracking-[0.15em]">
+                {CURRENT_STEP} / {steps.length}
+              </span>
+            </p>
+            <div className="mt-3 flex gap-1.5 sm:gap-2">
+              {steps.map((s, i) => {
+                const n = i + 1;
+                const filled = n <= CURRENT_STEP;
+                const active = n === CURRENT_STEP;
+                return (
+                  <span
+                    key={s}
+                    aria-hidden="true"
+                    className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+                      filled ? "bg-gold" : "bg-cream/15"
+                    } ${active ? "shadow-[0_0_10px_2px_rgba(180,151,117,0.65)]" : ""}`}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Motif name="petalDiamond" className="text-gold h-7 w-7" />
               <p className="eyebrow">{t("home.buyEyebrow")}</p>
