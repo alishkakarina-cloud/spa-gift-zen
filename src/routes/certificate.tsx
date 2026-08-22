@@ -200,10 +200,14 @@ function CertificateFlow() {
     forSelf ? buyerFullName : `${recipientFirstName} ${recipientLastName}`.trim()
   ).trim();
   const senderName = (forSelf ? buyerFullName : sender).trim();
-  // Город приходит из сценария покупки и на этом шаге не меняется. Если
-  // пользователь попал сюда прямой ссылкой, минуя выбор, — не подставляем
-  // филиал молча, а честно показываем, что он не выбран.
-  const branch = presetBranch ?? null;
+  // Город — реальный выбор на шаге 1 (см. JSX ниже), а не только пресет из
+  // ссылки. Раньше это был декоративный выбор на главной (OffersSection),
+  // никогда не долетавший до /certificate (тамошняя кнопка «Далее» не
+  // передавала branch) — теперь выбирается прямо тут, на этой странице, и
+  // реально попадает в итоговые данные (строка «Филиал», карточка
+  // сертификата, запись в БД). Если пользователь попал сюда прямой ссылкой
+  // с ?branch=, подставляем его; иначе — не выбран, пока не кликнут.
+  const [branch, setBranch] = useState<Branch | null>(presetBranch ?? null);
   const branchInfo = branch ? BRANCHES.find((b) => b.id === branch) : undefined;
   const branchLabel = branchInfo ? t(branchInfo.labelKey) : t("cert.branchNotChosen");
 
@@ -491,7 +495,43 @@ function CertificateFlow() {
           {step === 1 && (
             <div>
               <h1 className="font-display text-3xl">{t("cert.step1Title")}</h1>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+
+              {/* Филиал — первое, что видно на шаге 1 (перенесено сюда с
+                  главной страницы, см. index.tsx). Декоративного смысла у
+                  него по-прежнему нет для каталога (услуги одни и те же для
+                  обоих городов), но выбор реально сохраняется и идёт в
+                  итоговые данные сертификата (в отличие от прежнего места на
+                  главной — см. комментарий у useState<Branch|null> выше). */}
+              <p className="eyebrow mt-6">{t("cert.branchSection")}</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {BRANCHES.map((b) => {
+                  const selected = branch === b.id;
+                  return (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => setBranch(b.id)}
+                      aria-pressed={selected}
+                      className={`surface px-5 py-3 text-left transition-colors ${
+                        selected ? "border-gold!" : "hover:border-gold/60"
+                      }`}
+                    >
+                      <span
+                        className={`font-display block text-base text-cream ${selected ? "text-glow-gold" : ""}`}
+                      >
+                        {t(b.labelKey)}
+                      </span>
+                      <span
+                        className={`mt-0.5 block text-xs text-cream/65 ${selected ? "text-glow-gold" : ""}`}
+                      >
+                        {b.address}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
                 <Choice
                   active={kind === "service"}
                   title={t("cert.choiceServiceTitle")}

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, ChevronDown, Infinity as InfinityIcon, MapPin } from "lucide-react";
 import heroPhoto from "@/assets/atmosphere-arch.webp";
 import logoLight from "@/assets/logo-on-dark.webp";
@@ -6,7 +6,6 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { BRANCHES, type Branch } from "@/data/branches";
 import { BranchesSection } from "@/components/BranchesSection";
 import { CertPerks } from "@/components/CertPerks";
-import { OffersSection } from "@/components/OffersSection";
 import { Reveal } from "@/components/Reveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Divider } from "@/components/Divider";
@@ -18,39 +17,16 @@ import { FAQ_NUMBERS } from "@/data/faq";
 const heroBranches: Branch[] = ["kokshetau", "petropavlovsk"];
 const branchById = (id: Branch) => BRANCHES.find((b) => b.id === id)!;
 
-/** Доскролл к секции #buy (выбор города/суммы + каталог услуг сразу под
- *  ним) — без перехода на другой маршрут. Обе кнопки hero («Купить
- *  сертификат» и «Наши услуги») ведут в одно и то же место: после правки
- *  владельца 2026-08-22 (порядок секций — блок выбора+каталог первым
- *  после hero) это и есть единственный осмысленный пункт назначения для
- *  обеих — блок с кнопками городов и каталогом услуг сразу под ним.
- *  Раньше «Наши услуги» вела на #salons (контакты филиалов, id остался на
- *  BranchesSection) — то была верная цель, пока блок контактов был сразу
- *  под hero; после переноса блока выбора наверх #salons оказался далеко
- *  внизу, и клик по «Наши услуги» пролистывал мимо самого важного блока. */
-const scrollToBuy = () => document.getElementById("buy")?.scrollIntoView({ behavior: "smooth" });
-
 /**
- * Главная "/" — hero, а сразу под ним, без перехода на другой маршрут, —
- * тот же контент, что раньше жил только на /offers (выбор города/суммы +
- * каталог услуг), физически встроенный через общий компонент OffersSection.
- * Одна страница, один скролл — /offers как маршрут остался жив для прямых
- * ссылок, но на главной больше не нужен переход, чтобы это увидеть.
- *
- * Порядок секций после hero — правка владельца 2026-08-22, «сначала
- * действие, потом информация» (по образцу layan.kz): блок выбора
- * (город/сумма) + каталог услуг сразу под ним идут ПЕРВЫМИ после hero, вся
- * информационная часть (описание сертификатов, условия, «Почему RaiThai»,
- * контакты филиалов) — ниже. Раньше было наоборот (см. git-историю) —
- * порядок явно поменяли на этот.
- *
- * «Наши услуги» раньше открывала оверлей/модалку поверх страницы
- * (ServicesOverlay, см. историю задач) — по правке владельца 2026-08-21
- * модальное поведение убрано: контент оверлея (салоны + условия
- * сертификата) перенесён обычными секциями в этот же скролл, кнопка теперь
- * плавно доскраливает к ним. Каталог услуг и футер из оверлея НЕ
- * перенесены — они уже есть на этой странице (OffersSection, SiteFooter),
- * дублировать не стали. Компонент ServicesOverlay.tsx удалён.
+ * Главная "/" — только hero и общая информация о спа (сертификаты,
+ * условия, «Почему RaiThai», салоны, FAQ). Раньше сразу под hero без
+ * перехода был встроен весь флоу покупки (OffersSection: город/сумма +
+ * каталог услуг) — по правке владельца (2026-08-22, отдельная страница
+ * покупки) он отсюда убран целиком и живёт только на /certificate, куда
+ * теперь и ведут кнопки hero («Купить сертификат», «Наши услуги», стрелка
+ * вниз) — настоящим переходом (Link), а не скроллом по этой же странице.
+ * /offers как маршрут не трогали — он всё ещё самостоятельно рендерит
+ * OffersSection для прямых ссылок (см. src/routes/offers.tsx).
  */
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -97,13 +73,11 @@ function Index() {
 
         <div className="relative mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-5 py-14 text-center sm:px-6">
           {/* Пилюли городов — чисто визуальный декор hero (атмосфера), без
-              клика и без какой-либо связи с логикой страницы. Правка
-              владельца 2026-08-21: рабочий выбор города (с активацией
-              «Далее» и скроллом к каталогу) переехал в блок «Купить
-              сертификат» ниже (OffersSection) — в hero и раньше пробовали
-              разные варианты клика (подсветка, потом ещё и скролл), но
-              владелец решил, что здесь кнопки не должны делать вообще
-              ничего — только показывать города для атмосферы. */}
+              клика и без какой-либо связи с логикой страницы. Рабочий выбор
+              филиала — на шаге 1 страницы /certificate (см.
+              routes/certificate.tsx), не здесь: владелец решил, что кнопки
+              в hero не должны делать вообще ничего — только показывать
+              города для атмосферы. */}
           <div className="mb-6 flex items-center justify-center gap-2 sm:mb-8">
             {heroBranches.map((id) => (
               <span
@@ -139,29 +113,23 @@ function Index() {
           </div>
 
           <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
-            <button type="button" onClick={scrollToBuy} className="btn-beige w-full">
+            <Link to="/certificate" className="btn-beige w-full">
               {t("home.heroCta")}
-            </button>
-            <button type="button" onClick={scrollToBuy} className="btn-gold w-full">
+            </Link>
+            <Link to="/certificate" className="btn-gold w-full">
               {t("home.heroCatalogCta")}
-            </button>
+            </Link>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={scrollToBuy}
+        <Link
+          to="/certificate"
           aria-label={t("home.heroCta")}
           className="border-gold/50 text-gold hover:bg-gold/10 relative mx-auto mb-6 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors sm:mb-8"
         >
           <ChevronDown className="h-5 w-5" />
-        </button>
+        </Link>
       </section>
-
-      {/* ── Блок выбора (город/сумма) + каталог услуг сразу под ним — первое,
-          что видно после hero (правка владельца 2026-08-22, «сначала
-          действие»). Вся информационная часть — ниже. ─────────────────── */}
-      <OffersSection />
 
       {/* ── «Подарочные сертификаты» — описание + 4 пункта. ─────────────── */}
       <CertPerks t={t} />
@@ -224,9 +192,8 @@ function Index() {
 
       {/* ── «Наши салоны» — перенесены сюда из бывшего оверлея «Наши услуги»
           (см. историю задач). id="salons" сейчас ни на что не ведёт с
-          hero (правка 2026-08-22: кнопка «Наши услуги» переключена на
-          #buy) — оставлен на случай, если понадобится доскролл сюда
-          откуда-то ещё. ──────────────────────────────────────────────── */}
+          hero (кнопки hero ведут на /certificate) — оставлен на случай,
+          если понадобится доскролл сюда откуда-то ещё. ─────────────────── */}
       <div id="salons">
         <BranchesSection t={t} />
       </div>
