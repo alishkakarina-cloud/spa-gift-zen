@@ -135,6 +135,11 @@ function CertificateFlow() {
   const [serviceIds, setServiceIds] = useState<string[]>(presetIds);
   const [amount, setAmount] = useState<number>(presetAmount ?? fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
+  // Активирует собственную кнопку «Далее» под панелью суммы (см. JSX шага 1)
+  // только после явного выбора — открытие панели/дефолтный fixedAmounts[0]
+  // сами по себе выбором не считаются (тот же принцип и баг, что уже
+  // исправляли в OffersSection, см. src/components/OffersSection.tsx).
+  const [amountPicked, setAmountPicked] = useState(false);
   const [designId, setDesignId] = useState(designs[0]!.id);
   const [buyerFirstName, setBuyerFirstName] = useState("");
   const [buyerLastName, setBuyerLastName] = useState("");
@@ -537,19 +542,51 @@ function CertificateFlow() {
                 })}
               </div>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                <Choice
-                  active={kind === "service"}
-                  title={t("cert.choiceServiceTitle")}
-                  desc={t("cert.choiceServiceDesc")}
+              {/* Компактные кнопки того же стиля/размера, что и филиал выше
+                  (surface px-5 py-3, заголовок text-base) — раньше здесь
+                  стояли большие блоки Choice (p-6, text-2xl), занимавшие
+                  куда больше места, чем остальные переключатели на этом
+                  шаге (правка владельца 2026-08-22, «одинаковыми по
+                  размеру друг с другом», как кнопки филиалов). */}
+              <div className="mt-8 grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
                   onClick={() => setKind("service")}
-                />
-                <Choice
-                  active={kind === "amount"}
-                  title={t("cert.choiceAmountTitle")}
-                  desc={t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
+                  aria-pressed={kind === "service"}
+                  className={`surface px-5 py-3 text-left transition-colors ${
+                    kind === "service" ? "border-gold!" : "hover:border-gold/60"
+                  }`}
+                >
+                  <span
+                    className={`font-display block text-base text-cream ${kind === "service" ? "text-glow-gold" : ""}`}
+                  >
+                    {t("cert.choiceServiceTitle")}
+                  </span>
+                  <span
+                    className={`mt-0.5 block text-xs text-cream/65 ${kind === "service" ? "text-glow-gold" : ""}`}
+                  >
+                    {t("cert.choiceServiceDesc")}
+                  </span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setKind("amount")}
-                />
+                  aria-pressed={kind === "amount"}
+                  className={`surface px-5 py-3 text-left transition-colors ${
+                    kind === "amount" ? "border-gold!" : "hover:border-gold/60"
+                  }`}
+                >
+                  <span
+                    className={`font-display block text-base text-cream ${kind === "amount" ? "text-glow-gold" : ""}`}
+                  >
+                    {t("cert.choiceAmountTitle")}
+                  </span>
+                  <span
+                    className={`mt-0.5 block text-xs text-cream/65 ${kind === "amount" ? "text-glow-gold" : ""}`}
+                  >
+                    {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
+                  </span>
+                </button>
               </div>
 
               {kind === "service" ? (
@@ -607,6 +644,7 @@ function CertificateFlow() {
                           onClick={() => {
                             setAmount(a);
                             setCustomAmount("");
+                            setAmountPicked(true);
                           }}
                           aria-pressed={active}
                           className={`rounded-md border px-6 py-3 text-sm transition-colors ${active ? "border-gold bg-gold text-primary-foreground" : "border-border text-cream/75 hover:border-gold/60"}`}
@@ -631,11 +669,41 @@ function CertificateFlow() {
                       min={MIN_AMOUNT}
                       step={1000}
                       value={customAmount}
-                      onChange={(e) => setCustomAmount(e.target.value)}
+                      onChange={(e) => {
+                        const next = e.target.value;
+                        setCustomAmount(next);
+                        // Пустое поле — вернулись к ранее нажатому пресету
+                        // (amountPicked трогать не нужно); невалидное
+                        // значение явно снимает выбор — тот же принцип, что
+                        // и в OffersSection.
+                        if (next) {
+                          const v = Number(next);
+                          setAmountPicked(Number.isFinite(v) && v >= MIN_AMOUNT);
+                        }
+                      }}
                       placeholder="20000"
                       className={`border-input mt-2 w-full border bg-transparent px-4 py-3 text-sm outline-none focus:border-gold ${customAmount ? "border-gold text-gold" : ""}`}
                     />
                   </label>
+
+                  {/* «Далее» появляется только после явного выбора суммы —
+                      не сразу при открытии панели (Блок 2.2 задачи). Отдельный
+                      путь от выбора услуги — общая нижняя панель навигации
+                      (next()) остаётся как запасной вариант, как и для
+                      сценария «услуга» с его собственной кнопкой «Подарить»
+                      у сводки выше. */}
+                  {amountPicked && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setErrors([]);
+                        setStep(2);
+                      }}
+                      className="btn-gold mt-6 inline-flex"
+                    >
+                      {t("cert.nextButton")}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -1177,29 +1245,6 @@ function CertificateFlow() {
         </div>
       </section>
     </main>
-  );
-}
-
-function Choice({
-  active,
-  title,
-  desc,
-  onClick,
-}: {
-  active: boolean;
-  title: string;
-  desc: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`surface p-6 text-left transition-colors ${active ? "border-gold bg-gold" : "hover:border-gold/60"}`}
-    >
-      <span className={`block font-display text-2xl ${active ? "text-primary-foreground" : "text-cream"}`}>{title}</span>
-      <span className={`mt-2 block text-sm ${active ? "text-primary-foreground/70" : "text-cream/65"}`}>{desc}</span>
-    </button>
   );
 }
 
