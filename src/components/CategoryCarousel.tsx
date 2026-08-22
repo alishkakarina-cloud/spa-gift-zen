@@ -104,7 +104,7 @@ export function CategoryCarousel({
               )}
               <span className="flex items-baseline justify-between gap-2 px-4 py-3">
                 <span
-                  className={`font-display text-base leading-tight ${active ? "text-gold" : ""}`}
+                  className={`font-display text-base leading-tight ${active ? "text-gold" : "text-cream"}`}
                 >
                   {t(c.labelKey)}
                 </span>

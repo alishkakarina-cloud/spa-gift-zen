@@ -1149,7 +1149,7 @@ function Choice({
       onClick={onClick}
       className={`surface p-6 text-left transition-colors ${active ? "border-gold bg-gold" : "hover:border-gold/60"}`}
     >
-      <span className={`block font-display text-2xl ${active ? "text-primary-foreground" : ""}`}>{title}</span>
+      <span className={`block font-display text-2xl ${active ? "text-primary-foreground" : "text-cream"}`}>{title}</span>
       <span className={`mt-2 block text-sm ${active ? "text-primary-foreground/70" : "text-cream/65"}`}>{desc}</span>
     </button>
   );

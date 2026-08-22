@@ -112,7 +112,7 @@ export function OffersSection() {
                   }`}
                 >
                   <span
-                    className={`font-display block text-lg sm:text-xl ${selected ? "text-primary-foreground" : ""}`}
+                    className={`font-display block text-lg sm:text-xl ${selected ? "text-primary-foreground" : "text-cream"}`}
                   >
                     {t("home.buyCityPrefix")} {t(b.labelKey)}
                   </span>
@@ -136,7 +136,7 @@ export function OffersSection() {
                 aria-expanded={amountOpen}
                 className="w-full px-6 py-4 text-left"
               >
-                <span className={`font-display block text-lg sm:text-xl ${amountOpen ? "text-gold" : ""}`}>
+                <span className={`font-display block text-lg sm:text-xl ${amountOpen ? "text-gold" : "text-cream"}`}>
                   {t("home.buyAmountToggle")}
                 </span>
                 <span className="text-cream/65 mt-1 block text-sm">
