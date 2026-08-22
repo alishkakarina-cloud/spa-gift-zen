@@ -3,12 +3,12 @@ import { AtmosphereGallery } from "@/components/AtmosphereGallery";
 import { CategoryCarousel } from "@/components/CategoryCarousel";
 import { Motif } from "@/components/Motif";
 import { SelectionSummary } from "@/components/SelectionSummary";
-import { ServiceFamilyRow } from "@/components/ServiceFamilyCard";
+import { ServiceFamilyCard } from "@/components/ServiceFamilyCard";
 import { SERVICE_GROUPS, familiesInGroup, serviceGroupCounts, type CatalogGroup } from "@/data/serviceGroups";
 
 /**
  * Витрина каталога: атмосферная галерея, зациклённая карусель категорий и
- * вертикальный список услуг выбранной категории.
+ * сетка карточек услуг выбранной категории.
  *
  * Используется только на /catalog. Услуги отмечаются чекбоксами и копятся в
  * общем выборе — он живёт в самой странице, поэтому переключение категории
@@ -70,9 +70,12 @@ export function ServiceCatalogBrowser({
 
         <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
 
-        <div className="mt-4 grid gap-3">
+        {/* Сетка карточек (правка 2026-08-22, откат к версии до 19:50) —
+            была списком компактных строк в одну колонку, владелец счёл
+            вид хуже прежней сетки. */}
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {familiesInGroup(groupId).map((family) => (
-            <ServiceFamilyRow
+            <ServiceFamilyCard
               key={family.familyKey}
               family={family}
               selectedIds={selectedIds}
