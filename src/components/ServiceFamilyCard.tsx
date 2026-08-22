@@ -108,50 +108,11 @@ type Props = {
   t: (path: string) => string;
 };
 
-/** Карточка для сеток (шаг выбора в мастере оформления, витрина каталога). */
-export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
-  const { variants } = family;
-  const { chosenId, setChosenId, chosen, active } = useFamilySelection(family, selectedIds);
-  const image = serviceImage(variants[0]!.id);
-  const name = t(`services.${variants[0]!.id}.name`).replace(NAME_DURATION_SUFFIX, "");
-
-  return (
-    <article className="surface flex flex-col overflow-hidden rounded-lg">
-      {image && (
-        <div className="relative">
-          <img
-            src={image}
-            alt=""
-            width={720}
-            height={720}
-            loading="lazy"
-            decoding="async"
-            className="aspect-[4/3] w-full object-cover"
-          />
-          {family.hit && (
-            <span className="bg-maroon border-gold/50 text-cream absolute top-2 left-2 rounded-full border px-2.5 py-1 text-[0.6rem] font-medium tracking-[0.15em] uppercase">
-              {t("catalog.hitBadge")}
-            </span>
-          )}
-        </div>
-      )}
-      <div className="flex flex-1 flex-col gap-2 p-5">
-        <h3 className="font-display text-lg leading-tight">{name}</h3>
-        <DurationSwitch variants={variants} chosenId={chosenId} onChoose={setChosenId} label={name} t={t} />
-        <p className="text-cream/70 line-clamp-2 text-sm leading-relaxed">
-          {t(`services.${chosen.id}.description`)}
-        </p>
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-3">
-          <span className="text-gold text-sm">{formatPrice(chosen.price)}</span>
-          <SelectPill active={active} onClick={() => onToggle(chosenId)} t={t} />
-        </div>
-      </div>
-    </article>
-  );
-}
-
-/** Строка для вертикального списка витрины /catalog — фото слева, текст
- *  посередине, кнопка «Выбрать» справа. Та же логика выбора длительности. */
+/** Компактная горизонтальная строка: маленькое фото слева, название +
+ *  описание + переключатель вариантов посередине, кнопка «Выбрать» справа.
+ *  Используется и на витрине /offers (ServiceCatalogBrowser), и в шаге
+ *  выбора услуги мастера оформления /certificate (ServiceChooser) — единый
+ *  компактный вид карточки по всему сайту (правка владельца 2026-08-22). */
 export function ServiceFamilyRow({ family, selectedIds, onToggle, t }: Props) {
   const { variants } = family;
   const { chosenId, setChosenId, chosen, active } = useFamilySelection(family, selectedIds);
@@ -159,9 +120,9 @@ export function ServiceFamilyRow({ family, selectedIds, onToggle, t }: Props) {
   const name = t(`services.${variants[0]!.id}.name`).replace(NAME_DURATION_SUFFIX, "");
 
   return (
-    <article className={`surface flex gap-4 overflow-hidden p-3 transition-colors ${active ? "border-gold" : ""}`}>
+    <article className={`surface flex gap-2.5 overflow-hidden p-3 transition-colors sm:gap-4 ${active ? "border-gold" : ""}`}>
       {image && (
-        <div className="relative shrink-0">
+        <div className="relative shrink-0 self-center">
           <img
             src={image}
             alt=""
@@ -169,7 +130,7 @@ export function ServiceFamilyRow({ family, selectedIds, onToggle, t }: Props) {
             height={720}
             loading="lazy"
             decoding="async"
-            className="h-24 w-24 rounded-md object-cover sm:h-28 sm:w-28"
+            className="h-16 w-16 rounded-md object-cover sm:h-28 sm:w-28"
           />
           {family.hit && (
             <span className="bg-maroon border-gold/50 text-cream absolute top-1 left-1 rounded-full border px-1.5 py-0.5 text-[0.5rem] font-medium tracking-[0.1em] uppercase">
@@ -179,12 +140,18 @@ export function ServiceFamilyRow({ family, selectedIds, onToggle, t }: Props) {
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 py-1 pr-2">
-        <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <h3 className="font-display text-lg">{name}</h3>
-          <span className="text-gold text-sm">{formatPrice(chosen.price)}</span>
-        </div>
+        {/* Заголовок и цена раньше делили одну flex-строку (justify-between) —
+            на узком мобильном название реально зажималось уже соседством с
+            ценой в той же строке, а не только шириной всей колонки, из-за
+            чего оно дробилось на 3+ строки даже там, где само по себе
+            поместилось бы в 1-2. Отдельные строки — название получает всю
+            ширину колонки под перенос текста. */}
+        <h3 className="font-display text-base leading-tight sm:text-lg">{name}</h3>
+        <span className="text-gold text-sm">{formatPrice(chosen.price)}</span>
         <DurationSwitch variants={variants} chosenId={chosenId} onChoose={setChosenId} label={name} t={t} />
-        <p className="text-cream/70 text-sm leading-relaxed">{t(`services.${chosen.id}.description`)}</p>
+        <p className="text-cream/70 line-clamp-2 text-sm leading-relaxed">
+          {t(`services.${chosen.id}.description`)}
+        </p>
       </div>
       <div className="flex shrink-0 items-center">
         <SelectPill active={active} onClick={() => onToggle(chosenId)} t={t} />

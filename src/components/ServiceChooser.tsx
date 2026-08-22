@@ -1,5 +1,5 @@
 import { CategoryCarousel } from "@/components/CategoryCarousel";
-import { ServiceFamilyCard } from "@/components/ServiceFamilyCard";
+import { ServiceFamilyRow } from "@/components/ServiceFamilyCard";
 import { SERVICE_GROUPS, familiesInGroup, serviceGroupCounts, type CatalogGroup } from "@/data/serviceGroups";
 
 /**
@@ -10,6 +10,12 @@ import { SERVICE_GROUPS, familiesInGroup, serviceGroupCounts, type CatalogGroup 
  * чекбоксами: в один сертификат можно положить несколько программ, стоимость
  * складывается. Поэтому карточка больше не уносит сразу к оформлению —
  * переход делает общая кнопка под сводкой выбранного.
+ *
+ * ServiceFamilyRow (компактная горизонтальная строка: маленькое фото слева,
+ * переключатель вариантов, кнопка «Выбрать» справа), а не ServiceFamilyCard
+ * (высокая карточка с фото на всю ширину) — правка владельца 2026-08-22,
+ * «одна услуга съедала весь экран». Та же строка уже используется в
+ * ServiceCatalogBrowser (/offers) — не заводим второй визуальный вариант.
  */
 export function ServiceChooser({
   groupId,
@@ -50,9 +56,9 @@ export function ServiceChooser({
 
         <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid gap-3">
           {familiesInGroup(groupId).map((family) => (
-            <ServiceFamilyCard
+            <ServiceFamilyRow
               key={family.familyKey}
               family={family}
               selectedIds={selectedIds}
