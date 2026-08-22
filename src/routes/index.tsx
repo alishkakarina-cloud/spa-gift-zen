@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useCallback } from "react";
 import { Check, ChevronDown, Infinity as InfinityIcon, MapPin } from "lucide-react";
 import heroPhoto from "@/assets/atmosphere-arch.webp";
 import logoLight from "@/assets/logo-on-dark.webp";
@@ -49,6 +50,14 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useLanguage();
+  // «Наши услуги» — скролл на этой же странице к секции с информацией о
+  // салоне (правка 2026-08-22: раньше вела на /certificate тем же переходом,
+  // что и «Купить сертификат» — обе кнопки указывали в одну точку, хотя по
+  // смыслу это разные действия). scroll-mt на секции (см. ниже, id="salons")
+  // резервирует отступ под sticky-хедер, чтобы заголовок не оказался под ним.
+  const scrollToSalons = useCallback(() => {
+    document.getElementById("salons")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   return (
     <main>
@@ -116,9 +125,9 @@ function Index() {
             <Link to="/certificate" className="btn-beige w-full">
               {t("home.heroCta")}
             </Link>
-            <Link to="/certificate" className="btn-gold w-full">
+            <button type="button" onClick={scrollToSalons} className="btn-gold w-full">
               {t("home.heroCatalogCta")}
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -191,10 +200,11 @@ function Index() {
       </section>
 
       {/* ── «Наши салоны» — перенесены сюда из бывшего оверлея «Наши услуги»
-          (см. историю задач). id="salons" сейчас ни на что не ведёт с
-          hero (кнопки hero ведут на /certificate) — оставлен на случай,
-          если понадобится доскролл сюда откуда-то ещё. ─────────────────── */}
-      <div id="salons">
+          (см. историю задач). id="salons" — цель скролла кнопки «Наши
+          услуги» в hero (правка 2026-08-22); scroll-mt-24 резервирует
+          отступ под sticky-хедер (SiteHeader), чтобы заголовок секции не
+          оказался под ним при скролле. ──────────────────────────────── */}
+      <div id="salons" className="scroll-mt-24">
         <BranchesSection t={t} />
       </div>
 
