@@ -34,6 +34,13 @@ const scrollToSalons = () => document.getElementById("salons")?.scrollIntoView({
  * Одна страница, один скролл — /offers как маршрут остался жив для прямых
  * ссылок, но на главной больше не нужен переход, чтобы это увидеть.
  *
+ * Порядок секций после hero — правка владельца 2026-08-22, «сначала
+ * действие, потом информация» (по образцу layan.kz): блок выбора
+ * (город/сумма) + каталог услуг сразу под ним идут ПЕРВЫМИ после hero, вся
+ * информационная часть (описание сертификатов, условия, «Почему RaiThai»,
+ * контакты филиалов) — ниже. Раньше было наоборот (см. git-историю) —
+ * порядок явно поменяли на этот.
+ *
  * «Наши услуги» раньше открывала оверлей/модалку поверх страницы
  * (ServicesOverlay, см. историю задач) — по правке владельца 2026-08-21
  * модальное поведение убрано: контент оверлея (салоны + условия
@@ -148,35 +155,13 @@ function Index() {
         </button>
       </section>
 
-      {/* ── «Почему RAI THAI SPA» — 4 причины из ТЗ. Переставлено выше
-          OffersSection (правка владельца): ценностные блоки должны быть
-          видны до того, как посетителя просят выбрать город/сумму. ────── */}
-      <section className="relative overflow-hidden">
-        <Divider motif="diamondLattice" className="pt-4 sm:pt-6" />
-        <Reveal className="relative mx-auto max-w-5xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
-          <div className="flex items-center justify-center gap-3 text-center sm:justify-start sm:text-left">
-            <Motif name="petalDiamond" className="text-gold h-7 w-7 shrink-0" />
-            <p className="eyebrow">{t("home.whyEyebrow")}</p>
-          </div>
-          <h2 className="font-display mt-4 text-center text-2xl sm:text-left sm:text-3xl">
-            {t("home.whyTitle")}
-          </h2>
+      {/* ── Блок выбора (город/сумма) + каталог услуг сразу под ним — первое,
+          что видно после hero (правка владельца 2026-08-22, «сначала
+          действие»). Вся информационная часть — ниже. ─────────────────── */}
+      <OffersSection />
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {([1, 2, 3, 4] as const).map((n) => (
-              <div key={n} className="surface flex flex-col gap-2 rounded-lg p-5">
-                <span className="border-gold/45 text-gold flex h-9 w-9 shrink-0 items-center justify-center rounded-full border">
-                  <Check className="h-4 w-4" />
-                </span>
-                <h3 className="font-display text-base leading-tight">
-                  {t(`home.why${n}Title`)}
-                </h3>
-                <p className="text-cream/70 text-sm leading-relaxed">{t(`home.why${n}Desc`)}</p>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-      </section>
+      {/* ── «Подарочные сертификаты» — описание + 4 пункта. ─────────────── */}
+      <CertPerks t={t} />
 
       {/* ── «Условия использования сертификата» — по структуре layan.kz
           (заголовок + карточки-плашки сплошным акцентным цветом), но с
@@ -206,26 +191,44 @@ function Index() {
         </Reveal>
       </section>
 
-      {/* ── «Наши салоны» + «Подарочные сертификаты» — перенесены сюда из
-          бывшего оверлея «Наши услуги» (см. комментарий над Index выше),
-          в том же порядке, в котором шли там. id="salons" — цель доскролла
-          с кнопки «Наши услуги» в hero. Каталог услуг и футер из того же
-          оверлея не дублируются — они уже есть ниже (OffersSection,
-          SiteFooter). ────────────────────────────────────────────────── */}
+      {/* ── «Почему RAI THAI SPA» — 4 причины из ТЗ. ─────────────────────── */}
+      <section className="relative overflow-hidden">
+        <Divider motif="diamondLattice" className="pt-4 sm:pt-6" />
+        <Reveal className="relative mx-auto max-w-5xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
+          <div className="flex items-center justify-center gap-3 text-center sm:justify-start sm:text-left">
+            <Motif name="petalDiamond" className="text-gold h-7 w-7 shrink-0" />
+            <p className="eyebrow">{t("home.whyEyebrow")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-center text-2xl sm:text-left sm:text-3xl">
+            {t("home.whyTitle")}
+          </h2>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {([1, 2, 3, 4] as const).map((n) => (
+              <div key={n} className="surface flex flex-col gap-2 rounded-lg p-5">
+                <span className="border-gold/45 text-gold flex h-9 w-9 shrink-0 items-center justify-center rounded-full border">
+                  <Check className="h-4 w-4" />
+                </span>
+                <h3 className="font-display text-base leading-tight">
+                  {t(`home.why${n}Title`)}
+                </h3>
+                <p className="text-cream/70 text-sm leading-relaxed">{t(`home.why${n}Desc`)}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ── «Наши салоны» — перенесены сюда из бывшего оверлея «Наши услуги»
+          (см. историю задач). id="salons" — цель доскролла с кнопки «Наши
+          услуги» в hero. ─────────────────────────────────────────────── */}
       <div id="salons">
         <BranchesSection t={t} />
       </div>
-      <CertPerks t={t} />
-
-      <OffersSection />
 
       {/* ── FAQ — тот же набор вопросов/ответов из официального ТЗ (блок 18),
           что и на /certificate (общий список FAQ_NUMBERS, чтобы решение о
-          скрытых вопросах 6/9 не разъезжалось по файлам). Раньше FAQ был
-          на главной и его сознательно унесли на /certificate (см. историю
-          задач) — возвращаем сюда по прямой правке, оставляя и на
-          /certificate тоже: там он рядом со шагом оплаты, здесь — сразу
-          после условий сертификата, как продолжение того же разговора. ── */}
+          скрытых вопросах 6/9 не разъезжалось по файлам). ──────────────── */}
       <section className="relative overflow-hidden">
         <Divider motif="dottedWave" className="pt-4 sm:pt-6" />
         <Reveal className="relative mx-auto max-w-3xl px-5 pt-8 pb-16 sm:px-6 sm:pb-24">
