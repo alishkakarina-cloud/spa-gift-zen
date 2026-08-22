@@ -140,7 +140,7 @@ const ru = {
     ctaButton: "Оформить за 2 минуты",
   },
   cert: {
-    steps: ["Сертификат", "Дизайн", "Оформление", "Оплата", "Готово"],
+    steps: ["Сертификат", "Оформление", "Дизайн", "Оплата", "Готово"],
     stepOf: "Шаг {step} из 5 · {name}",
     step1Title: "Выберите сертификат",
     choiceServiceTitle: "На любую услугу",
@@ -728,7 +728,7 @@ const kz = {
     faq9A: "Қайтару шарттары нақтыланады.",
   },
   cert: {
-    steps: ["Сертификат", "Дизайн", "Деректер", "Төлем", "Дайын"],
+    steps: ["Сертификат", "Деректер", "Дизайн", "Төлем", "Дайын"],
     stepOf: "Қадам {step}/5 · {name}",
     step1Title: "Сертификатты таңдаңыз",
     choiceServiceTitle: "Кез келген қызметке",
@@ -1257,7 +1257,7 @@ const en = {
     faq9A: "The refund terms are still being finalized.",
   },
   cert: {
-    steps: ["Certificate", "Design", "Details", "Payment", "Done"],
+    steps: ["Certificate", "Details", "Design", "Payment", "Done"],
     stepOf: "Step {step} of 5 · {name}",
     step1Title: "Choose a certificate",
     choiceServiceTitle: "For any service",

@@ -89,7 +89,10 @@ const payErrorMessage = (t: (path: string) => string, errorCategory?: string | n
   t(errorCategory && ERROR_CATEGORY_KEY[errorCategory] ? ERROR_CATEGORY_KEY[errorCategory]! : "cert.errInvoiceCreateFailed");
 
 type Kind = "service" | "amount";
-/** 1 — выбор, 2 — дизайн, 3 — оформление со сводкой, 4 — оплата, 5 — готово. */
+/** 1 — выбор, 2 — оформление со сводкой, 3 — дизайн, 4 — оплата, 5 — готово.
+ *  Порядок 2/3 поменян местами 2026-08-22 — сверка с layan.kz вживую
+ *  подтвердила, что там данные получателя заполняются раньше выбора
+ *  дизайна (см. отчёт задачи), у нас было наоборот. */
 type Step = 1 | 2 | 3 | 4 | 5;
 /** Арка на бланке маленькая — длинный текст туда физически не влезает. */
 const MESSAGE_MAX_LENGTH = 140;
@@ -108,10 +111,10 @@ function CertificateFlow() {
   const steps = translations[lang].cert.steps;
   // Пришли с готовым выбором («Подарить» под сводкой) — пропускаем только
   // экран выбора услуги/суммы (шаг 1), а не весь путь целиком. Шаг 2
-  // (дизайн сертификата) пользователь должен увидеть всегда — раньше здесь
-  // стояло `? 3 : 1`, и так как почти все ссылки на сайте уже несут
-  // предвыбор (из hero, каталога, карточек услуг), шаг дизайна фактически
-  // никогда не показывался.
+  // (данные покупателя/получателя, после правки 2026-08-22) пользователь
+  // должен увидеть всегда — раньше здесь стояло `? 3 : 1`, и так как почти
+  // все ссылки на сайте уже несут предвыбор (из hero, каталога, карточек
+  // услуг), следующий за выбором шаг фактически никогда не показывался.
   const hasPreset = Boolean(presetIds.length > 0 || presetAmount);
   const [step, setStep] = useState<Step>(hasPreset ? 2 : 1);
 
@@ -151,10 +154,10 @@ function CertificateFlow() {
   type InvoicePhase = "choose" | "creating" | "awaiting" | "error" | "timeout";
   const PAY_PHONE_RE = /^8\d{10}$/;
   const [payChannel, setPayChannel] = useState<PayChannel>("qr");
-  // Предзаполняем из buyerPhone (шаг 3), только если он уже похож на нужный
+  // Предзаполняем из buyerPhone (шаг 2), только если он уже похож на нужный
   // формат — иначе пусто, поле обязательно проверяется отдельно (Блок 2.2).
   const [payPhone, setPayPhone] = useState("");
-  // Предзаполняем из buyerPhone (шаг 3) при входе на шаг 4, только если поле
+  // Предзаполняем из buyerPhone (шаг 2) при входе на шаг 4, только если поле
   // ещё пустое — buyerPhone на момент монтирования компонента (шаг 1) всегда
   // пуст, так что делать это в инициализаторе useState бессмысленно.
   useEffect(() => {
@@ -322,7 +325,10 @@ function CertificateFlow() {
   };
 
   const next = async () => {
-    const e = step === 1 ? validateStep1() : step === 3 ? validateStep3() : [];
+    // Данные покупателя/получателя теперь заполняются на шаге 2 (правка
+    // 2026-08-22: порядок «Оформление» → «Дизайн» подтверждён сверкой с
+    // layan.kz — validateStep3 по названию функции, но привязана к шагу 2.
+    const e = step === 1 ? validateStep1() : step === 2 ? validateStep3() : [];
     setErrors(e);
     if (e.length > 0) return;
     setStep((s) => Math.min(5, s + 1) as Step);
@@ -589,7 +595,7 @@ function CertificateFlow() {
             </div>
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <div>
               <h1 className="font-display text-3xl">{t("cert.step2Title")}</h1>
               <p className="mt-3 max-w-lg text-sm leading-relaxed text-cream/65">
@@ -624,7 +630,7 @@ function CertificateFlow() {
             </div>
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <div className="max-w-xl">
               <h1 className="font-display text-3xl">{t("cert.step3Title")}</h1>
               <p className="text-cream/65 mt-3 text-sm leading-relaxed">{t("cert.step3Text")}</p>
