@@ -86,6 +86,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "author", content: "Rai Thai Spa" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      /* На сайте свой переключатель RU/KZ/EN (LanguageSwitcher) — встроенный
+         перевод браузера (Google Translate/Edge) ему не нужен и опасен: он
+         переписывает текстовые узлы через свои <font>-обёртки в обход нашей
+         вёрстки, из-за чего цвет текста на отдельных карточках может слетать
+         непредсказуемо (жалоба владельца 2026-08-22 на "бледный" текст то на
+         одной карточке города, то на другой — само по себе воспроизвести не
+         удалось, но lang="en" при фактически русском контенте ниже — реальный
+         найденный триггер для переводчика браузера, поэтому глушим его явно). */
+      { name: "google", content: "notranslate" },
     ],
     links: [
       {
@@ -109,9 +118,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+/**
+ * lang раньше был статично "en" при фактически русском контенте по
+ * умолчанию — рассинхрон исправлялся только клиентским эффектом в
+ * LanguageContext.tsx (document.documentElement.lang), уже после гидратации,
+ * так что в самой SSR-разметке и первые мгновения на клиенте лежал неверный
+ * lang. Теперь совпадает с языком по умолчанию (ru) уже в SSR-разметке.
+ * translate="no" — отключаем встроенный переводчик браузера, см. комментарий
+ * у meta name="google" выше.
+ */
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ru" translate="no">
       <head>
         <HeadContent />
       </head>
