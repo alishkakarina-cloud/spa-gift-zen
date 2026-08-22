@@ -374,7 +374,12 @@ function CertificateFlow() {
 
   const validateStep1 = () => {
     if (kind === "service" && chosen.length === 0) return [t("cert.errServiceRequired")];
-    if (kind === "amount" && (!total || total < MIN_AMOUNT))
+    // Доп. защита (Блок 2.2 отчёта о баге "0 ₸"): даже если по каким-то
+    // причинам chosen.length > 0, а total всё равно не посчитался (не
+    // должно происходить после фикса корня бага, но это последний рубеж
+    // перед оплатой) — не пускаем дальше ни при kind "service", ни "amount".
+    if (!total || total <= 0) return [t("cert.errMinAmount", { amount: formatPrice(MIN_AMOUNT) })];
+    if (kind === "amount" && total < MIN_AMOUNT)
       return [t("cert.errMinAmount", { amount: formatPrice(MIN_AMOUNT) })];
     return [];
   };
@@ -397,6 +402,10 @@ function CertificateFlow() {
 
   const validateStep4 = () => {
     const e: string[] = [];
+    // Последний рубеж перед реальным созданием платежа (Блок 2.2 отчёта о
+    // баге "0 ₸") — если сумма всё же оказалась 0/отрицательной, оплату не
+    // создаём ни при каких обстоятельствах.
+    if (!total || total <= 0) e.push(t("cert.errMinAmount", { amount: formatPrice(MIN_AMOUNT) }));
     if (!consentAccepted) e.push(t("cert.errConsentRequired"));
     if (payChannel === "phone" && !PAY_PHONE_RE.test(payPhone)) e.push(t("cert.errPayPhoneInvalid"));
     return e;
@@ -781,13 +790,24 @@ function CertificateFlow() {
                   <ServiceCatalogBrowser
                     groupId={groupId}
                     onGroupChange={setGroupId}
-                    // Пока добавляем доп.услуги к сертификату «на сумму» —
+                    // Пока добавляем доп.услуги к уже оформляемому
+                    // сертификату «на сумму» (addingExtraServices) —
                     // отмечаем/считаем их в extraServiceIds, а не в
-                    // serviceIds (тот остаётся логикой обычного сертификата
-                    // «на услугу», см. комментарий у объявления состояния).
-                    selectedIds={kind === "amount" ? extraServiceIds : serviceIds}
+                    // serviceIds. ВАЖНО: признак режима — именно
+                    // addingExtraServices, а не kind === "amount" — kind по
+                    // умолчанию и так равен "amount" при любом первом заходе
+                    // без preset (до явного выбора услуги/суммы), поэтому
+                    // проверка по kind ошибочно уводила id обычного первого
+                    // выбора услуг в extraServiceIds ещё ДО клика
+                    // «Подарить» — после клика kind становился "service", но
+                    // serviceIds оставался пустым, а сумма считалась от него
+                    // (0 ₸) и в сводке вместо услуг показывался номинал.
+                    // Баг: "Итого"/"К оплате" считались как 0 ₸ при выборе
+                    // нескольких услуг + не убиралась строка "Сертификат на
+                    // сумму" (см. отчёт задачи).
+                    selectedIds={addingExtraServices ? extraServiceIds : serviceIds}
                     onToggle={(id) => {
-                      if (kind === "amount") {
+                      if (addingExtraServices) {
                         setExtraServiceIds((ids) => toggleServiceId(ids, id));
                       } else {
                         setServiceIds((ids) => toggleServiceId(ids, id));
@@ -795,7 +815,7 @@ function CertificateFlow() {
                       setErrors([]);
                     }}
                     onClear={() =>
-                      kind === "amount" ? setExtraServiceIds([]) : setServiceIds([])
+                      addingExtraServices ? setExtraServiceIds([]) : setServiceIds([])
                     }
                     t={t}
                     action={
@@ -809,6 +829,20 @@ function CertificateFlow() {
                         <button
                           type="button"
                           onClick={() => {
+                            // Раньше эта кнопка переходила на шаг 2 без
+                            // проверки — при пустом serviceIds (например,
+                            // из-за бага "0 ₸", см. отчёт) ничего не мешало
+                            // дойти до оплаты без реально выбранных услуг.
+                            // Проверяем chosen/selectionTotal напрямую, а не
+                            // через validateStep1() — на момент клика kind
+                            // ещё не переключён на "service" (setKind ниже
+                            // применится только на следующий рендер), так
+                            // что kind-ветка validateStep1 тут смотрела бы
+                            // не на serviceIds, а на текущий (amount) total.
+                            if (chosen.length === 0 || selectionTotal(serviceIds) <= 0) {
+                              setErrors([t("cert.errServiceRequired")]);
+                              return;
+                            }
                             setErrors([]);
                             setKind("service");
                             setStep(2);
