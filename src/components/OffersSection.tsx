@@ -90,7 +90,15 @@ export function OffersSection() {
             {t("cert.step1Title")}
           </h1>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          {/* Карточки-переключатели уменьшены (правка владельца 2026-08-22,
+              «тоньше и компактнее, как на layan.kz», но своя палитра):
+              py-6→py-4 (было слишком много воздуха сверху/снизу), заголовок
+              text-xl/2xl→lg/xl (укладывается в «минус 1-2px», не мельче
+              text-sm=14px пола для адреса/подписи), gap-3→gap-2 между
+              карточками. Рамка (.surface, 1px) не трогал — она и так та же,
+              что у остальных карточек сайта, не толще. Кликабельная область
+              осталась ощутимо больше 44px по высоте. */}
+          <div className="mt-8 grid gap-2 sm:grid-cols-3">
             {BRANCHES.map((b) => {
               const selected = activeCity === b.id;
               return (
@@ -99,14 +107,14 @@ export function OffersSection() {
                   type="button"
                   onClick={() => setActiveCity(b.id)}
                   aria-pressed={selected}
-                  className={`surface p-6 text-left transition-colors ${
+                  className={`surface px-6 py-4 text-left transition-colors ${
                     selected ? "border-gold bg-gold/10" : "hover:border-gold/60"
                   }`}
                 >
-                  <span className={`font-display block text-xl sm:text-2xl ${selected ? "text-gold" : ""}`}>
+                  <span className={`font-display block text-lg sm:text-xl ${selected ? "text-gold" : ""}`}>
                     {t("home.buyCityPrefix")} {t(b.labelKey)}
                   </span>
-                  <span className="text-cream/65 mt-2 block text-sm">{b.address}</span>
+                  <span className="text-cream/65 mt-1 block text-sm">{b.address}</span>
                 </button>
               );
             })}
@@ -120,12 +128,12 @@ export function OffersSection() {
                 type="button"
                 onClick={toggleAmount}
                 aria-expanded={amountOpen}
-                className="w-full p-6 text-left"
+                className="w-full px-6 py-4 text-left"
               >
-                <span className={`font-display block text-xl sm:text-2xl ${amountOpen ? "text-gold" : ""}`}>
+                <span className={`font-display block text-lg sm:text-xl ${amountOpen ? "text-gold" : ""}`}>
                   {t("home.buyAmountToggle")}
                 </span>
-                <span className="text-cream/65 mt-2 block text-sm">
+                <span className="text-cream/65 mt-1 block text-sm">
                   {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
                 </span>
               </button>
