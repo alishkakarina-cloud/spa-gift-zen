@@ -557,6 +557,18 @@ export type CertificateDesign = {
    * (бордовый standard, тёмно-зелёный for-him), иначе на них не читается.
    */
   textTone: "dark" | "light";
+  /**
+   * Сплошной цвет "тела" карточки — снят пипеткой с ровного участка самого
+   * фото (см. отчёт задачи о растягивании карточки), нужен для CSS-блока
+   * ниже шапки, который растёт по высоте под текст (Блок 1 задачи): сама
+   * картинка — цельный файл, "нарастить" её низ нельзя, поэтому картинка
+   * обрезается только до шапки (арка/лого/линия), а дальше идёт этот
+   * залитый цветом div с тем же бордюром, что и на фото.
+   */
+  bodyColor: string;
+  /** Цвет тонкой золотой рамки на фото — тем же цветом рисуется бордюр
+   *  растягиваемого CSS-блока, чтобы шов с картинкой не бросался в глаза. */
+  borderColor: string;
 };
 
 /**
@@ -575,6 +587,18 @@ export type CertificateDesign = {
  */
 export const CERT_DESIGN_ASPECT = "454 / 723";
 
+/** Доля высоты карточки (от общего CERT_DESIGN_ASPECT), которая остаётся
+ *  цельной картинкой — арка, лого "RaiThai Massage & Spa", разделительная
+ *  линия. Подобрано попиксельным сканированием — разделительная линия на
+ *  фото у всех трёх дизайнов лежит около 38-40% высоты, 48% даёт запас,
+ *  чтобы она гарантированно попадала в обрезанную шапку, а не в
+ *  растягиваемое "тело" под ней (см. отчёт задачи о растягивании карточки). */
+const CERT_HEADER_FRACTION = 0.48;
+export const CERT_HEADER_ASPECT = (() => {
+  const [w, h] = CERT_DESIGN_ASPECT.split("/").map((n) => Number(n.trim()));
+  return `${w} / ${h! * CERT_HEADER_FRACTION}`;
+})();
+
 export const designs: CertificateDesign[] = [
   {
     id: "standard",
@@ -582,6 +606,9 @@ export const designs: CertificateDesign[] = [
     photo: standardDesignPhoto,
     archBox: { top: 41, bottom: 75, centerX: 52, width: 50 },
     textTone: "light",
+    // Цвета сняты пипеткой с ровных участков самого фото standard.png.
+    bodyColor: "#460608",
+    borderColor: "#f3cf84",
   },
   {
     id: "for-her",
@@ -589,6 +616,8 @@ export const designs: CertificateDesign[] = [
     photo: forHerDesignPhoto,
     archBox: { top: 41, bottom: 75, centerX: 50, width: 50 },
     textTone: "dark",
+    bodyColor: "#eedac5",
+    borderColor: "#a48850",
   },
   {
     id: "for-him",
@@ -596,6 +625,8 @@ export const designs: CertificateDesign[] = [
     photo: forHimDesignPhoto,
     archBox: { top: 41, bottom: 75, centerX: 48, width: 50 },
     textTone: "light",
+    bodyColor: "#112a16",
+    borderColor: "#d4b561",
   },
 ];
 

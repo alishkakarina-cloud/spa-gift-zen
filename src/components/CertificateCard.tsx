@@ -1,15 +1,14 @@
-import { CERT_DESIGN_ASPECT, type CertificateDesign } from "@/data/catalog";
+import { CERT_DESIGN_ASPECT, CERT_HEADER_ASPECT, type CertificateDesign } from "@/data/catalog";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 /**
- * Цвет текста внутри арки зависит от фона фото (design.textTone) — на
- * светлом бежевом фоне (for-her) тёмный тон читается хорошо, но на тёмных
- * бордовом/зелёном фонах (standard/for-him) тот же тёмный текст почти не
- * виден, поэтому там нужен светлый. ARCH_INK_LIGHT — не новый цвет, а
- * фирменный --gold-soft (#edcea5) из styles.css, тот же, что на золотой
- * рамке и орнаменте этих карточек. Применяется только к строке-эйбрау
- * внутри арки (см. ниже, почему) — состав/сумма сидят на теме страницы,
- * не на фото, им archInk не подходит.
+ * Цвет текста на дизайне (номинал, состав, "бессрочный" и т.п.) — зависит от
+ * тона дизайна: "dark" — тёмно-золотой текст для светлого бежевого фона
+ * (for-her), "light" — светлый бежево-золотой текст для тёмных фонов
+ * (бордовый standard, тёмно-зелёный for-him), иначе не читается. Применяется
+ * и к строке-эйбрау поверх фото, и ко всему тексту в растягиваемом "теле"
+ * карточки ниже — там ровно тот же фоновый цвет, что и на фото (см.
+ * design.bodyColor в catalog.ts), поэтому и цвет текста тот же.
  */
 const ARCH_INK_DARK = "#3a2a1a";
 const ARCH_INK_LIGHT = "#edcea5";
@@ -51,81 +50,55 @@ export function CertificateCard({
 }: Props) {
   const { t } = useLanguage();
   const lines = items && items.length > 0 ? items : null;
-  const { archBox } = design;
   const archInk = design.textTone === "light" ? ARCH_INK_LIGHT : ARCH_INK_DARK;
 
-  // Фото-фон сертификата — цельное изображение заказчика (рамка/лого/арка
-  // впечатаны в кадр), растягивать или обрезать его нельзя. Раньше весь
-  // динамический текст (эйбрау + состав + сумма + пожелание + получатель)
-  // печатался ПОВЕРХ картинки, внутри арки фиксированной % высоты — при
-  // нескольких услугах (после «Выбрать доп.услуги») текст туда физически
-  // не помещался.
-  //
-  // Первая попытка (растягивать зону текста через JS-измерение реальной
-  // высоты картинки/контента и вслед за этим — высоту всего блока) на деле
-  // не сработала надёжно — сам механизм заточен под точный тайминг первого
-  // рендера/загрузки шрифта, а это ненадёжно. Поэтому — другая структура:
-  // внутри арки остаётся только короткая, гарантированно однострочная
-  // подпись «Подарочный сертификат» (archInk/золотое свечение сохранены
-  // именно для неё — эта строка по-прежнему печатается поверх фото и её
-  // должно быть видно на любом фоне). Весь остальной, потенциально длинный
-  // контент — состав, сумма, пожелание, получатель/отправитель, филиал,
-  // номер — идёт ПОД картинкой обычным текстовым блоком в естественном
-  // потоке документа: растёт на любую высоту сам по себе, без каких-либо
-  // измерений и без риска наложения или обрезки.
+  // Фото-фон сертификата — цельный файл (арка/лого/линия впечатаны в кадр
+  // заказчиком), нарастить его низ без искажения нельзя. Поэтому картинка
+  // используется только как ШАПКА фиксированной высоты (обрезана снизу
+  // сразу после разделительной линии — CERT_HEADER_ASPECT, см. catalog.ts),
+  // а дальше идёт обычный div, залитый тем же цветом фона, что и на фото
+  // (design.bodyColor) с такой же тонкой золотой рамкой (design.borderColor)
+  // — этот div растёт по высоте (height: auto) вслед за реальным объёмом
+  // текста: 1 услуга — короткий, 5+ услуг — длинный, наложений и обрезки
+  // не может быть в принципе, т.к. содержимого просто не во что упираться.
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full ${className}`} style={{ boxShadow: "0 24px 60px -30px rgba(0,0,0,0.75)" }}>
+      {/* Шапка — обрезанный кроп картинки (арка, лого RaiThai, линия). */}
       <div
-        // w-full — обязателен: без явной ширины блок с aspect-ratio внутри
-        // <button> (у него нет собственной ширины) считает размеры непредсказуемо,
-        // из-за чего три карточки на шаге выбора дизайна могли обрезаться
-        // по-разному. С явной шириной все три получают одинаковый бокс.
-        className="relative w-full overflow-hidden rounded-2xl"
-        style={{ aspectRatio: CERT_DESIGN_ASPECT, boxShadow: "0 24px 60px -30px rgba(0,0,0,0.75)" }}
+        className="relative w-full overflow-hidden rounded-t-2xl"
+        style={{ aspectRatio: CERT_HEADER_ASPECT }}
       >
-        {/* Логотип, рамка, арка и золотая плашка с названием — всё уже
-            впечатано в фото заказчиком, это часть дизайна, не обрезаем.
-            object-fit: contain — показывает фото целиком на всех трёх
-            дизайнах гарантированно без обрезки, даже с чуть разными
-            пропорциями файлов (см. CERT_DESIGN_ASPECT в catalog.ts). */}
+        {/* Сама картинка рендерится в СВОИХ полных пропорциях (CERT_DESIGN_ASPECT,
+            т.е. на всю высоту сертификата) и просто обрезается родителем,
+            у которого высота — только доля CERT_HEADER_ASPECT. object-position:
+            top — показывает верх картинки (то, что нужно), не центр. */}
         <img
           src={design.photo}
           alt=""
           aria-hidden="true"
-          loading="lazy"
           width={461}
           height={801}
-          className="absolute inset-0 h-full w-full object-contain object-center"
+          className="absolute top-0 left-0 w-full object-contain object-top"
+          style={{ aspectRatio: CERT_DESIGN_ASPECT, height: "auto" }}
         />
 
-        {/* Единственная строка поверх фото — короткая по определению,
-            переполниться не может ни при каком составе сертификата. */}
-        <div
-          className="absolute flex flex-col items-center text-center"
-          style={{
-            top: `${archBox.top}%`,
-            height: `${archBox.bottom - archBox.top}%`,
-            left: `${archBox.centerX}%`,
-            width: `${archBox.width}%`,
-            transform: "translateX(-50%)",
-            color: archInk,
-            justifyContent: "center",
-          }}
+        {/* «Подарочный сертификат» — единственная строка, которая печатается
+            поверх фото: она всегда ровно одна и той же длины независимо от
+            состава сертификата, переполниться не может ни при каких услугах. */}
+        <p
+          className={`font-display absolute right-0 bottom-[6%] left-0 text-center tracking-[0.28em] uppercase opacity-75 ${compact ? "text-[0.5rem]" : "text-[0.6rem]"}`}
+          style={{ color: archInk }}
         >
-          <p
-            className={`font-display shrink-0 tracking-[0.28em] uppercase opacity-75 ${compact ? "text-[0.5rem]" : "text-[0.6rem]"}`}
-          >
-            {t("cert.cardEyebrow")}
-          </p>
-        </div>
+          {t("cert.cardEyebrow")}
+        </p>
       </div>
 
-      {/* Состав, сумма и остальные динамические данные — под картинкой,
-          обычный поток документа: сколько бы строк ни было, блок просто
-          растёт по высоте, ничего не обрезается и не накладывается. Цвета —
-          обычные токены темы страницы (cream/gold), не archInk: этот текст
-          сидит на фоне карточки-страницы, а не на фото. */}
-      <div className={`flex flex-col items-center text-center text-cream ${compact ? "mt-2" : "mt-4"}`}>
+      {/* Тело — растягиваемый CSS-блок, залитый цветом фона дизайна, с той
+          же рамкой, что и на фото. Весь динамический текст — тут. */}
+      <div
+        className={`flex flex-col items-center rounded-b-2xl border-x border-b text-center ${compact ? "px-3 py-3" : "px-6 py-5"}`}
+        style={{ backgroundColor: design.bodyColor, borderColor: design.borderColor, color: archInk }}
+      >
         {lines ? (
           <ul
             className={`font-display flex flex-col leading-[1.3] italic ${compact ? "text-xs" : "text-sm sm:text-base"}`}
@@ -136,7 +109,7 @@ export function CertificateCard({
           </ul>
         ) : null}
         <p
-          className={`font-display text-gold shrink-0 leading-[1.1] italic ${lines ? "mt-1.5" : ""} ${compact ? "text-base" : "text-xl sm:text-2xl"}`}
+          className={`font-display shrink-0 leading-[1.1] italic ${lines ? "mt-1.5" : ""} ${compact ? "text-base" : "text-xl sm:text-2xl"}`}
         >
           {valueLabel}
         </p>
@@ -145,14 +118,14 @@ export function CertificateCard({
             дальше строки просто нет. */}
         {message && (
           <p
-            className={`font-display mt-2 shrink-0 leading-snug italic text-cream/90 ${compact ? "text-[0.65rem]" : "text-sm"}`}
+            className={`font-display mt-2 shrink-0 leading-snug italic opacity-90 ${compact ? "text-[0.65rem]" : "text-sm"}`}
           >
             «{message}»
           </p>
         )}
 
         {!compact && (recipient || sender) && (
-          <p className="mt-2 shrink-0 text-[0.65rem] text-cream/70">
+          <p className="mt-2 shrink-0 text-[0.6rem] opacity-80">
             {recipient && `${t("cert.cardTo")}: ${recipient}`}
             {recipient && sender && " · "}
             {sender && `${t("cert.cardFrom")}: ${sender}`}
@@ -160,7 +133,7 @@ export function CertificateCard({
         )}
 
         {!compact && (branch || bookingNote) && (
-          <p className="mt-1 shrink-0 text-[0.62rem] leading-relaxed text-cream/55">
+          <p className="mt-1 shrink-0 text-[0.56rem] leading-relaxed opacity-70">
             {branch && `${t("cert.cardBranch")}: ${branch}`}
             {branch && bookingNote && " · "}
             {bookingNote}
@@ -168,7 +141,7 @@ export function CertificateCard({
         )}
 
         {!compact && (
-          <p className="mt-2 shrink-0 text-[0.6rem] tracking-[0.2em] text-cream/60 uppercase">
+          <p className="mt-2 shrink-0 text-[0.56rem] tracking-[0.2em] uppercase opacity-80">
             {t("cert.cardValidity")}
             {number && ` · № ${number}`}
           </p>
