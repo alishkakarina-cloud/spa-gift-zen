@@ -6,20 +6,16 @@ import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
 import { Motif } from "@/components/Motif";
 import { Divider } from "@/components/Divider";
-import { ServiceChooser } from "@/components/ServiceChooser";
 import { BRANCHES, type Branch } from "@/data/branches";
-import type { CatalogGroup } from "@/data/serviceGroups";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { translations } from "@/i18n/translations";
 import { MIN_AMOUNT, designs, fixedAmounts, formatPrice } from "@/data/catalog";
 import { FAQ_NUMBERS } from "@/data/faq";
-import { SelectionSummary } from "@/components/SelectionSummary";
 import {
   parseServiceIds,
   selectedServices,
   selectionTotal,
   serializeServiceIds,
-  toggleServiceId,
 } from "@/data/selection";
 
 type CertificateSearch = {
@@ -107,7 +103,6 @@ function CertificateFlow() {
   // Пришли с /catalog или из коммерческого блока главной — открываем шаг 1
   // сразу на нужном варианте и с отмеченными услугами либо номиналом.
   const presetIds = parseServiceIds(presetServices);
-  const presetFirst = selectedServices(presetIds)[0] ?? null;
   const steps = translations[lang].cert.steps;
   // Пришли с готовым выбором («Подарить» под сводкой) — пропускаем только
   // экран выбора услуги/суммы (шаг 1), а не весь путь целиком. Шаг 2
@@ -130,9 +125,13 @@ function CertificateFlow() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [step]);
-  const [kind, setKind] = useState<Kind>(presetKind ?? (presetAmount ? "amount" : "service"));
-  const [groupId, setGroupId] = useState<CatalogGroup>(presetFirst?.group ?? "massage");
-  const [serviceIds, setServiceIds] = useState<string[]>(presetIds);
+  // «На любую услугу» убрана как переключатель на шаге 1 (правка 2026-08-22)
+  // — «Указать сумму» единственный путь без пресета. Выбор конкретной
+  // услуги по-прежнему доступен из каталога услуг на сайте (ведёт сюда с
+  // ?services=..., минуя этот шаг целиком через hasPreset выше) — поэтому
+  // дефолт всё равно должен уважать presetIds, а не всегда быть "amount".
+  const [kind] = useState<Kind>(presetKind ?? (presetIds.length > 0 ? "service" : "amount"));
+  const [serviceIds] = useState<string[]>(presetIds);
   const [amount, setAmount] = useState<number>(presetAmount ?? fixedAmounts[0]!);
   const [customAmount, setCustomAmount] = useState("");
   // Активирует собственную кнопку «Далее» под панелью суммы (см. JSX шага 1)
@@ -507,14 +506,15 @@ function CertificateFlow() {
             <div>
               <h1 className="font-display text-3xl">{t("cert.step1Title")}</h1>
 
-              {/* Филиал — первое, что видно на шаге 1 (перенесено сюда с
-                  главной страницы, см. index.tsx). Декоративного смысла у
-                  него по-прежнему нет для каталога (услуги одни и те же для
-                  обоих городов), но выбор реально сохраняется и идёт в
-                  итоговые данные сертификата (в отличие от прежнего места на
-                  главной — см. комментарий у useState<Branch|null> выше). */}
-              <p className="eyebrow mt-6">{t("cert.branchSection")}</p>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {/* Филиал + «Указать сумму» — единый ряд из 3 без разрыва
+                  (правка 2026-08-22: убрали переключатель «На любую услугу»,
+                  раньше стоявший тут отдельным рядом ниже — выбор конкретной
+                  услуги остаётся доступен из каталога услуг на сайте, минуя
+                  этот шаг напрямую через ?services=, см. kind выше).
+                  «Указать сумму» теперь не переключатель (переключать не с
+                  чем — единственный путь), а статичный заголовок ряда;
+                  панель с суммами ниже открыта всегда. */}
+              <div className="mt-6 grid gap-2 sm:grid-cols-3">
                 {BRANCHES.map((b) => {
                   const selected = branch === b.id;
                   return (
@@ -540,172 +540,109 @@ function CertificateFlow() {
                     </button>
                   );
                 })}
+
+                {/* Заголовок слева / значение справа в одну строку и чуть
+                    мельче (Блок 3 задачи 2026-08-22) — раньше шли
+                    столбиком, как в кликабельных карточках выше, хотя сама
+                    карточка больше не кликабельна. */}
+                <div className="surface px-5 py-3 text-left">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-display text-cream text-sm">
+                      {t("cert.choiceAmountTitle")}
+                    </span>
+                    <span className="text-cream/65 text-[0.68rem]">
+                      {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              {/* Компактные кнопки того же стиля/размера, что и филиал выше
-                  (surface px-5 py-3, заголовок text-base) — раньше здесь
-                  стояли большие блоки Choice (p-6, text-2xl), занимавшие
-                  куда больше места, чем остальные переключатели на этом
-                  шаге (правка владельца 2026-08-22, «одинаковыми по
-                  размеру друг с другом», как кнопки филиалов). */}
-              <div className="mt-8 grid gap-2 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => setKind("service")}
-                  aria-pressed={kind === "service"}
-                  className={`surface px-5 py-3 text-left transition-colors ${
-                    kind === "service" ? "border-gold!" : "hover:border-gold/60"
-                  }`}
-                >
-                  <span
-                    className={`font-display block text-base text-cream ${kind === "service" ? "text-glow-gold" : ""}`}
-                  >
-                    {t("cert.choiceServiceTitle")}
+              <div className="mt-10">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Motif name="petalDiamond" className="text-gold h-7 w-7" />
+                    <p className="eyebrow">{t("cert.amountEyebrow")}</p>
+                  </div>
+                  {/* Точка бессрочности рядом с выбором номинала. */}
+                  <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.62rem] tracking-[0.2em] uppercase">
+                    {t("cert.endless")}
                   </span>
-                  <span
-                    className={`mt-0.5 block text-xs text-cream/65 ${kind === "service" ? "text-glow-gold" : ""}`}
-                  >
-                    {t("cert.choiceServiceDesc")}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setKind("amount")}
-                  aria-pressed={kind === "amount"}
-                  className={`surface px-5 py-3 text-left transition-colors ${
-                    kind === "amount" ? "border-gold!" : "hover:border-gold/60"
-                  }`}
-                >
-                  <span
-                    className={`font-display block text-base text-cream ${kind === "amount" ? "text-glow-gold" : ""}`}
-                  >
-                    {t("cert.choiceAmountTitle")}
-                  </span>
-                  <span
-                    className={`mt-0.5 block text-xs text-cream/65 ${kind === "amount" ? "text-glow-gold" : ""}`}
-                  >
-                    {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
-                  </span>
-                </button>
-              </div>
-
-              {kind === "service" ? (
-                <div className="mt-10">
-                  <ServiceChooser
-                    groupId={groupId}
-                    onGroupChange={setGroupId}
-                    selectedIds={serviceIds}
-                    onToggle={(id) => {
-                      setServiceIds((ids) => toggleServiceId(ids, id));
-                      setErrors([]);
-                    }}
-                    t={t}
-                  />
-                  {/* Сводка выбранного — та же, что в витрине; переход к
-                      оформлению делает кнопка внизу шага. */}
-                  <SelectionSummary
-                    ids={serviceIds}
-                    onRemove={(id) => setServiceIds((ids) => toggleServiceId(ids, id))}
-                    onClear={() => setServiceIds([])}
-                    t={t}
-                    action={
+                </div>
+                {/* gap-3→gap-2 (Блок 2 задачи 2026-08-22, «сократить
+                    средний зазор») — тот же отступ, что и раньше был между
+                    кнопками сетки, просто плотнее. */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {fixedAmounts.map((a) => {
+                    const active = !customAmount && amount === a;
+                    return (
                       <button
+                        key={a}
                         type="button"
                         onClick={() => {
-                          setErrors([]);
-                          setStep(2);
+                          setAmount(a);
+                          setCustomAmount("");
+                          setAmountPicked(true);
                         }}
-                        className="btn-gold"
+                        aria-pressed={active}
+                        className={`rounded-md border px-6 py-3 text-sm transition-colors ${active ? "border-gold bg-gold text-primary-foreground" : "border-border text-cream/75 hover:border-gold/60"}`}
                       >
-                        {t("cert.giftButton")}
+                        {formatPrice(a)}
                       </button>
-                    }
-                  />
+                    );
+                  })}
                 </div>
-              ) : (
-                <div className="mt-10">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <Motif name="petalDiamond" className="text-gold h-7 w-7" />
-                      <p className="eyebrow">{t("cert.amountEyebrow")}</p>
-                    </div>
-                    {/* Точка бессрочности рядом с выбором номинала. */}
-                    <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.62rem] tracking-[0.2em] uppercase">
-                      {t("cert.endless")}
-                    </span>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {fixedAmounts.map((a) => {
-                      const active = !customAmount && amount === a;
-                      return (
-                        <button
-                          key={a}
-                          type="button"
-                          onClick={() => {
-                            setAmount(a);
-                            setCustomAmount("");
-                            setAmountPicked(true);
-                          }}
-                          aria-pressed={active}
-                          className={`rounded-md border px-6 py-3 text-sm transition-colors ${active ? "border-gold bg-gold text-primary-foreground" : "border-border text-cream/75 hover:border-gold/60"}`}
-                        >
-                          {formatPrice(a)}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {/* Своя сумма подсвечивается так же, как выбранный номинал,
-                      иначе клик по ней выглядит как «ничего не произошло». */}
-                  <label
-                    className={`mt-6 block max-w-xs rounded-md border p-4 transition-colors ${customAmount ? "border-gold bg-gold/10" : "border-border"}`}
+                {/* Своя сумма подсвечивается так же, как выбранный номинал,
+                    иначе клик по ней выглядит как «ничего не произошло». */}
+                <label
+                  className={`mt-6 block max-w-xs rounded-md border p-4 transition-colors ${customAmount ? "border-gold bg-gold/10" : "border-border"}`}
+                >
+                  <span
+                    className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
                   >
-                    <span
-                      className={`text-xs transition-colors ${customAmount ? "text-gold" : "text-cream/60"}`}
-                    >
-                      {t("cert.customAmountLabel")}
-                    </span>
-                    <input
-                      type="number"
-                      min={MIN_AMOUNT}
-                      step={1000}
-                      value={customAmount}
-                      onChange={(e) => {
-                        const next = e.target.value;
-                        setCustomAmount(next);
-                        // Пустое поле — вернулись к ранее нажатому пресету
-                        // (amountPicked трогать не нужно); невалидное
-                        // значение явно снимает выбор — тот же принцип, что
-                        // и в OffersSection.
-                        if (next) {
-                          const v = Number(next);
-                          setAmountPicked(Number.isFinite(v) && v >= MIN_AMOUNT);
-                        }
-                      }}
-                      placeholder="20000"
-                      className={`border-input mt-2 w-full border bg-transparent px-4 py-3 text-sm outline-none focus:border-gold ${customAmount ? "border-gold text-gold" : ""}`}
-                    />
-                  </label>
+                    {t("cert.customAmountLabel")}
+                  </span>
+                  <input
+                    type="number"
+                    min={MIN_AMOUNT}
+                    step={1000}
+                    value={customAmount}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      setCustomAmount(next);
+                      // Пустое поле — вернулись к ранее нажатому пресету
+                      // (amountPicked трогать не нужно); невалидное
+                      // значение явно снимает выбор — тот же принцип, что
+                      // и в OffersSection.
+                      if (next) {
+                        const v = Number(next);
+                        setAmountPicked(Number.isFinite(v) && v >= MIN_AMOUNT);
+                      }
+                    }}
+                    placeholder="20000"
+                    className={`border-input mt-2 w-full border bg-transparent px-4 py-3 text-sm outline-none focus:border-gold ${customAmount ? "border-gold text-gold" : ""}`}
+                  />
+                </label>
 
-                  {/* «Далее» появляется только после явного выбора суммы —
-                      не сразу при открытии панели (Блок 2.2 задачи). Отдельный
-                      путь от выбора услуги — общая нижняя панель навигации
-                      (next()) остаётся как запасной вариант, как и для
-                      сценария «услуга» с его собственной кнопкой «Подарить»
-                      у сводки выше. */}
-                  {amountPicked && (
+                {/* «Далее» — единственная кнопка перехода с этого шага
+                    (правка 2026-08-22: убрали дублирующую «Подарить» из
+                    общей нижней панели навигации для step===1, см. условие
+                    рендера этой панели ниже в файле). Компактнее и справа,
+                    а не на всю ширину слева. */}
+                {amountPicked && (
+                  <div className="mt-6 flex justify-end">
                     <button
                       type="button"
                       onClick={() => {
                         setErrors([]);
                         setStep(2);
                       }}
-                      className="btn-gold mt-6 inline-flex"
+                      className="btn-gold px-5 py-2.5 text-[0.62rem]"
                     >
                       {t("cert.nextButton")}
                     </button>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -1171,19 +1108,21 @@ function CertificateFlow() {
           своя логика внутри блока выше (startPayment, invoicePhase). Кнопка
           "Назад" на шаге 4 доступна, только пока счёт ещё не создан — уйти
           со страницы посреди ожидания оплаты не должно быть так же легко,
-          как между обычными шагами. */}
-      {step < 5 && step !== 4 && (
+          как между обычными шагами.
+          Шаг 1 тоже не проходит через эту панель (правка 2026-08-22) — у
+          него теперь своя кнопка «Далее» рядом с суммой (см. JSX шага 1
+          выше); раньше здесь дублировалась ещё и «Подарить», делавшая то
+          же самое. */}
+      {step > 1 && step < 5 && step !== 4 && (
         <div className="mt-10 flex items-center gap-3">
-          {step > 1 && (
-            <button
-              type="button"
-              onClick={back}
-              disabled={saving}
-              className="btn-ghost disabled:opacity-50"
-            >
-              {t("cert.backButton")}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={back}
+            disabled={saving}
+            className="btn-ghost disabled:opacity-50"
+          >
+            {t("cert.backButton")}
+          </button>
           <button
             type="button"
             onClick={next}
@@ -1191,14 +1130,7 @@ function CertificateFlow() {
             className="btn-gold inline-flex items-center gap-2 disabled:opacity-60"
           >
             {saving && <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />}
-            {saving
-              ? t("cert.savingButton")
-              : step === 1
-                ? // Кнопка сразу после выбора суммы или программы — «Подарить».
-                  t("cert.giftButton")
-                : step === 3
-                  ? t("cert.payButton")
-                  : t("cert.nextButton")}
+            {saving ? t("cert.savingButton") : step === 3 ? t("cert.payButton") : t("cert.nextButton")}
           </button>
         </div>
       )}
