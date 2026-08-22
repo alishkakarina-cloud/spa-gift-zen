@@ -147,6 +147,12 @@ function CertificateFlow() {
   // как уже было реализовано в OffersSection.tsx, — карточка суммы того же
   // компактного размера, что «Петропавловск»/«Кокшетау», пока не раскрыта).
   const [amountOpen, setAmountOpen] = useState(false);
+  // Единственная кнопка «Далее» под рядом город/город/сумма ведёт по одному
+  // из двух сценариев — город (докрутка к каталогу) или сумма (в
+  // оформление) — по тому, что выбрано последним (правка 2026-08-22:
+  // эталонная версия этого блока, коммит 755712e, до разделения на 2
+  // страницы — восстановлена как есть, 1-в-1, вместо пересборки).
+  const [lastChoice, setLastChoice] = useState<"city" | "amount" | null>(null);
   const [designId, setDesignId] = useState(designs[0]!.id);
   const [buyerFirstName, setBuyerFirstName] = useState("");
   const [buyerLastName, setBuyerLastName] = useState("");
@@ -222,6 +228,25 @@ function CertificateFlow() {
   const [branch, setBranch] = useState<Branch | null>(presetBranch ?? null);
   const branchInfo = branch ? BRANCHES.find((b) => b.id === branch) : undefined;
   const branchLabel = branchInfo ? t(branchInfo.labelKey) : t("cert.branchNotChosen");
+
+  // Эталонная логика единой кнопки «Далее» на шаге 1 (коммит 755712e) —
+  // город выбран → докрутка к каталогу; сумма выбрана и была последней →
+  // переход в оформление; и то, и другое — побеждает то, что выбрано
+  // последним (lastChoice), а не «город всегда/сумма всегда».
+  const canGoCity1 = branch !== null;
+  const canGoAmount1 = amountPicked;
+  const canProceedStep1 = canGoCity1 || canGoAmount1;
+  const targetIsAmountStep1 = canGoAmount1 && (!canGoCity1 || lastChoice === "amount");
+  const handleStep1Next = () => {
+    if (!canProceedStep1) return;
+    if (targetIsAmountStep1) {
+      setErrors([]);
+      setKind("amount");
+      setStep(2);
+      return;
+    }
+    document.getElementById("categories-block")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   // Issued only once payment is confirmed (see the polling effect below), not on page load.
   const [certificateNumber, setCertificateNumber] = useState<string | null>(null);
@@ -512,36 +537,51 @@ function CertificateFlow() {
         <section className="min-w-0 step-fade-in" key={step}>
           {step === 1 && (
             <div>
-              <h1 className="font-display text-3xl">{t("cert.step1Title")}</h1>
+              {/* Блок выбора города/суммы — эталонная версия (коммит
+                  755712e, до разделения на 2 страницы) восстановлена как
+                  есть: Divider, eyebrow «ВЫБОР СЕРТИФИКАТА», плашка
+                  «БЕССРОЧНЫЙ СЕРТИФИКАТ», размеры карточек (px-6 py-4,
+                  text-lg/sm:text-xl) — единственная адаптация — переход
+                  теперь setStep(2) вместо navigate() (тут это уже /certificate,
+                  не отдельная страница, а branch/kind реально передаются
+                  через компонентный state, не через URL). */}
+              <Divider motif="waveCrown" className="pt-4 sm:pt-6" />
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Motif name="petalDiamond" className="text-gold h-7 w-7" />
+                  <p className="eyebrow">{t("home.buyEyebrow")}</p>
+                </div>
+                <span className="border-gold/45 text-gold rounded-full border px-3 py-1 text-[0.62rem] tracking-[0.2em] uppercase">
+                  {t("home.buyEndless")}
+                </span>
+              </div>
+              <h1 className="font-display mt-4 text-2xl sm:mt-5 sm:text-3xl lg:text-4xl">
+                {t("cert.step1Title")}
+              </h1>
 
-              {/* Филиал + «Указать сумму» — единый ряд из 3 без разрыва
-                  (правка 2026-08-22: убрали переключатель «На любую услугу»,
-                  раньше стоявший тут отдельным рядом ниже — выбор конкретной
-                  услуги остаётся доступен из каталога услуг на сайте, минуя
-                  этот шаг напрямую через ?services=, см. kind выше).
-                  «Указать сумму» теперь не переключатель (переключать не с
-                  чем — единственный путь), а статичный заголовок ряда;
-                  панель с суммами ниже открыта всегда. */}
-              <div className="mt-6 grid gap-2 sm:grid-cols-3">
+              <div className="mt-8 grid gap-2 sm:grid-cols-3">
                 {BRANCHES.map((b) => {
                   const selected = branch === b.id;
                   return (
                     <button
                       key={b.id}
                       type="button"
-                      onClick={() => setBranch(b.id)}
+                      onClick={() => {
+                        setBranch(b.id);
+                        setLastChoice("city");
+                      }}
                       aria-pressed={selected}
-                      className={`surface px-5 py-3 text-left transition-colors ${
+                      className={`surface px-6 py-4 text-left transition-colors ${
                         selected ? "border-gold!" : "hover:border-gold/60"
                       }`}
                     >
                       <span
-                        className={`font-display block text-base text-cream ${selected ? "text-glow-gold" : ""}`}
+                        className={`font-display block text-lg sm:text-xl text-cream ${selected ? "text-glow-gold" : ""}`}
                       >
                         {t(b.labelKey)}
                       </span>
                       <span
-                        className={`mt-0.5 block text-xs text-cream/65 ${selected ? "text-glow-gold" : ""}`}
+                        className={`mt-1 block text-sm text-cream/65 ${selected ? "text-glow-gold" : ""}`}
                       >
                         {b.address}
                       </span>
@@ -549,11 +589,9 @@ function CertificateFlow() {
                   );
                 })}
 
-                {/* «Указать сумму» — аккордеон (правка 2026-08-22, возврат
-                    на отдельную страницу покупки): свёрнута до размера
-                    карточек городов выше, разворачивается по клику плавно
-                    (grid-template-rows 0fr→1fr, тот же паттерн, что уже был
-                    в OffersSection.tsx). */}
+                {/* «Указать сумму» — аккордеон, свёрнута до размера карточек
+                    городов выше, разворачивается по клику плавно
+                    (grid-template-rows 0fr→1fr). */}
                 <div
                   className={`surface overflow-hidden text-left transition-colors ${
                     amountOpen ? "border-gold!" : "hover:border-gold/60"
@@ -563,20 +601,18 @@ function CertificateFlow() {
                     type="button"
                     onClick={() => setAmountOpen((o) => !o)}
                     aria-expanded={amountOpen}
-                    className="w-full px-5 py-3 text-left"
+                    className="w-full px-6 py-4 text-left"
                   >
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span
-                        className={`font-display text-cream text-sm ${amountOpen ? "text-glow-gold" : ""}`}
-                      >
-                        {t("cert.choiceAmountTitle")}
-                      </span>
-                      <span
-                        className={`text-cream/65 text-[0.68rem] ${amountOpen ? "text-glow-gold" : ""}`}
-                      >
-                        {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
-                      </span>
-                    </div>
+                    <span
+                      className={`font-display block text-lg sm:text-xl text-cream ${amountOpen ? "text-glow-gold" : ""}`}
+                    >
+                      {t("cert.choiceAmountTitle")}
+                    </span>
+                    <span
+                      className={`text-cream/65 mt-1 block text-sm ${amountOpen ? "text-glow-gold" : ""}`}
+                    >
+                      {t("cert.choiceAmountFrom", { amount: formatPrice(MIN_AMOUNT) })}
+                    </span>
                   </button>
 
                   <div
@@ -585,38 +621,33 @@ function CertificateFlow() {
                   >
                     <div className="overflow-hidden">
                       <div
-                        className={`px-5 pb-5 transition-opacity duration-300 ${
+                        className={`px-6 pb-6 transition-opacity duration-300 ${
                           amountOpen ? "opacity-100 delay-100" : "opacity-0"
                         }`}
                       >
                         <div className="flex flex-wrap gap-2">
-                          {fixedAmounts.map((a) => {
-                            const active = !customAmount && amount === a;
-                            return (
-                              <button
-                                key={a}
-                                type="button"
-                                onClick={() => {
-                                  setAmount(a);
-                                  setCustomAmount("");
-                                  setAmountPicked(true);
-                                  setKind("amount");
-                                }}
-                                aria-pressed={active}
-                                className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
-                                  active
-                                    ? "border-gold bg-gold text-primary-foreground"
-                                    : "border-border bg-card text-cream hover:border-gold/60"
-                                }`}
-                              >
-                                {formatPrice(a)}
-                              </button>
-                            );
-                          })}
+                          {fixedAmounts.map((a) => (
+                            <button
+                              key={a}
+                              type="button"
+                              onClick={() => {
+                                setAmount(a);
+                                setCustomAmount("");
+                                setAmountPicked(true);
+                                setLastChoice("amount");
+                              }}
+                              aria-pressed={amountPicked && !customAmount && amount === a}
+                              className={`rounded-md border px-4 py-2.5 text-sm transition-colors ${
+                                amountPicked && !customAmount && amount === a
+                                  ? "border-gold bg-gold text-primary-foreground"
+                                  : "border-border bg-card text-cream hover:border-gold/60"
+                              }`}
+                            >
+                              {formatPrice(a)}
+                            </button>
+                          ))}
                         </div>
-                        {/* Своя сумма подсвечивается так же, как выбранный
-                            номинал, иначе клик по ней выглядит как «ничего
-                            не произошло». */}
+
                         <label
                           className={`bg-card mt-3 block rounded-md border p-3 transition-colors ${
                             customAmount ? "border-gold" : "border-border"
@@ -642,34 +673,31 @@ function CertificateFlow() {
                                 const v = Number(next);
                                 const valid = Number.isFinite(v) && v >= MIN_AMOUNT;
                                 setAmountPicked(valid);
-                                if (valid) setKind("amount");
+                                if (valid) setLastChoice("amount");
                               }
                             }}
                             placeholder={String(MIN_AMOUNT)}
                             className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
                           />
                         </label>
-
-                        {/* «Далее» — переход в оформление на выбранную
-                            сумму. Компактнее и справа, а не на всю ширину. */}
-                        {amountPicked && (
-                          <div className="mt-4 flex justify-end">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setErrors([]);
-                                setStep(2);
-                              }}
-                              className="btn-gold px-5 py-2.5 text-[0.62rem]"
-                            >
-                              {t("cert.nextButton")}
-                            </button>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Единственная кнопка «Далее» под рядом город/город/сумма —
+                  ведёт к каталогу услуг (город) либо в оформление на сумму
+                  (сумма), см. handleStep1Next выше. */}
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleStep1Next}
+                  disabled={!canProceedStep1}
+                  className={`btn-gold inline-flex ${canProceedStep1 ? "" : "cursor-not-allowed opacity-40"}`}
+                >
+                  {t("cert.nextButton")}
+                </button>
               </div>
 
               {/* Каталог услуг — сразу под рядом город/город/сумма, без
@@ -1188,10 +1216,10 @@ function CertificateFlow() {
           "Назад" на шаге 4 доступна, только пока счёт ещё не создан — уйти
           со страницы посреди ожидания оплаты не должно быть так же легко,
           как между обычными шагами.
-          Шаг 1 тоже не проходит через эту панель (правка 2026-08-22) — у
-          него теперь своя кнопка «Далее» рядом с суммой (см. JSX шага 1
-          выше); раньше здесь дублировалась ещё и «Подарить», делавшая то
-          же самое. */}
+          Шаг 1 тоже не проходит через эту панель — у него своя единая
+          кнопка «Далее» под рядом город/город/сумма (handleStep1Next, см.
+          JSX шага 1 выше) с собственной логикой город/сумма, и отдельная
+          «Подарить» под каталогом услуг. */}
       {step > 1 && step < 5 && step !== 4 && (
         <div className="mt-10 flex items-center gap-3">
           <button
