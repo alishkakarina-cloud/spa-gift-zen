@@ -53,12 +53,6 @@ export function OffersSection() {
   // для обоих городов, не блокирует/разблокирует ничего).
   const [activeCity, setActiveCity] = useState<Branch | null>(null);
 
-  const parsedCustom = Number(customAmount);
-  const effectiveAmount =
-    customAmount && Number.isFinite(parsedCustom) && parsedCustom >= MIN_AMOUNT
-      ? parsedCustom
-      : selectedAmount;
-
   const amountOpen = selection?.kind === "amount";
 
   const toggleAmount = () => setSelection((s) => (s?.kind === "amount" ? null : { kind: "amount" }));
@@ -68,10 +62,13 @@ export function OffersSection() {
   // сверке с layan.kz, так и остаётся), а просто докручивает к нему для тех,
   // кто предпочитает клик скроллу. Активна после явного выбора города ИЛИ
   // суммы — клик по городу по-прежнему только подсветка, ничего больше не
-  // блокирует и не меняет.
+  // блокирует и не меняет. Цель скролла — "categories-block" внутри
+  // ServiceCatalogBrowser (карусель категорий + заголовок текущей категории),
+  // а не верх раздела «Каталог» — так после клика сразу видно категории и
+  // карточки услуг, без галереи и общего заголовка над ними.
   const canProceedToCatalog = activeCity !== null || amountPicked;
   const scrollToCatalog = () =>
-    document.getElementById("services-catalog")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("categories-block")?.scrollIntoView({ behavior: "smooth" });
 
   return (
     <>
@@ -235,29 +232,6 @@ export function OffersSection() {
                         className={`border-input focus:border-gold bg-background mt-2 w-full border px-3 py-2.5 text-sm outline-none ${customAmount ? "border-gold text-gold" : ""}`}
                       />
                     </label>
-
-                    {/* «Далее» — часть этой же раскрывающейся карточки
-                        (правка 2026-08-22: раньше кнопка стояла отдельным
-                        элементом в самом низу секции, под всем каталогом
-                        услуг, — теперь сворачивается/раскрывается вместе с
-                        блоком «Указать сумму», сразу под полем суммы). */}
-                    {amountPicked ? (
-                      <Link
-                        to="/certificate"
-                        search={{ kind: "amount", amount: effectiveAmount }}
-                        className="btn-gold mt-4 inline-flex"
-                      >
-                        {t("cert.nextButton")}
-                      </Link>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled
-                        className="btn-gold mt-4 inline-flex cursor-not-allowed opacity-40"
-                      >
-                        {t("cert.nextButton")}
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>

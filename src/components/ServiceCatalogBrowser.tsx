@@ -38,7 +38,11 @@ export function ServiceCatalogBrowser({
     <div>
       <AtmosphereGallery label={t("cert.galleryLabel")} />
 
-      <div className="mt-10 flex items-center gap-3">
+      {/* id + scroll-mt — цель для автоскролла с кнопки «Далее» в
+          OffersSection: приземляемся сразу на карусель категорий и
+          заголовок текущей категории, а не на общий заголовок «Каталог»
+          и галерею выше по разделу. */}
+      <div id="categories-block" className="mt-10 flex items-center gap-3 scroll-mt-24">
         <Motif name={activeGroup.motif} className="text-gold h-7 w-7" />
         <p className="eyebrow">{t("cert.categoriesEyebrow")}</p>
       </div>
