@@ -941,17 +941,6 @@ function CertificateFlow() {
                       className="input"
                     />
                   </Field>
-                  <Field label={t("cert.buyerEmailLabel")}>
-                    <input
-                      value={buyerEmail}
-                      onChange={(e) => setBuyerEmail(e.target.value)}
-                      maxLength={80}
-                      inputMode="email"
-                      autoComplete="email"
-                      placeholder="name@mail.com"
-                      className="input"
-                    />
-                  </Field>
                 </div>
               </div>
 
@@ -969,10 +958,28 @@ function CertificateFlow() {
                 </label>
               </div>
 
+              {/* E-mail перенесён сюда из блока «Данные покупателя» — именно
+                  на него уходит электронный сертификат. Рендерится в обеих
+                  ветках (в том числе при «Покупаю для себя», где остальные
+                  поля получателя скрыты за forSelfNote) — это ключевое поле
+                  для доставки, скрывать его вместе с остальными нельзя. */}
               {forSelf ? (
-                <p className="surface mt-4 rounded-md p-4 text-sm text-cream/70">
-                  {t("cert.forSelfNote")}
-                </p>
+                <div className="mt-4 grid gap-5">
+                  <p className="surface rounded-md p-4 text-sm text-cream/70">
+                    {t("cert.forSelfNote")}
+                  </p>
+                  <Field label={t("cert.buyerEmailLabel")}>
+                    <input
+                      value={buyerEmail}
+                      onChange={(e) => setBuyerEmail(e.target.value)}
+                      maxLength={80}
+                      inputMode="email"
+                      autoComplete="email"
+                      placeholder="name@mail.com"
+                      className="input"
+                    />
+                  </Field>
+                </div>
               ) : (
                 <div className="mt-4 grid gap-5">
                   <div className="grid gap-5 sm:grid-cols-2">
@@ -994,6 +1001,17 @@ function CertificateFlow() {
                       />
                     </Field>
                   </div>
+                  <Field label={t("cert.buyerEmailLabel")}>
+                    <input
+                      value={buyerEmail}
+                      onChange={(e) => setBuyerEmail(e.target.value)}
+                      maxLength={80}
+                      inputMode="email"
+                      autoComplete="email"
+                      placeholder="name@mail.com"
+                      className="input"
+                    />
+                  </Field>
                   <Field label={t("cert.senderLabel")}>
                     <input
                       value={sender}
