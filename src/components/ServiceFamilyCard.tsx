@@ -38,17 +38,24 @@ function DurationSwitch({
   t: (path: string) => string;
 }) {
   if (variants.length <= 1) {
+    // У одного варианта нет отдельной "цены сверху" карточки (убрана как
+    // дублирующая — см. ServiceFamilyCard), поэтому здесь, в отличие от
+    // прежней версии, показываем и цену тоже, а не только длительность —
+    // иначе для одновариантных услуг цена не показывалась бы нигде вообще.
     const only = variants[0]!;
     const l = variantLabel(only, t);
-    return l ? (
-      <span className="text-cream/45 text-[0.62rem] tracking-[0.2em] uppercase">{l}</span>
-    ) : null;
+    return (
+      <span className="text-gold text-xs sm:text-sm">
+        {formatPrice(only.price)}
+        {l ? ` / ${l}` : ""}
+      </span>
+    );
   }
   return (
     // Все варианты видны сразу своей ценой и подписью (длительность или,
     // для семей вроде «Путешествие в Таиланд», количество персон) — выбор
     // не прячется за одним числом на карточке.
-    <div className="flex flex-wrap gap-1" role="radiogroup" aria-label={label}>
+    <div className="flex flex-wrap justify-center gap-1" role="radiogroup" aria-label={label}>
       {variants.map((v) => (
         <button
           key={v.id}
@@ -123,8 +130,14 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
   const name = t(`services.${variants[0]!.id}.name`).replace(NAME_DURATION_SUFFIX, "");
 
   return (
+    // Без gap/padding вокруг фото (правка владельца 2026-08-23, «квадрат в
+    // квадрате») — фото сидит вплотную к краям карточки и вплотную к
+    // текстовому блоку, только у текста/кнопки собственный внутренний
+    // отступ. Раньше между фото и остальным контентом был gap-2/gap-3 +
+    // общий p-2, из-за чего вокруг маленького фото оставалось заметное
+    // пустое поле.
     <article
-      className={`surface flex items-center gap-2 overflow-hidden p-2 transition-colors sm:gap-3 ${active ? "border-gold" : ""}`}
+      className={`surface flex items-center overflow-hidden transition-colors ${active ? "border-gold" : ""}`}
     >
       {image && (
         <div className="relative shrink-0">
@@ -135,7 +148,7 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
             height={720}
             loading="lazy"
             decoding="async"
-            className="h-12 w-12 rounded-md object-cover sm:h-16 sm:w-16"
+            className="h-16 w-16 object-cover sm:h-20 sm:w-20"
           />
           {family.hit && (
             <span className="bg-maroon border-gold/50 text-cream absolute top-0.5 left-0.5 rounded-full border px-1 py-0.5 text-[0.45rem] font-medium tracking-[0.05em] uppercase">
@@ -144,19 +157,18 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
           )}
         </div>
       )}
-      <div className="min-w-0 flex-1">
-        {/* Название и цена — раздельными строками, не одной flex-строкой
-            (justify-between): при совместном разделении ряда с ценой
-            название реально ужимается уже соседством с ней, а не только
-            шириной колонки, из-за чего дробится на строки сильнее, чем
-            нужно (тот же баг уже чинили в OffersSection/certificate.tsx). */}
+      <div className="min-w-0 flex-1 px-3 py-2">
+        {/* Цена отдельной строкой сверху убрана (правка владельца
+            2026-08-23) — она дублировала цену, уже показанную в каждом
+            варианте переключателя ниже ("18 000 ₸ / 60 мин" и т.п.); для
+            услуг с одним вариантом цена по-прежнему видна — теперь через
+            сам DurationSwitch (см. его single-variant ветку выше). */}
         <h3 className="font-display text-sm leading-tight sm:text-base">{name}</h3>
-        <span className="text-gold text-xs sm:text-sm">{formatPrice(chosen.price)}</span>
         <div className="mt-1">
           <DurationSwitch variants={variants} chosenId={chosenId} onChoose={setChosenId} label={name} t={t} />
         </div>
       </div>
-      <div className="shrink-0">
+      <div className="shrink-0 px-2">
         <SelectPill active={active} onClick={() => onToggle(chosenId)} t={t} />
       </div>
     </article>
