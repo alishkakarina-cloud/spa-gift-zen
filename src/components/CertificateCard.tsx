@@ -27,6 +27,13 @@ type Props = {
    * печатается `valueLabel` (номинал сертификата на сумму).
    */
   items?: ReadonlyArray<string> | undefined;
+  /** Показывать ли итоговую сумму (valueLabel) крупным текстом на самой
+   *  картинке — да для сертификата «на сумму» (там сумма — суть подарка),
+   *  нет для сертификата на конкретные услуги (сумма там не то, что дарят
+   *  получателю показывать; список услуг сам по себе — уже полноценная
+   *  информация). По умолчанию true — не меняет поведение мест, которые
+   *  явно не задают этот проп. */
+  showValue?: boolean | undefined;
   recipient?: string | undefined;
   message?: string | undefined;
   number?: string | undefined;
@@ -44,6 +51,7 @@ export function CertificateCard({
   design,
   valueLabel,
   items,
+  showValue = true,
   recipient,
   message,
   number,
@@ -131,11 +139,13 @@ export function CertificateCard({
             ))}
           </ul>
         ) : null}
-        <p
-          className={`font-display mt-1 shrink-0 leading-[1.1] italic ${compact ? "text-base" : "text-xl sm:text-2xl"}`}
-        >
-          {valueLabel}
-        </p>
+        {showValue && (
+          <p
+            className={`font-display mt-1 shrink-0 leading-[1.1] italic ${compact ? "text-base" : "text-xl sm:text-2xl"}`}
+          >
+            {valueLabel}
+          </p>
+        )}
 
         {/* Пожелание — то, что пользователь ввёл в форме; если поле пустое,
             дальше строки просто нет (эйбрау выше уже несёт роль подписи). */}

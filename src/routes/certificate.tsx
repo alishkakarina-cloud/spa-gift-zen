@@ -228,16 +228,27 @@ function CertificateFlow() {
   const extraChosen = selectedServices(extraServiceIds);
   const extraTotal = selectionTotal(extraServiceIds);
   const effectiveAmount = customAmount ? Number(customAmount) : amount;
+  // БАГФИКС (Блок 3 задачи «доп.услуги не добавляются»): раньше при
+  // kind === "service" доп.услуги (extraServiceIds/extraTotal) вообще не
+  // учитывались ни в сумме, ни в списке — учитывались только в ветке
+  // kind === "amount". Теперь extraTotal прибавляется всегда, независимо
+  // от того, с чего начался сертификат — с суммы или с конкретной услуги.
   const total =
-    kind === "service" ? selectionTotal(serviceIds) : effectiveAmount + extraTotal;
-  // На бланке сертификата состав печатается списком названий; сертификат на
-  // сумму без доп.услуг — одной строкой с номиналом. Если к сертификату «на
-  // сумму» добавили доп.услуги — номинал идёт первой строкой списка (Блок 2,
-  // «хранить раздельно»), дальше — добавленные услуги, тем же списком, что
-  // и у обычного сертификата «на услугу».
+    (kind === "service" ? selectionTotal(serviceIds) : effectiveAmount) + extraTotal;
+  // На бланке сертификата состав печатается списком названий. Для «на
+  // услугу» — сначала первоначально выбранные, затем добавленные через
+  // доп.услуги (тот же баг: extraChosen раньше не подмешивался в этой
+  // ветке). Для «на сумму» без доп.услуг — одной строкой с номиналом; если
+  // добавили доп.услуги — номинал первой строкой списка (Блок 2, «хранить
+  // раздельно»), дальше добавленные услуги.
   const cardItems =
-    kind === "service" && chosen.length > 0
-      ? chosen.map((s) => t(`services.${s.id}.name`))
+    kind === "service"
+      ? chosen.length > 0 || extraChosen.length > 0
+        ? [
+            ...chosen.map((s) => t(`services.${s.id}.name`)),
+            ...extraChosen.map((s) => t(`services.${s.id}.name`)),
+          ]
+        : undefined
       : extraChosen.length > 0
         ? [
             t("cert.nominalLineLabel", { amount: formatPrice(effectiveAmount) }),
@@ -903,7 +914,13 @@ function CertificateFlow() {
                     onClick={() => setDesignId(d.id)}
                     className={`w-full overflow-hidden rounded-2xl border text-left transition-colors ${designId === d.id ? "border-gold bg-gold" : "border-border/40 hover:border-gold/60"}`}
                   >
-                    <CertificateCard design={d} valueLabel={valueLabel} items={cardItems} compact />
+                    <CertificateCard
+                      design={d}
+                      valueLabel={valueLabel}
+                      items={cardItems}
+                      showValue={kind !== "service"}
+                      compact
+                    />
                     {/* Новые фото дизайна (2026-08-21) — без золотой плашки
                         с названием внизу, поэтому название снова выводится
                         текстом на сайте, а не как часть картинки. Полная
@@ -1074,14 +1091,27 @@ function CertificateFlow() {
                 />
                 {kind === "service" ? (
                   // Каждая программа — отдельной строкой со своей ценой,
-                  // чтобы покупатель видел, из чего сложился итог.
-                  chosen.map((s) => (
-                    <Row
-                      key={s.id}
-                      k={t(`services.${s.id}.name`)}
-                      v={formatPrice(s.price)}
-                    />
-                  ))
+                  // чтобы покупатель видел, из чего сложился итог. Доп.услуги
+                  // (extraChosen) добавлены тем же списком следом — раньше
+                  // здесь показывались только первоначальные chosen, и
+                  // добавленные через «Выбрать доп.услуги» не отображались
+                  // вовсе (тот же баг, что и в total/cardItems выше).
+                  <>
+                    {chosen.map((s) => (
+                      <Row
+                        key={`main-${s.id}`}
+                        k={t(`services.${s.id}.name`)}
+                        v={formatPrice(s.price)}
+                      />
+                    ))}
+                    {extraChosen.map((s) => (
+                      <Row
+                        key={`extra-${s.id}`}
+                        k={t(`services.${s.id}.name`)}
+                        v={formatPrice(s.price)}
+                      />
+                    ))}
+                  </>
                 ) : (
                   <>
                     <Row k={t("cert.rowNominal")} v={formatPrice(effectiveAmount || 0)} />
@@ -1282,6 +1312,7 @@ function CertificateFlow() {
                   design={design}
                   valueLabel={valueLabel}
                   items={cardItems}
+                  showValue={kind !== "service"}
                   recipient={recipientFullName || undefined}
                   message={message || undefined}
                   number={certificateNumber ?? undefined}
@@ -1338,6 +1369,7 @@ function CertificateFlow() {
               design={design}
               valueLabel={valueLabel}
               items={cardItems}
+              showValue={kind !== "service"}
               recipient={recipientFullName || undefined}
               message={message || undefined}
               number={certificateNumber ?? undefined}
