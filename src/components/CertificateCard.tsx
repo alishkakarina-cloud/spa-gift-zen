@@ -28,7 +28,6 @@ type Props = {
    */
   items?: ReadonlyArray<string> | undefined;
   recipient?: string | undefined;
-  sender?: string | undefined;
   message?: string | undefined;
   number?: string | undefined;
   /** Филиал, в котором действует сертификат. */
@@ -46,7 +45,6 @@ export function CertificateCard({
   valueLabel,
   items,
   recipient,
-  sender,
   message,
   number,
   branch,
@@ -149,11 +147,9 @@ export function CertificateCard({
           </p>
         )}
 
-        {!compact && (recipient || sender) && (
+        {!compact && recipient && (
           <p className="mt-2 shrink-0 text-[0.6rem] opacity-80">
-            {recipient && `${t("cert.cardTo")}: ${recipient}`}
-            {recipient && sender && " · "}
-            {sender && `${t("cert.cardFrom")}: ${sender}`}
+            {t("cert.cardTo")}: {recipient}
           </p>
         )}
 

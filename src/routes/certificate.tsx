@@ -180,7 +180,6 @@ function CertificateFlow() {
   const [buyerPhone, setBuyerPhone] = useState("");
   const [buyerEmail, setBuyerEmail] = useState("");
   const [forSelf, setForSelf] = useState(false);
-  const [sender, setSender] = useState("");
   const [recipientFirstName, setRecipientFirstName] = useState("");
   const [recipientLastName, setRecipientLastName] = useState("");
   const [message, setMessage] = useState("");
@@ -251,7 +250,6 @@ function CertificateFlow() {
   const recipientFullName = (
     forSelf ? buyerFullName : `${recipientFirstName} ${recipientLastName}`.trim()
   ).trim();
-  const senderName = (forSelf ? buyerFullName : sender).trim();
   // Город — реальный выбор на шаге 1 (см. JSX ниже), а не только пресет из
   // ссылки. Раньше это был декоративный выбор на главной (OffersSection),
   // никогда не долетавший до /certificate (тамошняя кнопка «Далее» не
@@ -398,7 +396,6 @@ function CertificateFlow() {
       // не все хотят её указывать, а имени обычно достаточно, чтобы найти
       // получателя на ресепшене.
       if (!recipientFirstName.trim()) e.push(t("cert.errRecipientRequired"));
-      if (!sender.trim()) e.push(t("cert.errSenderRequired"));
     }
     return e;
   };
@@ -1035,14 +1032,6 @@ function CertificateFlow() {
                       className="input"
                     />
                   </Field>
-                  <Field label={t("cert.senderLabel")}>
-                    <input
-                      value={sender}
-                      onChange={(e) => setSender(e.target.value)}
-                      maxLength={60}
-                      className="input"
-                    />
-                  </Field>
                   <Field label={t("cert.messageLabel")}>
                     {/* Арка на бланке маленькая — 400 символов туда физически
                         не помещались бы даже мелким кеглем. 140 укладывается
@@ -1282,7 +1271,6 @@ function CertificateFlow() {
                   valueLabel={valueLabel}
                   items={cardItems}
                   recipient={recipientFullName || undefined}
-                  sender={senderName || undefined}
                   message={message || undefined}
                   number={certificateNumber ?? undefined}
                   branch={branchInfo ? branchLabel : undefined}
@@ -1339,7 +1327,6 @@ function CertificateFlow() {
               valueLabel={valueLabel}
               items={cardItems}
               recipient={recipientFullName || undefined}
-              sender={sender || undefined}
               message={message || undefined}
               number={certificateNumber ?? undefined}
               // Раньше превью не имело ограничения ширины и на мобильном
