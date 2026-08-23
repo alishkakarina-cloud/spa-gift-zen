@@ -151,7 +151,7 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
       className={`surface flex overflow-hidden transition-colors ${active ? "border-gold" : ""}`}
     >
       {image && (
-        <div className="relative max-w-40 flex-1 sm:max-w-56">
+        <div className="relative min-w-16 max-w-40 flex-1 sm:min-w-20 sm:max-w-56">
           <img
             src={image}
             alt=""
@@ -185,7 +185,17 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
             (проверено вживую: photoRectWidth: 0, imgNaturalWidth: 0).
             min-w-0 снимает флексовый default min-width:auto, shrink
             позволяет колонке сжаться — пилюли переключателя переносятся на
-            вторую строку вместо того, чтобы выдавливать фото целиком. */}
+            вторую строку вместо того, чтобы выдавливать фото целиком.
+
+            Этого одного всё равно было мало: на 375px даже после переноса
+            текст+кнопка вместе съедали почти всю ширину карточки, и flex-1
+            фото сжималось не до "меньше", а до буквального 0px и исчезало
+            у ВСЕХ карточек, не только многовариантных (перепроверено уже
+            на проде после первого деплоя). Поэтому у фото добавлен пол —
+            min-w-16 sm:min-w-20 (та же ширина, что была у старого
+            фиксированного фото) — сжиматься меньше этого фото не может,
+            текстовая колонка донашивает разницу дальнейшим переносом
+            строк. */}
         <h3 className="font-display text-sm leading-tight sm:text-base">{name}</h3>
         <div className="mt-1">
           <DurationSwitch variants={variants} chosenId={chosenId} onChoose={setChosenId} label={name} t={t} />
