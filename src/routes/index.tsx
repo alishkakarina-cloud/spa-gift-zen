@@ -155,33 +155,51 @@ function Index() {
         </Link>
       </section>
 
-      {/* ── «Наши услуги» — по структуре layan.kz (аудит 2026-08-23: у них
-          это заголовок + короткий текст о салоне + кнопки скачивания
-          SPA-меню по городам + карточки услуг), но с нашими 4 хит-позициями
-          и обязательным бейджем «Хит» (тем же визуальным стилем, что и в
-          основном каталоге /offers) — у layan самого бейджа нет, это наше
-          решение поверх их структуры. Карточки НЕ кликабельны — чисто
-          витрина, никакого перехода. id="services" — цель скролла кнопки
-          «Наши услуги» в hero выше. ──────────────────────────────────── */}
+      {/* ── «Наши услуги» — пересобрано 2026-08-23 точно по структуре
+          layan.kz (второй живой аудит): лейбл «О нас» → крупное
+          заголовок-предложение → тонкая линия-разделитель → абзац помельче
+          → 2 кнопки SPA-меню (на layan адаптивны: в ряд на десктопе, друг
+          под другом на мобильном — проверено вживую на обеих ширинах, не
+          одно жёсткое решение) → карусель вертикальных фото хит-услуг.
+          Бейдж «Хит» (решение владельца из прошлой правки) и
+          некликабельность карточек — сохранены, это не отменялось. Текст —
+          переиспользование home.aboutText (не новый), просто разбит на
+          home.aboutIntro/aboutDetails под 2 текстовых яруса layan. Формат
+          фото карусели — вертикальный (не квадрат, в отличие от карточек
+          основного каталога /offers — это разные блоки, там квадрат
+          остаётся). id="services" — цель скролла кнопки «Наши услуги» в
+          hero выше. ──────────────────────────────────────────────────── */}
       <section id="services" className="relative overflow-hidden scroll-mt-24">
         <Reveal className="relative mx-auto max-w-5xl px-5 pt-12 pb-16 sm:px-6 sm:pb-24">
-          <div className="flex items-center gap-3">
-            <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
-            <p className="eyebrow">{t("catalog.title")}</p>
-          </div>
-          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("catalog.title")}</h2>
-          <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
-            {t("home.aboutText")}
+          <p className="eyebrow">{t("home.aboutEyebrow")}</p>
+          <h2 className="font-display mt-4 max-w-2xl text-2xl sm:text-3xl">
+            {t("home.aboutIntro")}
+          </h2>
+          <span className="gold-rule mt-6 block h-px w-16" aria-hidden="true" />
+          <p className="text-cream/70 mt-6 max-w-xl text-sm leading-relaxed">
+            {t("home.aboutDetails")}
           </p>
 
-          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <a href={spaMenuPdfFor("kokshetau")} download className="btn-ghost text-[0.62rem]">
+              {t("home.spaMenuKokshetauButton")}
+            </a>
+            <a href={spaMenuPdfFor("petropavlovsk")} download className="btn-ghost text-[0.62rem]">
+              {t("home.spaMenuPetropavlovskButton")}
+            </a>
+          </div>
+
+          <div className="no-scrollbar -mx-5 mt-10 flex gap-4 overflow-x-auto px-5 pb-2 sm:mx-0 sm:px-0">
             {HOME_HIT_SERVICE_IDS.map((id) => {
               const service = services.find((s) => s.id === id);
               const image = serviceImage(id);
               if (!service) return null;
               return (
-                <article key={id} className="surface flex flex-col overflow-hidden rounded-lg">
-                  <div className="relative aspect-square">
+                <article
+                  key={id}
+                  className="surface w-44 shrink-0 overflow-hidden rounded-lg sm:w-52"
+                >
+                  <div className="relative aspect-[4/5]">
                     {image && (
                       <img
                         src={image}
@@ -190,18 +208,18 @@ function Index() {
                         height={720}
                         loading="lazy"
                         decoding="async"
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover object-center"
                       />
                     )}
                     <span className="bg-maroon border-gold/50 text-cream absolute top-2 left-2 rounded-full border px-2 py-1 text-[0.6rem] font-medium tracking-[0.05em] uppercase">
                       {t("catalog.hitBadge")}
                     </span>
                   </div>
-                  <div className="flex flex-1 flex-col gap-1 p-4">
+                  <div className="flex flex-col gap-1 p-4">
                     <h3 className="font-display text-sm leading-tight sm:text-base">
                       {service.name}
                     </h3>
-                    <div className="text-cream/70 mt-auto flex items-center justify-between pt-2 text-xs sm:text-sm">
+                    <div className="text-cream/70 flex items-center justify-between pt-1 text-xs sm:text-sm">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                         {service.duration}
@@ -212,15 +230,6 @@ function Index() {
                 </article>
               );
             })}
-          </div>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a href={spaMenuPdfFor("kokshetau")} download className="btn-ghost text-[0.62rem]">
-              {t("home.spaMenuKokshetauButton")}
-            </a>
-            <a href={spaMenuPdfFor("petropavlovsk")} download className="btn-ghost text-[0.62rem]">
-              {t("home.spaMenuPetropavlovskButton")}
-            </a>
           </div>
         </Reveal>
       </section>

@@ -107,6 +107,13 @@ const ru = {
     aboutText:
       "RAI THAI SPA — кусочек Таиланда в вашем городе. Здесь работают настоящие мастера из Таиланда, а в основе массажей и SPA-программ — аутентичные тайские техники. Мы создаём пространство для отдыха, перезагрузки и времени для себя.",
     aboutPhotoAlt: "Мастера RAI THAI SPA в фирменной форме",
+    /* aboutIntro/aboutDetails — тот же текст, что и aboutText выше, разбитый
+       на 2 части (правка 2026-08-23, блок «Наши услуги» по структуре
+       layan.kz: у них крупный заголовок-предложение + разделитель + абзац
+       помельче) — переиспользование содержания, не новый текст. */
+    aboutIntro: "RAI THAI SPA — кусочек Таиланда в вашем городе.",
+    aboutDetails:
+      "Здесь работают настоящие мастера из Таиланда, а в основе массажей и SPA-программ — аутентичные тайские техники. Мы создаём пространство для отдыха, перезагрузки и времени для себя.",
 
     /* FAQ — дословно из официального ТЗ, блок 18. */
     faqEyebrow: "Вопросы",
@@ -670,6 +677,9 @@ const kz = {
 
     aboutEyebrow: "Салон туралы",
     aboutTitle: "Үйіңізге жақын аутентті тай SPA",
+    aboutIntro: "RAI THAI SPA — қалаңыздағы Тайланд бөлшегі.",
+    aboutDetails:
+      "Мұнда Тайландтан келген нағыз шеберлер жұмыс істейді, ал массаж бен SPA-бағдарламалардың негізінде — аутентті тай техникалары. Біз демалу, күш жинау және өзіңізге уақыт бөлу кеңістігін жасаймыз.",
     point2Title: "Тайландтық шеберлер",
     point2Desc: "Сертификатталған шеберлер орындайтын нағыз тай техникалары.",
     point3Title: "Массаж және SPA-бағдарламалар",
@@ -1188,6 +1198,9 @@ const en = {
 
     aboutEyebrow: "About the salon",
     aboutTitle: "Authentic Thai SPA close to home",
+    aboutIntro: "RAI THAI SPA — a piece of Thailand in your city.",
+    aboutDetails:
+      "Real masters from Thailand work here, and our massages and SPA programs are built on authentic Thai techniques. We create a space to rest, recharge, and take time for yourself.",
     point2Title: "Masters from Thailand",
     point2Desc: "Genuine Thai techniques performed by certified therapists.",
     point3Title: "Massage and SPA programs",
