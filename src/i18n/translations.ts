@@ -129,6 +129,9 @@ const ru = {
     faq8A: "При покупке пользователь выбирает Петропавловск или Кокшетау.",
     faq9Q: "Можно ли вернуть сертификат?",
     faq9A: "Условия возврата уточняются.",
+    faq10Q: "Можно ли скачать сертификат?",
+    faq10A:
+      "Да, можно — электронный сертификат приходит сразу после оплаты, и его можно скачать в удобном формате.",
     ritualEyebrow: "Ритуал",
     ritualTitle: "Место, где начинается любовь к себе",
     ritualText:
@@ -700,6 +703,9 @@ const kz = {
     faq8A: "Сатып алу кезінде пайдаланушы Петропавл немесе Көкшетауды таңдайды.",
     faq9Q: "Сертификатты қайтаруға бола ма?",
     faq9A: "Қайтару шарттары нақтыланады.",
+    faq10Q: "Сертификатты жүктеп алуға бола ма?",
+    faq10A:
+      "Иә, болады — электронды сертификат төлемнен кейін бірден келеді, оны ыңғайлы форматта жүктеп алуға болады.",
   },
   cert: {
     steps: ["Сертификат", "Деректер", "Дизайн", "Төлем", "Дайын"],
@@ -1213,6 +1219,9 @@ const en = {
     faq8A: "At purchase, the buyer chooses Petropavlovsk or Kokshetau.",
     faq9Q: "Can the certificate be refunded?",
     faq9A: "The refund terms are still being finalized.",
+    faq10Q: "Can I download the certificate?",
+    faq10A:
+      "Yes — the electronic certificate arrives right after payment, and you can download it in a convenient format.",
   },
   cert: {
     steps: ["Certificate", "Details", "Design", "Payment", "Done"],
