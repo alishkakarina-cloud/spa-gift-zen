@@ -109,15 +109,13 @@ type Props = {
   t: (path: string) => string;
 };
 
-/** Карточка для сетки — фото на всю ширину сверху, текст под ним, кнопка
- *  внизу. Восстановлена правкой 2026-08-22 (откат по просьбе владельца):
- *  была удалена как «неиспользуемый код» ~19:50 в пользу компактной строки
- *  ServiceFamilyRow ниже, но владелец счёл строчный вид визуально хуже.
- *  Используется на витрине /offers (ServiceCatalogBrowser) — единственном
- *  месте, где каталог сейчас виден без предвыбора конкретной услуги.
- *  Известный компромисс (тот же, что был до отката): line-clamp-2 обрезает
- *  длинные описания многоточием, а на мобильном одна карточка занимает
- *  значительную часть экрана — так уже было в этой версии раньше. */
+/** Компактная горизонтальная карточка: маленькое фото слева, название+цена
+ *  и переключатель вариантов в одном текстовом блоке, кнопка «Выбрать»
+ *  справа — без описания услуги. Правка владельца 2026-08-23: прежняя
+ *  версия (фото на всю ширину сверху + описание) признана слишком крупной,
+ *  занимала весь экран на мобильном. Используется на витрине /offers
+ *  (ServiceCatalogBrowser) — единственном месте, где каталог сейчас виден
+ *  без предвыбора конкретной услуги. */
 export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
   const { variants } = family;
   const { chosenId, setChosenId, chosen, active } = useFamilySelection(family, selectedIds);
@@ -125,9 +123,11 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
   const name = t(`services.${variants[0]!.id}.name`).replace(NAME_DURATION_SUFFIX, "");
 
   return (
-    <article className="surface flex flex-col overflow-hidden rounded-lg">
+    <article
+      className={`surface flex items-center gap-2 overflow-hidden p-2 transition-colors sm:gap-3 ${active ? "border-gold" : ""}`}
+    >
       {image && (
-        <div className="relative">
+        <div className="relative shrink-0">
           <img
             src={image}
             alt=""
@@ -135,25 +135,29 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
             height={720}
             loading="lazy"
             decoding="async"
-            className="aspect-[4/3] w-full object-cover"
+            className="h-12 w-12 rounded-md object-cover sm:h-16 sm:w-16"
           />
           {family.hit && (
-            <span className="bg-maroon border-gold/50 text-cream absolute top-2 left-2 rounded-full border px-2.5 py-1 text-[0.6rem] font-medium tracking-[0.15em] uppercase">
+            <span className="bg-maroon border-gold/50 text-cream absolute top-0.5 left-0.5 rounded-full border px-1 py-0.5 text-[0.45rem] font-medium tracking-[0.05em] uppercase">
               {t("catalog.hitBadge")}
             </span>
           )}
         </div>
       )}
-      <div className="flex flex-1 flex-col gap-2 p-5">
-        <h3 className="font-display text-lg leading-tight">{name}</h3>
-        <DurationSwitch variants={variants} chosenId={chosenId} onChoose={setChosenId} label={name} t={t} />
-        <p className="text-cream/70 line-clamp-2 text-sm leading-relaxed">
-          {t(`services.${chosen.id}.description`)}
-        </p>
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-3">
-          <span className="text-gold text-sm">{formatPrice(chosen.price)}</span>
-          <SelectPill active={active} onClick={() => onToggle(chosenId)} t={t} />
+      <div className="min-w-0 flex-1">
+        {/* Название и цена — раздельными строками, не одной flex-строкой
+            (justify-between): при совместном разделении ряда с ценой
+            название реально ужимается уже соседством с ней, а не только
+            шириной колонки, из-за чего дробится на строки сильнее, чем
+            нужно (тот же баг уже чинили в OffersSection/certificate.tsx). */}
+        <h3 className="font-display text-sm leading-tight sm:text-base">{name}</h3>
+        <span className="text-gold text-xs sm:text-sm">{formatPrice(chosen.price)}</span>
+        <div className="mt-1">
+          <DurationSwitch variants={variants} chosenId={chosenId} onChoose={setChosenId} label={name} t={t} />
         </div>
+      </div>
+      <div className="shrink-0">
+        <SelectPill active={active} onClick={() => onToggle(chosenId)} t={t} />
       </div>
     </article>
   );

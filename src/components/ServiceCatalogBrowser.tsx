@@ -70,10 +70,11 @@ export function ServiceCatalogBrowser({
 
         <p className="text-cream/55 mt-3 text-sm">{t("cert.selectHint")}</p>
 
-        {/* Сетка карточек (правка 2026-08-22, откат к версии до 19:50) —
-            была списком компактных строк в одну колонку, владелец счёл
-            вид хуже прежней сетки. */}
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Список в одну колонку (правка 2026-08-23) — карточка теперь
+            горизонтальная строка (фото слева, без описания), а не
+            квадратная плитка с фото сверху; в сетке 2-3 колонки такая
+            широкая горизонтальная карточка была бы зажата в узкой ячейке. */}
+        <div className="mt-4 grid gap-2">
           {familiesInGroup(groupId).map((family) => (
             <ServiceFamilyCard
               key={family.familyKey}
