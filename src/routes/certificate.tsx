@@ -632,6 +632,14 @@ function CertificateFlow() {
                       onClick={() => {
                         setBranch(b.id);
                         setLastChoice("city");
+                        // Взаимоисключающий выбор (правка владельца
+                        // 2026-08-23): город и сумма — разные сценарии,
+                        // выбор одного сбрасывает другой полностью, а не
+                        // просто теряет приоритет через lastChoice.
+                        setAmountOpen(false);
+                        setAmountPicked(false);
+                        setCustomAmount("");
+                        setAmount(fixedAmounts[0]!);
                       }}
                       aria-pressed={selected}
                       className={`surface px-6 py-4 text-left transition-colors ${
@@ -641,7 +649,7 @@ function CertificateFlow() {
                       <span
                         className={`font-display block text-lg sm:text-xl text-cream ${selected ? "text-glow-gold" : ""}`}
                       >
-                        {t(b.labelKey)}
+                        {t("home.buyCityPrefix")} {t(b.labelKey)}
                       </span>
                       <span
                         className={`mt-1 block text-sm text-cream/65 ${selected ? "text-glow-gold" : ""}`}
@@ -662,7 +670,19 @@ function CertificateFlow() {
                 >
                   <button
                     type="button"
-                    onClick={() => setAmountOpen((o) => !o)}
+                    onClick={() => {
+                      // Взаимоисключающий выбор — открытие панели суммы
+                      // сбрасывает выбранный город (правка владельца
+                      // 2026-08-23). Сбрасываем только при открытии, а не
+                      // при сворачивании назад — сворачивание без выбора
+                      // суммы ничего не должно менять.
+                      const opening = !amountOpen;
+                      setAmountOpen(opening);
+                      if (opening) {
+                        setBranch(null);
+                        setLastChoice("amount");
+                      }
+                    }}
                     aria-expanded={amountOpen}
                     className="w-full px-6 py-4 text-left"
                   >
@@ -849,7 +869,7 @@ function CertificateFlow() {
                           }}
                           className="btn-gold"
                         >
-                          {t("cert.giftButton")}
+                          {t("cert.nextButton")}
                         </button>
                       )
                     }

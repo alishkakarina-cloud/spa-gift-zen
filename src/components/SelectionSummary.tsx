@@ -83,7 +83,11 @@ export function SelectionSummary({
               {formatPrice(selectionTotal(ids))}
             </span>
           </div>
-          {action}
+          {/* ml-auto — без него на мобильном при переносе строки (flex-wrap)
+              кнопка становится единственным элементом на своей строке и
+              justify-between её ничем не прижимает: она садится к левому
+              краю вместо правого (правка владельца 2026-08-23). */}
+          <div className="ml-auto">{action}</div>
         </div>
       </div>
     </div>
