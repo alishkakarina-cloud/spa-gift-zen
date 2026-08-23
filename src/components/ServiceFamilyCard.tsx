@@ -133,14 +133,17 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
     // Без gap/padding вокруг фото (правка владельца 2026-08-23, «квадрат в
     // квадрате») — фото сидит вплотную к краям карточки и вплотную к
     // текстовому блоку, только у текста/кнопки собственный внутренний
-    // отступ. Раньше между фото и остальным контентом был gap-2/gap-3 +
-    // общий p-2, из-за чего вокруг маленького фото оставалось заметное
-    // пустое поле.
+    // отступ. items-stretch (дефолт flex, явно не задан) вместо прежнего
+    // items-center — следующая правка владельца: фото растягивается на всю
+    // динамическую высоту карточки (от заголовка до последнего варианта
+    // времени), а не сидит маленьким квадратом по центру более высокой
+    // карточки. Ширина фото при этом не меняется — она задана на самом
+    // фото-контейнере (w-16 sm:w-20), а не выведена из его высоты.
     <article
-      className={`surface flex items-center overflow-hidden transition-colors ${active ? "border-gold" : ""}`}
+      className={`surface flex overflow-hidden transition-colors ${active ? "border-gold" : ""}`}
     >
       {image && (
-        <div className="relative shrink-0">
+        <div className="relative w-16 shrink-0 sm:w-20">
           <img
             src={image}
             alt=""
@@ -148,7 +151,7 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
             height={720}
             loading="lazy"
             decoding="async"
-            className="h-16 w-16 object-cover sm:h-20 sm:w-20"
+            className="h-full w-full object-cover"
           />
           {family.hit && (
             <span className="bg-maroon border-gold/50 text-cream absolute top-0.5 left-0.5 rounded-full border px-1 py-0.5 text-[0.45rem] font-medium tracking-[0.05em] uppercase">
@@ -168,7 +171,11 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
           <DurationSwitch variants={variants} chosenId={chosenId} onChoose={setChosenId} label={name} t={t} />
         </div>
       </div>
-      <div className="shrink-0 px-2">
+      {/* flex items-center — кнопка сама по себе невысокая, а её обёртка
+          теперь тоже растягивается на всю высоту строки (items-stretch на
+          article), центрируем её содержимое вручную, чтобы не съезжала к
+          верху. */}
+      <div className="flex shrink-0 items-center px-2">
         <SelectPill active={active} onClick={() => onToggle(chosenId)} t={t} />
       </div>
     </article>
