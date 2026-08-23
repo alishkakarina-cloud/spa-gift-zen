@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback } from "react";
-import { Check, ChevronDown, Infinity as InfinityIcon, MapPin } from "lucide-react";
+import { Check, ChevronDown, Clock, Infinity as InfinityIcon, MapPin } from "lucide-react";
 import heroPhoto from "@/assets/atmosphere-arch.webp";
 import logoLight from "@/assets/logo-on-dark.webp";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { BRANCHES, type Branch } from "@/data/branches";
+import { BRANCHES, spaMenuPdfFor, type Branch } from "@/data/branches";
+import { services, serviceImage, formatPrice } from "@/data/catalog";
 import { BranchesSection } from "@/components/BranchesSection";
 import { CertPerks } from "@/components/CertPerks";
 import { Reveal } from "@/components/Reveal";
@@ -12,6 +13,22 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Divider } from "@/components/Divider";
 import { Motif } from "@/components/Motif";
 import { FAQ_NUMBERS } from "@/data/faq";
+
+/**
+ * «Хиты услуг» на главной — 4 позиции, прямо названные владельцем (правка
+ * 2026-08-23, блок «Наши услуги» по структуре layan.kz): Oil-массаж,
+ * Традиционный тайский массаж, «Перезагрузка», «Королева Таиланда». Имена —
+ * id из каталога (src/data/catalog.ts), название/фото/цена берутся оттуда
+ * же, а не дублируются вручную. У «Королевы Таиланда» в каталоге услуга
+ * называется «SPA-ритуал», не «SPA-программа» (как в задаче) — показываем
+ * реальное название из каталога, не выдуманное.
+ */
+const HOME_HIT_SERVICE_IDS = [
+  "oil-absolute-calm",
+  "traditional-thai",
+  "reload",
+  "queen-of-thailand",
+] as const;
 
 // Порядок в hero — Кокшетау → Петропавловск, как и на витрине /offers,
 // а не порядок BRANCHES в данных (тот используется в других местах сайта).
@@ -48,16 +65,13 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useLanguage();
-  // «Наши услуги» — скролл на этой же странице точно к секции «Условия
-  // использования сертификата» (уточнение: раньше цель была id="cert-info"
-  // на блоке ВЫШЕ по странице — блок «Сертификаты Rai Thai Spa» с
-  // чеклистом, — из-за этого после скролла заголовок «Условия
-  // использования» оставался ниже экрана, а не был виден сразу). id
-  // на самой секции условий (id="cert-terms"); scroll-mt-24 там же
-  // резервирует отступ под sticky-хедер, чтобы заголовок не оказался под
-  // ним при скролле.
-  const scrollToCertInfo = useCallback(() => {
-    document.getElementById("cert-terms")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  // «Наши услуги» — скролл на этой же странице к новому блоку «Наши услуги»
+  // (id="services", правка 2026-08-23) — витрина хит-услуг сразу под hero.
+  // Раньше цель была id="cert-terms" («Условия использования сертификата»),
+  // это не имело отношения к названию кнопки — правка блока 4 задачи.
+  // scroll-mt-24 на секции резервирует отступ под sticky-хедер.
+  const scrollToServices = useCallback(() => {
+    document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   return (
@@ -126,7 +140,7 @@ function Index() {
             <Link to="/certificate" className="btn-beige w-full">
               {t("home.heroCta")}
             </Link>
-            <button type="button" onClick={scrollToCertInfo} className="btn-gold w-full">
+            <button type="button" onClick={scrollToServices} className="btn-gold w-full">
               {t("home.heroCatalogCta")}
             </button>
           </div>
@@ -141,8 +155,78 @@ function Index() {
         </Link>
       </section>
 
+      {/* ── «Наши услуги» — по структуре layan.kz (аудит 2026-08-23: у них
+          это заголовок + короткий текст о салоне + кнопки скачивания
+          SPA-меню по городам + карточки услуг), но с нашими 4 хит-позициями
+          и обязательным бейджем «Хит» (тем же визуальным стилем, что и в
+          основном каталоге /offers) — у layan самого бейджа нет, это наше
+          решение поверх их структуры. Карточки НЕ кликабельны — чисто
+          витрина, никакого перехода. id="services" — цель скролла кнопки
+          «Наши услуги» в hero выше. ──────────────────────────────────── */}
+      <section id="services" className="relative overflow-hidden scroll-mt-24">
+        <Reveal className="relative mx-auto max-w-5xl px-5 pt-12 pb-16 sm:px-6 sm:pb-24">
+          <div className="flex items-center gap-3">
+            <Motif name="waterLines" className="text-gold h-6 w-8 sm:h-7 sm:w-9" />
+            <p className="eyebrow">{t("catalog.title")}</p>
+          </div>
+          <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("catalog.title")}</h2>
+          <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
+            {t("home.aboutText")}
+          </p>
+
+          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {HOME_HIT_SERVICE_IDS.map((id) => {
+              const service = services.find((s) => s.id === id);
+              const image = serviceImage(id);
+              if (!service) return null;
+              return (
+                <article key={id} className="surface flex flex-col overflow-hidden rounded-lg">
+                  <div className="relative aspect-square">
+                    {image && (
+                      <img
+                        src={image}
+                        alt=""
+                        width={720}
+                        height={720}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover"
+                      />
+                    )}
+                    <span className="bg-maroon border-gold/50 text-cream absolute top-2 left-2 rounded-full border px-2 py-1 text-[0.6rem] font-medium tracking-[0.05em] uppercase">
+                      {t("catalog.hitBadge")}
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col gap-1 p-4">
+                    <h3 className="font-display text-sm leading-tight sm:text-base">
+                      {service.name}
+                    </h3>
+                    <div className="text-cream/70 mt-auto flex items-center justify-between pt-2 text-xs sm:text-sm">
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                        {service.duration}
+                      </span>
+                      <span className="text-gold font-semibold">{formatPrice(service.price)}</span>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href={spaMenuPdfFor("kokshetau")} download className="btn-ghost text-[0.62rem]">
+              {t("home.spaMenuKokshetauButton")}
+            </a>
+            <a href={spaMenuPdfFor("petropavlovsk")} download className="btn-ghost text-[0.62rem]">
+              {t("home.spaMenuPetropavlovskButton")}
+            </a>
+          </div>
+        </Reveal>
+      </section>
+
       {/* ── «Подарочные сертификаты» — описание + 4 пункта. id="cert-info" —
-          цель скролла кнопки «Наши услуги» в hero (правка 2026-08-22). ── */}
+          старая цель скролла кнопки «Наши услуги» до правки 2026-08-23. ── */}
       <div id="cert-info" className="scroll-mt-24">
         <CertPerks t={t} />
       </div>
