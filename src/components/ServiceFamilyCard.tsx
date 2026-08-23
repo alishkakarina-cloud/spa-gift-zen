@@ -151,7 +151,13 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
       className={`surface flex overflow-hidden transition-colors ${active ? "border-gold" : ""}`}
     >
       {image && (
-        <div className="relative min-w-16 max-w-40 flex-1 sm:min-w-20 sm:max-w-56">
+        // Потолок в % ширины карточки (а не в px) — правка: фикс. max-w-*
+        // при типичной ширине карточки на десктопе (полноширинная колонка
+        // /certificate, до ~1100px) давал фото только ~23% вместо целевых
+        // 35-40% — px-потолок не растёт вместе с картой. min-w остаётся в
+        // px — это защита от схлопывания в 0 на узких экранах, к ней
+        // проценты не применимы (см. комментарий у текстовой колонки).
+        <div className="relative min-w-16 max-w-[42%] flex-1 sm:min-w-20 sm:max-w-[38%]">
           <img
             src={image}
             alt=""
@@ -168,12 +174,17 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
           )}
         </div>
       )}
-      <div className="min-w-0 shrink px-3 py-2">
+      <div className="min-w-0 shrink py-2 pr-3 pl-2">
         {/* Цена отдельной строкой сверху убрана (правка владельца
             2026-08-23) — она дублировала цену, уже показанную в каждом
             варианте переключателя ниже ("18 000 ₸ / 60 мин" и т.п.); для
             услуг с одним вариантом цена по-прежнему видна — теперь через
             сам DurationSwitch (см. его single-variant ветку выше).
+
+            pl-2 вместо прежнего симметричного px-3 (правка про расширение
+            фото/сужение зазора) — отступ со стороны фото сокращён, со
+            стороны кнопки "Выбрать" (pr-3) оставлен как был, чтобы текст
+            не липнул к кнопке.
 
             min-w-0 + shrink (вместо прежнего shrink-0) — нашёл реальный баг
             при проверке: shrink-0 не даёт колонке сжиматься ниже
