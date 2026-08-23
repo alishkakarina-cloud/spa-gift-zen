@@ -587,13 +587,15 @@ function CertificateFlow() {
         </div>
       </div>
 
-      {/* Превью-карточка сертификата (aside ниже) на шаге 1 (выбор услуги/
-          суммы) не нужна — это ещё не заказ, показывать сертификат с
-          суммой рано (правка владельца 2026-08-22). Убрана условно только
-          там; на шаге 2 («Проверьте заказ») и далее остаётся как была.
+      {/* Превью-карточка сертификата (aside ниже) не нужна на шаге 1 (выбор
+          услуги/суммы, правка 2026-08-22 — ещё не заказ) и на шаге 2
+          «Оформление» (правка 2026-08-23 — дизайн ещё не выбран, показывать
+          сертификат рано; поздравительный текст туда же перенесён на шаг 3).
+          Остаётся с шага 3 «Дизайн» и далее — там уже есть что показывать:
+          выбранный дизайн и введённый текст сразу видны в превью.
           lg:grid-cols-[1fr_380px] тоже только когда aside реально есть —
-          иначе на шаге 1 остаётся пустая зарезервированная колонка. */}
-      <div className={`mt-12 grid gap-12 lg:items-start ${step === 1 ? "" : "lg:grid-cols-[1fr_380px]"}`}>
+          иначе на этих шагах остаётся пустая зарезервированная колонка. */}
+      <div className={`mt-12 grid gap-12 lg:items-start ${step <= 2 ? "" : "lg:grid-cols-[1fr_380px]"}`}>
         {/* key={step} размонтирует и заново монтирует блок при смене шага —
             это и запускает step-fade-in заново на каждом переходе, раньше
             переключение шагов было мгновенным. */}
@@ -918,6 +920,31 @@ function CertificateFlow() {
                   </button>
                 ))}
               </div>
+
+              {/* Поздравительный текст перенесён сюда с шага «Оформление»
+                  (правка владельца 2026-08-23) — логичнее вводить его после
+                  выбора дизайна, рядом с превью, которое сразу показывает
+                  результат, а не до выбора дизайна, когда превью ещё не
+                  видно. Не зависит от forSelf (тот флаг — про данные
+                  покупателя/получателя на другом шаге, к тексту поздравления
+                  отношения не имеет) — доступно всегда. */}
+              <div className="mt-8 max-w-md">
+                <Field label={t("cert.messageLabel")}>
+                  {/* Арка на бланке маленькая — 400 символов туда физически
+                      не помещались бы даже мелким кеглем. 140 укладывается
+                      в 3–4 строки и остаётся читаемым. */}
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    maxLength={MESSAGE_MAX_LENGTH}
+                    rows={3}
+                    className="input resize-none"
+                  />
+                  <span className="text-cream/40 mt-1 block text-right text-[0.65rem]">
+                    {message.length}/{MESSAGE_MAX_LENGTH}
+                  </span>
+                </Field>
+              </div>
             </div>
           )}
 
@@ -1031,21 +1058,6 @@ function CertificateFlow() {
                       placeholder="name@mail.com"
                       className="input"
                     />
-                  </Field>
-                  <Field label={t("cert.messageLabel")}>
-                    {/* Арка на бланке маленькая — 400 символов туда физически
-                        не помещались бы даже мелким кеглем. 140 укладывается
-                        в 3–4 строки и остаётся читаемым. */}
-                    <textarea
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      maxLength={MESSAGE_MAX_LENGTH}
-                      rows={3}
-                      className="input resize-none"
-                    />
-                    <span className="text-cream/40 mt-1 block text-right text-[0.65rem]">
-                      {message.length}/{MESSAGE_MAX_LENGTH}
-                    </span>
                   </Field>
                 </div>
               )}
@@ -1320,7 +1332,7 @@ function CertificateFlow() {
 
         </section>
 
-        {step !== 1 && (
+        {step > 2 && (
           <aside className="lg:sticky lg:top-10">
             <CertificateCard
               design={design}
