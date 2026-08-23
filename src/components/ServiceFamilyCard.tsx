@@ -157,7 +157,28 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
         // 35-40% — px-потолок не растёт вместе с картой. min-w остаётся в
         // px — это защита от схлопывания в 0 на узких экранах, к ней
         // проценты не применимы (см. комментарий у текстовой колонки).
-        <div className="relative min-w-16 max-w-[42%] flex-1 sm:min-w-20 sm:max-w-[38%]">
+        //
+        // aspect-square (правка 2026-08-23) — раньше высота фото бралась из
+        // h-full, т.е. из высоты всей flex-строки (article без явного
+        // align-items растягивает детей по умолчанию) — а высота строки
+        // сама зависела от того, сколько строк занимает переключатель
+        // вариантов у конкретной услуги. У услуг с длинным списком
+        // вариантов строка выше — и то же самое фото выглядело вытянутым
+        // по вертикали, у коротких — почти квадратным. Теперь высота фото
+        // не зависит от текста рядом — контейнер всегда квадрат сам по
+        // себе. Обрезки не будет ни у одного фото: все исходники в
+        // src/assets/services ровно 720×720 (проверено), т.е. уже точно
+        // квадратные — cover с центром показывает картинку целиком.
+        //
+        // self-start — без него не работало: article растягивает детей по
+        // высоте строки по умолчанию (align-items: stretch), это
+        // ПЕРЕБИВАЕТ aspect-square, когда фото упирается в свой нижний
+        // порог ширины (min-w-16 на 375px), а текстовая колонка рядом
+        // естественно выше — проверено вживую, без self-start высота фото
+        // на мобильном скакала 109-155px при ширине 64px. self-start
+        // убирает растягивание для фото — высота считается только из его
+        // aspect-ratio и уже посчитанной ширины, не из соседей.
+        <div className="relative aspect-square min-w-16 max-w-[42%] flex-1 self-start sm:min-w-20 sm:max-w-[38%]">
           <img
             src={image}
             alt=""
@@ -165,7 +186,7 @@ export function ServiceFamilyCard({ family, selectedIds, onToggle, t }: Props) {
             height={720}
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-center"
           />
           {family.hit && (
             <span className="bg-maroon border-gold/50 text-cream absolute top-0.5 left-0.5 rounded-full border px-1 py-0.5 text-[0.45rem] font-medium tracking-[0.05em] uppercase">
