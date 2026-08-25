@@ -37,6 +37,11 @@ type Props = {
   recipient?: string | undefined;
   message?: string | undefined;
   number?: string | undefined;
+  /** Дата выдачи сертификата, уже отформатированная как ДД.ММ.ГГГГ —
+   *  печатается отдельной строкой под номером, мелким шрифтом (см.
+   *  cardIssuedAt в certificate.tsx: реальный created_at после оплаты,
+   *  временная дата "сегодня" на превью до оплаты). */
+  issuedAt?: string | undefined;
   /** Филиал, в котором действует сертификат. */
   branch?: string | undefined;
   /** Как записаться на процедуру — печатается на самом сертификате. */
@@ -55,6 +60,7 @@ export function CertificateCard({
   recipient,
   message,
   number,
+  issuedAt,
   branch,
   bookingNote,
   compact = false,
@@ -171,11 +177,26 @@ export function CertificateCard({
           </p>
         )}
 
+        {/* Номер и дата выдачи — второстепенная техническая информация,
+            каждая на своей строке и заметно мельче "Бессрочный сертификат"
+            (Блок 4 задачи про дату выдачи), чтобы не переносились некрасиво
+            и не спорили визуально с остальным текстом. */}
         {!compact && (
-          <p className="mt-2 shrink-0 text-[0.56rem] tracking-[0.2em] uppercase opacity-80">
-            {t("cert.cardValidity")}
-            {number && ` · № ${number}`}
-          </p>
+          <div className="mt-2 shrink-0">
+            <p className="text-[0.56rem] tracking-[0.2em] uppercase opacity-80">
+              {t("cert.cardValidity")}
+            </p>
+            {number && (
+              <p className="mt-0.5 text-[0.42rem] tracking-[0.15em] uppercase opacity-70">
+                № {number}
+              </p>
+            )}
+            {issuedAt && (
+              <p className="mt-0.5 text-[0.42rem] tracking-[0.15em] uppercase opacity-70">
+                {t("cert.cardIssuedAt", { date: issuedAt })}
+              </p>
+            )}
+          </div>
         )}
       </div>
     </div>

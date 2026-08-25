@@ -139,7 +139,7 @@ export const Route = createFileRoute("/api/certificates/create")({
               payment_status: "pending",
               status: "active",
             })
-            .select("id, certificate_number")
+            .select("id, certificate_number, created_at")
             .single();
 
           if (!error) {
@@ -167,6 +167,7 @@ export const Route = createFileRoute("/api/certificates/create")({
               return Response.json({
                 id: data.id,
                 certificateNumber: data.certificate_number,
+                createdAt: data.created_at,
                 invoice:
                   body.paymentChannel === "qr"
                     ? {

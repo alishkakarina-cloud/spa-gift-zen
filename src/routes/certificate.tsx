@@ -322,6 +322,21 @@ function CertificateFlow() {
     return `RTS-${year}-${seq.toString().padStart(5, "0")}`;
   };
 
+  // Дата выдачи (СТРОГАЯ ЗАДАЧА про дату выдачи, 2026-08-25): реальная —
+  // из created_at записи в Supabase, которую сервер отдаёт вместе с
+  // certificateNumber при оплате (см. data.createdAt выше). До оплаты, на
+  // превью — та же логика, что и у previewCertificateNumber: временная
+  // дата "сегодня" на клиенте, генерируется в тот же момент (первый клик по
+  // дизайну), так как реальной записи в БД ещё не существует.
+  const [certificateIssuedAt, setCertificateIssuedAt] = useState<string | null>(null);
+  const [previewIssuedAt, setPreviewIssuedAt] = useState<string | null>(null);
+  const formatIssuedDate = (input: string | Date) => {
+    const d = typeof input === "string" ? new Date(input) : input;
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    return `${day}.${month}.${d.getFullYear()}`;
+  };
+
   // Карточка сертификата на шаге 5 — узел, с которого рендерим PNG для
   // скачивания на телефон и для «Отправить в WhatsApp» (тот же файл, чтобы
   // не собирать картинку дважды по-разному).
@@ -520,6 +535,7 @@ function CertificateFlow() {
       const data = (await response.json()) as {
         id?: string;
         certificateNumber?: string;
+        createdAt?: string;
         invoice?: { qrCode: string | null; payUrl: string | null } | null;
         error?: string;
         errorCategory?: string;
@@ -534,6 +550,7 @@ function CertificateFlow() {
         return;
       }
       setCertificateNumber(data.certificateNumber);
+      if (data.createdAt) setCertificateIssuedAt(formatIssuedDate(data.createdAt));
       setInvoiceData({
         id: data.id,
         qrCode: data.invoice?.qrCode ?? null,
@@ -946,6 +963,7 @@ function CertificateFlow() {
                       // между дизайнами — код один на весь заказ.
                       if (!previewCertificateNumber) {
                         setPreviewCertificateNumber(generatePreviewCertificateNumber());
+                        setPreviewIssuedAt(formatIssuedDate(new Date()));
                       }
                     }}
                     className={`w-full overflow-hidden rounded-2xl border text-left transition-colors ${designId === d.id ? "border-gold bg-gold" : "border-border/40 hover:border-gold/60"}`}
@@ -1352,6 +1370,7 @@ function CertificateFlow() {
                   recipient={recipientFullName || undefined}
                   message={message || undefined}
                   number={certificateNumber ?? previewCertificateNumber ?? undefined}
+                  issuedAt={certificateIssuedAt ?? previewIssuedAt ?? undefined}
                   branch={branchInfo ? branchLabel : undefined}
                   bookingNote={t("cert.bookingNote")}
                 />
@@ -1409,6 +1428,7 @@ function CertificateFlow() {
               recipient={recipientFullName || undefined}
               message={message || undefined}
               number={certificateNumber ?? previewCertificateNumber ?? undefined}
+              issuedAt={certificateIssuedAt ?? previewIssuedAt ?? undefined}
               // Раньше превью не имело ограничения ширины и на мобильном
               // занимало весь экран по высоте (380px-колонка десктопа
               // растягивалась на всю ширину экрана), поэтому было ограничено
