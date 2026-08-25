@@ -438,10 +438,10 @@ function CertificateFlow() {
     if (!buyerFirstName.trim()) e.push(t("cert.errBuyerNameRequired"));
     if (!buyerLastName.trim()) e.push(t("cert.errBuyerLastNameRequired"));
     if (!/^[+()\d\s-]{10,}$/.test(buyerPhone)) e.push(t("cert.errBuyerPhoneRequired"));
-    // E-mail снова обязателен (правка владельца 2026-08-25, отменяет
-    // решение от 2026-08-23) — пустое поле теперь тоже ошибка, не только
-    // некорректный формат.
-    if (!buyerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(buyerEmail))
+    // E-mail необязателен (правка владельца 2026-08-23, подтверждена
+    // повторно 2026-08-25) — проверяем формат, только если поле вообще
+    // заполнено; пустое поле проходит без ошибки.
+    if (buyerEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(buyerEmail))
       e.push(t("cert.errBuyerEmailRequired"));
     if (!forSelf) {
       if (!recipientFirstName.trim()) e.push(t("cert.errRecipientRequired"));
