@@ -438,15 +438,16 @@ function CertificateFlow() {
     if (!buyerFirstName.trim()) e.push(t("cert.errBuyerNameRequired"));
     if (!buyerLastName.trim()) e.push(t("cert.errBuyerLastNameRequired"));
     if (!/^[+()\d\s-]{10,}$/.test(buyerPhone)) e.push(t("cert.errBuyerPhoneRequired"));
-    // E-mail необязателен (правка владельца 2026-08-23) — проверяем формат,
-    // только если поле вообще заполнено; пустое поле проходит без ошибки.
-    if (buyerEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(buyerEmail))
+    // E-mail снова обязателен (правка владельца 2026-08-25, отменяет
+    // решение от 2026-08-23) — пустое поле теперь тоже ошибка, не только
+    // некорректный формат.
+    if (!buyerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(buyerEmail))
       e.push(t("cert.errBuyerEmailRequired"));
     if (!forSelf) {
-      // Фамилия получателя — необязательна (правка владельца 2026-08-21):
-      // не все хотят её указывать, а имени обычно достаточно, чтобы найти
-      // получателя на ресепшене.
       if (!recipientFirstName.trim()) e.push(t("cert.errRecipientRequired"));
+      // Фамилия получателя снова обязательна (правка владельца 2026-08-25,
+      // отменяет решение от 2026-08-21).
+      if (!recipientLastName.trim()) e.push(t("cert.errRecipientLastNameRequired"));
     }
     return e;
   };
@@ -1114,7 +1115,6 @@ function CertificateFlow() {
                         value={recipientLastName}
                         onChange={(e) => setRecipientLastName(e.target.value)}
                         maxLength={60}
-                        placeholder={t("cert.optionalPlaceholder")}
                         className="input"
                       />
                     </Field>
