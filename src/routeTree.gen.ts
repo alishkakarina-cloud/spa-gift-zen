@@ -31,6 +31,7 @@ import { Route as ApiAdminMeRouteImport } from './routes/api/admin/me'
 import { Route as ApiAdminMenuRouteImport } from './routes/api/admin/menu'
 import { Route as ApiAdminServicesRouteImport } from './routes/api/admin/services'
 import { Route as ApiCertificatesCreateRouteImport } from './routes/api/certificates/create'
+import { Route as ApiCertificatesReserveNumberRouteImport } from './routes/api/certificates/reserve-number'
 import { Route as ApiWebhooksApipayRouteImport } from './routes/api/webhooks/apipay'
 import { Route as ApiAdminCertificatesIdRouteImport } from './routes/api/admin/certificates.$id'
 import { Route as ApiAdminCertificatesExportRouteImport } from './routes/api/admin/certificates.export'
@@ -147,6 +148,12 @@ const ApiCertificatesCreateRoute = ApiCertificatesCreateRouteImport.update({
   path: '/api/certificates/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCertificatesReserveNumberRoute =
+  ApiCertificatesReserveNumberRouteImport.update({
+    id: '/api/certificates/reserve-number',
+    path: '/api/certificates/reserve-number',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiWebhooksApipayRoute = ApiWebhooksApipayRouteImport.update({
   id: '/api/webhooks/apipay',
   path: '/api/webhooks/apipay',
@@ -197,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/menu': typeof ApiAdminMenuRoute
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/certificates/reserve-number': typeof ApiCertificatesReserveNumberRoute
   '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
   '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
@@ -226,6 +234,7 @@ export interface FileRoutesByTo {
   '/api/admin/menu': typeof ApiAdminMenuRoute
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/certificates/reserve-number': typeof ApiCertificatesReserveNumberRoute
   '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
   '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
@@ -256,6 +265,7 @@ export interface FileRoutesById {
   '/api/admin/menu': typeof ApiAdminMenuRoute
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/certificates/reserve-number': typeof ApiCertificatesReserveNumberRoute
   '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
   '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/api/admin/menu'
     | '/api/admin/services'
     | '/api/certificates/create'
+    | '/api/certificates/reserve-number'
     | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
     | '/api/admin/certificates/export'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
     | '/api/admin/menu'
     | '/api/admin/services'
     | '/api/certificates/create'
+    | '/api/certificates/reserve-number'
     | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
     | '/api/admin/certificates/export'
@@ -345,6 +357,7 @@ export interface FileRouteTypes {
     | '/api/admin/menu'
     | '/api/admin/services'
     | '/api/certificates/create'
+    | '/api/certificates/reserve-number'
     | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
     | '/api/admin/certificates/export'
@@ -375,6 +388,7 @@ export interface RootRouteChildren {
   ApiAdminMenuRoute: typeof ApiAdminMenuRoute
   ApiAdminServicesRoute: typeof ApiAdminServicesRouteWithChildren
   ApiCertificatesCreateRoute: typeof ApiCertificatesCreateRoute
+  ApiCertificatesReserveNumberRoute: typeof ApiCertificatesReserveNumberRoute
   ApiWebhooksApipayRoute: typeof ApiWebhooksApipayRoute
   ApiCertificatesStatusIdRoute: typeof ApiCertificatesStatusIdRoute
 }
@@ -535,6 +549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCertificatesCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/certificates/reserve-number': {
+      id: '/api/certificates/reserve-number'
+      path: '/api/certificates/reserve-number'
+      fullPath: '/api/certificates/reserve-number'
+      preLoaderRoute: typeof ApiCertificatesReserveNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/webhooks/apipay': {
       id: '/api/webhooks/apipay'
       path: '/api/webhooks/apipay'
@@ -620,6 +641,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminMenuRoute: ApiAdminMenuRoute,
   ApiAdminServicesRoute: ApiAdminServicesRouteWithChildren,
   ApiCertificatesCreateRoute: ApiCertificatesCreateRoute,
+  ApiCertificatesReserveNumberRoute: ApiCertificatesReserveNumberRoute,
   ApiWebhooksApipayRoute: ApiWebhooksApipayRoute,
   ApiCertificatesStatusIdRoute: ApiCertificatesStatusIdRoute,
 }

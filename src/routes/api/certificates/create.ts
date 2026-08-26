@@ -27,33 +27,34 @@ type CreateCertificateBody = {
   designId?: string | null;
   message?: string | null;
   services?: ReadonlyArray<ServiceLine> | null;
+  /** Номер сертификата в формате RT0001+ (правка владельца 2026-08-26) —
+   *  обычно уже зарезервирован клиентом раньше, на шаге выбора дизайна (см.
+   *  POST /api/certificates/reserve-number и certificate.tsx), и приходит
+   *  сюда готовым — просто используем его, а не генерируем заново. Если
+   *  клиент почему-то его не прислал (сетевой сбой на шаге резервирования,
+   *  старая закэшированная версия страницы) — резервируем прямо тут, тем
+   *  же самым способом (см. reserveCertificateNumber ниже). */
+  certificateNumber?: string | null;
 };
 
 const PHONE_RE = /^8\d{10}$/;
+/** RT + минимум 4 цифры — формат из reserveCertificateNumber. Минимум, а не
+ *  ровно 4: после RT9999 счётчик в базе продолжит расти в 5+ знаков
+ *  (RT10000), это не ошибка. */
+const CERTIFICATE_NUMBER_RE = /^RT\d{4,}$/;
 
-const generateCertificateNumber = () => {
-  const year = new Date().getFullYear();
-  const seq = Math.floor(Math.random() * 100000)
-    .toString()
-    .padStart(5, "0");
-  return `RTS-${year}-${seq}`;
-};
-
-async function findUniqueCertificateNumber(
-  supabase: ReturnType<typeof getSupabaseServerClient>,
-  maxAttempts = 5,
-) {
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const candidate = generateCertificateNumber();
-    const { data, error } = await supabase
-      .from("certificates")
-      .select("id")
-      .eq("certificate_number", candidate)
-      .maybeSingle();
-    if (error) throw error;
-    if (!data) return candidate;
+/** Последовательный номер сертификата — RT0001, RT0002... Через Postgres
+ *  sequence (см. миграцию 20260826000000): nextval() физически не может
+ *  выдать одно и то же значение дважды даже при одновременных покупках —
+ *  это гарантия на уровне самой БД, поэтому ни SELECT-проверки, ни
+ *  retry-цикла (как было у старого случайного RTS-{год}-{5 цифр}) больше
+ *  не нужно. */
+async function reserveCertificateNumber(supabase: ReturnType<typeof getSupabaseServerClient>) {
+  const { data, error } = await supabase.rpc("next_certificate_number");
+  if (error || typeof data !== "string") {
+    throw error ?? new Error("next_certificate_number returned no data");
   }
-  throw new Error("could_not_generate_unique_certificate_number");
+  return data;
 }
 
 function isValidServiceLine(v: unknown): v is ServiceLine {
@@ -77,6 +78,8 @@ function isValidBody(body: unknown): body is CreateCertificateBody {
     return false;
   }
   if (b["paymentChannel"] === "phone" && !PHONE_RE.test(String(b["payPhone"] ?? ""))) return false;
+  if (b["certificateNumber"] != null && !CERTIFICATE_NUMBER_RE.test(String(b["certificateNumber"])))
+    return false;
   if (b["services"] != null && !Array.isArray(b["services"])) return false;
   if (Array.isArray(b["services"]) && !b["services"].every(isValidServiceLine)) return false;
   return true;
@@ -105,15 +108,22 @@ export const Route = createFileRoute("/api/certificates/create")({
           return Response.json({ error: "supabase_not_configured" }, { status: 500 });
         }
 
-        // Belt-and-suspenders uniqueness: pre-check via SELECT, then rely on the
-        // table's UNIQUE constraint as the real guarantee (closes the race
-        // window between the check and the insert below).
-        for (let attempt = 0; attempt < 5; attempt++) {
+        // Обычно certificateNumber уже пришёл готовым — клиент зарезервировал
+        // его раньше, на шаге выбора дизайна (см. комментарий у типа выше).
+        // Максимум 2 попытки: первая — с этим номером (или свежим, если
+        // клиент его не прислал), вторая — только если nextval() всё же
+        // столкнулся с уже занятым значением (реально возможно только если
+        // клиент прислал чужой/поддельный номер — у настоящего резерва
+        // коллизия исключена самой природой sequence).
+        for (let attempt = 0; attempt < 2; attempt++) {
           let certificateNumber: string;
           try {
-            certificateNumber = await findUniqueCertificateNumber(supabase);
+            certificateNumber =
+              attempt === 0 && body.certificateNumber
+                ? body.certificateNumber
+                : await reserveCertificateNumber(supabase);
           } catch (err) {
-            console.error("Failed to generate a unique certificate number:", err);
+            console.error("Failed to reserve a certificate number:", err);
             return Response.json({ error: "number_generation_failed" }, { status: 500 });
           }
 
@@ -199,8 +209,9 @@ export const Route = createFileRoute("/api/certificates/create")({
             }
           }
 
-          // Postgres unique_violation — another request grabbed this number
-          // between our check and insert. Retry with a fresh number.
+          // Postgres unique_violation — присланный клиентом номер уже занят
+          // (см. комментарий выше про попытки). Берём свежий через sequence
+          // и пробуем ещё раз.
           if (error.code === "23505") continue;
 
           console.error("Failed to insert certificate:", error);

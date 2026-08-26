@@ -296,38 +296,38 @@ function CertificateFlow() {
 
   // Issued only once payment is confirmed (see the polling effect below), not on page load.
   const [certificateNumber, setCertificateNumber] = useState<string | null>(null);
-  // Превью-код (правка владельца 2026-08-24): показывается на живом превью
-  // ещё ДО оплаты, с шага «Дизайн» — генерируется на клиенте в момент
-  // первого клика по дизайну (см. onClick ниже), не раньше, чтобы не
-  // тратить номер на сессии, которые до выбора дизайна не дошли. Формат —
-  // тот же, что у реального номера с сервера (RTS-{год}-{5 цифр}), но это
-  // ВРЕМЕННЫЙ клиентский код: без Supabase его нельзя проверить на
-  // уникальность, поэтому он МОЖЕТ отличаться от настоящего certificateNumber,
-  // который сервер выдаёт при оплате (см. startPayment ниже) — этот превью
-  // только для наглядности на шагах до оплаты. certificateNumber (реальный,
-  // с сервера) всегда в приоритете, как только появится — см. использование
-  // ниже (certificateNumber ?? previewCertificateNumber).
-  // TODO(Supabase): когда появится реальная проверка уникальности в БД,
-  // рассмотреть замену этого временного клиентского кода на такой же ранний,
-  // но серверный вызов с настоящей проверкой — тогда превью и финальный
-  // номер будут гарантированно совпадать.
-  const [previewCertificateNumber, setPreviewCertificateNumber] = useState<string | null>(null);
-  const generatePreviewCertificateNumber = () => {
-    const year = new Date().getFullYear();
-    // Timestamp + случайное число (Блок 2.3 задачи) — без обращения к БД,
-    // но на практике коллизия между двумя сессиями крайне маловероятна;
-    // к тому же это не финальный номер (см. комментарий выше), а чисто
-    // отображение до оплаты.
-    const seq = ((Date.now() % 100000) ^ Math.floor(Math.random() * 100000)) % 100000;
-    return `RTS-${year}-${seq.toString().padStart(5, "0")}`;
+  // Номер сертификата RT0001+ (СТРОГАЯ ЗАДАЧА 2026-08-26): резервируется
+  // реальным серверным счётчиком (Postgres sequence в Supabase, см.
+  // POST /api/certificates/reserve-number и миграцию 20260826000000) уже
+  // на шаге «Дизайн», в момент первого клика по дизайну (см. onClick
+  // ниже) — не раньше, чтобы не тратить номер на сессии, которые до выбора
+  // дизайна не дошли. Это уже НАСТОЯЩИЙ, финальный номер (не временный
+  // клиентский код, как было раньше до этой правки) — при оплате
+  // (startPayment ниже) он передаётся на сервер и используется как есть,
+  // без повторной генерации. certificateNumber (после реального
+  // подтверждения оплаты) остаётся в приоритете в JSX ниже
+  // (certificateNumber ?? reservedCertificateNumber) чисто для единой
+  // логики отображения — по факту это всегда одно и то же значение.
+  const [reservedCertificateNumber, setReservedCertificateNumber] = useState<string | null>(null);
+  const reserveCertificateNumber = async () => {
+    try {
+      const response = await fetch("/api/certificates/reserve-number", { method: "POST" });
+      const data = (await response.json()) as { certificateNumber?: string };
+      if (response.ok && data.certificateNumber) setReservedCertificateNumber(data.certificateNumber);
+    } catch {
+      // Не критично — если резерв не удался (сеть и т.п.), номер на превью
+      // просто не покажется; при оплате сервер зарезервирует его сам как
+      // резервный вариант (см. certificateNumber?: в create.ts).
+    }
   };
 
   // Дата выдачи (СТРОГАЯ ЗАДАЧА про дату выдачи, 2026-08-25): реальная —
   // из created_at записи в Supabase, которую сервер отдаёт вместе с
   // certificateNumber при оплате (см. data.createdAt выше). До оплаты, на
-  // превью — та же логика, что и у previewCertificateNumber: временная
-  // дата "сегодня" на клиенте, генерируется в тот же момент (первый клик по
-  // дизайну), так как реальной записи в БД ещё не существует.
+  // превью — дата "сегодня" на клиенте (в отличие от номера выше, реальной
+  // записи в БД для сертификата ещё не существует на шаге дизайна — только
+  // зарезервированный номер, без строки в certificates, — поэтому у даты
+  // настоящего значения взять неоткуда до самой оплаты).
   const [certificateIssuedAt, setCertificateIssuedAt] = useState<string | null>(null);
   const [previewIssuedAt, setPreviewIssuedAt] = useState<string | null>(null);
   const formatIssuedDate = (input: string | Date) => {
@@ -504,6 +504,12 @@ function CertificateFlow() {
           payPhone: payChannel === "phone" ? payPhone : null,
           designId,
           message: message.trim() || null,
+          // Номер уже зарезервирован на шаге «Дизайн» (см.
+          // reservedCertificateNumber выше) — сервер использует его как
+          // есть, не генерирует новый. Если по какой-то причине резерва
+          // нет (например резервирование не удалось из-за сети), поле
+          // просто не уходит — сервер зарезервирует номер сам.
+          certificateNumber: reservedCertificateNumber,
           // Состав сертификата на момент покупки — раньше нигде не
           // сохранялся, хотя форма его собирает (chosen). Для сертификата
           // «на сумму» с добавленными доп.услугами номинал уходит первой
@@ -956,14 +962,17 @@ function CertificateFlow() {
                     type="button"
                     onClick={() => {
                       setDesignId(d.id);
-                      // Генерируем превью-код один раз, при первом клике по
-                      // дизайну (Блок 3.1 задачи) — не раньше (шаг 3 и так
-                      // рендерится с designId по умолчанию = designs[0], но
-                      // это не считается «выбором» без явного клика), и не
-                      // перегенерируем при последующих кликах/переключении
-                      // между дизайнами — код один на весь заказ.
-                      if (!previewCertificateNumber) {
-                        setPreviewCertificateNumber(generatePreviewCertificateNumber());
+                      // Резервируем номер один раз, при первом клике по
+                      // дизайну (не раньше — шаг 3 и так рендерится с
+                      // designId по умолчанию = designs[0], но это не
+                      // считается «выбором» без явного клика), и не
+                      // повторно при последующих кликах/переключении между
+                      // дизайнами — номер один на весь заказ, дальше не
+                      // меняется (проверка reservedCertificateNumber тут же
+                      // не даёт слать лишний запрос на сервер при каждом
+                      // клике).
+                      if (!reservedCertificateNumber) {
+                        void reserveCertificateNumber();
                         setPreviewIssuedAt(formatIssuedDate(new Date()));
                       }
                     }}
@@ -1369,7 +1378,7 @@ function CertificateFlow() {
                   showValue={kind !== "service"}
                   recipient={recipientFullName || undefined}
                   message={message || undefined}
-                  number={certificateNumber ?? previewCertificateNumber ?? undefined}
+                  number={certificateNumber ?? reservedCertificateNumber ?? undefined}
                   issuedAt={certificateIssuedAt ?? previewIssuedAt ?? undefined}
                   branch={branchInfo ? branchLabel : undefined}
                   bookingNote={t("cert.bookingNote")}
@@ -1427,7 +1436,7 @@ function CertificateFlow() {
               showValue={kind !== "service"}
               recipient={recipientFullName || undefined}
               message={message || undefined}
-              number={certificateNumber ?? previewCertificateNumber ?? undefined}
+              number={certificateNumber ?? reservedCertificateNumber ?? undefined}
               issuedAt={certificateIssuedAt ?? previewIssuedAt ?? undefined}
               // Раньше превью не имело ограничения ширины и на мобильном
               // занимало весь экран по высоте (380px-колонка десктопа
