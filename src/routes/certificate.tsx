@@ -298,16 +298,16 @@ function CertificateFlow() {
   const [certificateNumber, setCertificateNumber] = useState<string | null>(null);
   // Номер сертификата RT0001+ (СТРОГАЯ ЗАДАЧА 2026-08-26): резервируется
   // реальным серверным счётчиком (Postgres sequence в Supabase, см.
-  // POST /api/certificates/reserve-number и миграцию 20260826000000) уже
-  // на шаге «Дизайн», в момент первого клика по дизайну (см. onClick
-  // ниже) — не раньше, чтобы не тратить номер на сессии, которые до выбора
-  // дизайна не дошли. Это уже НАСТОЯЩИЙ, финальный номер (не временный
-  // клиентский код, как было раньше до этой правки) — при оплате
-  // (startPayment ниже) он передаётся на сервер и используется как есть,
-  // без повторной генерации. certificateNumber (после реального
-  // подтверждения оплаты) остаётся в приоритете в JSX ниже
-  // (certificateNumber ?? reservedCertificateNumber) чисто для единой
-  // логики отображения — по факту это всегда одно и то же значение.
+  // POST /api/certificates/reserve-number и миграцию 20260826000000) при
+  // входе на шаг «Дизайн» (см. useEffect ниже, у formatIssuedDate) — не
+  // раньше, чтобы не тратить номер на сессии, которые до выбора дизайна не
+  // дошли. Это уже НАСТОЯЩИЙ, финальный номер (не временный клиентский код,
+  // как было раньше до этой правки) — при оплате (startPayment ниже) он
+  // передаётся на сервер и используется как есть, без повторной генерации.
+  // certificateNumber (после реального подтверждения оплаты) остаётся в
+  // приоритете в JSX ниже (certificateNumber ?? reservedCertificateNumber)
+  // чисто для единой логики отображения — по факту это всегда одно и то же
+  // значение.
   const [reservedCertificateNumber, setReservedCertificateNumber] = useState<string | null>(null);
   const reserveCertificateNumber = async () => {
     try {
@@ -336,6 +336,26 @@ function CertificateFlow() {
     const month = String(d.getMonth() + 1).padStart(2, "0");
     return `${day}.${month}.${d.getFullYear()}`;
   };
+
+  // Багфикс (2026-08-26, жалоба владельца — "дата выдачи и номер не
+  // рендерятся при оплате"): резервирование раньше висело на явном клике по
+  // карточке дизайна на шаге 3 — но designId уже проинициализирован
+  // дефолтным дизайном (designs[0], см. useState выше), карточка на экране
+  // и так выглядит выбранной, и живая проверка подтвердила: реальный
+  // маршрут "заполнить шаг 2 → Далее → сразу ОПЛАТИТЬ, ни разу не кликнув
+  // по уже подсвеченной карточке" — не край. случай, а самый естественный
+  // путь пользователя. Итог — reservedCertificateNumber/previewIssuedAt
+  // оставались null до самого шага 4 (экран "Оплата"), превью сертификата
+  // (aside и в шаге 3) показывало пустые дату и номер до подтверждения
+  // оплаты. Резервируем при входе на шаг 3 (сам факт, что пользователь сюда
+  // дошёл — уже сильный сигнал продолжения, ничего не выбирая явно) — эффект
+  // выполняется один раз за сессию (гвард reservedCertificateNumber).
+  useEffect(() => {
+    if (step !== 3 || reservedCertificateNumber) return;
+    void reserveCertificateNumber();
+    setPreviewIssuedAt(formatIssuedDate(new Date()));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // Карточка сертификата на шаге 5 — узел, с которого рендерим PNG для
   // скачивания на телефон и для «Отправить в WhatsApp» (тот же файл, чтобы
@@ -962,19 +982,9 @@ function CertificateFlow() {
                     type="button"
                     onClick={() => {
                       setDesignId(d.id);
-                      // Резервируем номер один раз, при первом клике по
-                      // дизайну (не раньше — шаг 3 и так рендерится с
-                      // designId по умолчанию = designs[0], но это не
-                      // считается «выбором» без явного клика), и не
-                      // повторно при последующих кликах/переключении между
-                      // дизайнами — номер один на весь заказ, дальше не
-                      // меняется (проверка reservedCertificateNumber тут же
-                      // не даёт слать лишний запрос на сервер при каждом
-                      // клике).
-                      if (!reservedCertificateNumber) {
-                        void reserveCertificateNumber();
-                        setPreviewIssuedAt(formatIssuedDate(new Date()));
-                      }
+                      // Резервирование номера/даты превью — теперь при
+                      // входе на сам шаг (см. useEffect выше), не по клику
+                      // здесь: клик просто переключает дизайн.
                     }}
                     className={`w-full overflow-hidden rounded-2xl border text-left transition-colors ${designId === d.id ? "border-gold bg-gold" : "border-border/40 hover:border-gold/60"}`}
                   >
