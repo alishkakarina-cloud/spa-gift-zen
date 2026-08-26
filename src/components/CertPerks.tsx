@@ -25,10 +25,11 @@ export function CertPerks({ t }: { t: (path: string) => string }) {
           <p className="eyebrow">{t("home.certPerksEyebrow")}</p>
         </div>
         <h2 className="font-display mt-4 text-2xl sm:text-3xl">{t("home.certPerksTitle")}</h2>
-        <p className="text-cream/70 mt-3 max-w-xl text-sm leading-relaxed">
-          {t("home.certPerksText")}
-        </p>
 
+        {/* Абзац под заголовком убран (правка владельца 2026-08-26) —
+            дублировал то, что и так видно в списке ниже. Перевод
+            certPerksText не удалён из translations.ts — не используется
+            больше нигде, но удалять неиспользуемый ключ не просили. */}
         <ul className="mt-8 grid gap-4 sm:grid-cols-2">
           {perks.map((perk) => (
             <li key={perk} className="flex items-start gap-3">

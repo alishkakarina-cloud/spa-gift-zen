@@ -125,8 +125,14 @@ function Index() {
           <h1 className="font-display mt-7 max-w-xs text-[1.9rem] leading-[1.15] sm:mt-8 sm:max-w-sm sm:text-4xl lg:text-5xl">
             {t("home.aboutTitle")}
           </h1>
+          {/* Раньше сюда же выводился why2Desc ("Аутентичные тайские техники
+              массажа.") следом за why2Title — правка владельца 2026-08-26:
+              в hero остаётся только сама фраза "Настоящие мастера из
+              Таиланда", без продолжения. why2Desc не удалён — он всё ещё
+              используется в блоке "Почему RAI THAI SPA" ниже (пункт 2 из 4,
+              см. why${n}Desc в цикле), трогать его нельзя. */}
           <p className="text-cream/75 mt-4 max-w-sm text-sm leading-relaxed">
-            {t("home.why2Title")}. {t("home.why2Desc")}
+            {t("home.why2Title")}
           </p>
 
           {/* Бессрочность сертификата — по ТЗ должна быть видна уже в hero,
