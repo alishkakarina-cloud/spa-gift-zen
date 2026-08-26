@@ -2,8 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 const BRANCHES = [
-  { id: "petropavlovsk", labelKey: "whatsapp.petropavlovsk", number: "77005458008" },
-  { id: "kokshetau", labelKey: "whatsapp.kokshetau", number: "77478018008" },
+  {
+    id: "petropavlovsk",
+    labelKey: "whatsapp.petropavlovsk",
+    number: "77005458008",
+    // Приветствие после перехода в чат (правка владельца 2026-08-26) —
+    // своё для каждого филиала, чтобы администратор сразу видел, из какого
+    // города пишет клиент.
+    greeting: "Добрый день, пишу с сайта г.Петропавловск 👋",
+  },
+  {
+    id: "kokshetau",
+    labelKey: "whatsapp.kokshetau",
+    number: "77478018008",
+    greeting: "Добрый день, пишу с сайта г.Кокшетау 👋",
+  },
 ] as const;
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -41,7 +54,7 @@ export function WhatsAppButton() {
           {BRANCHES.map((branch) => (
             <a
               key={branch.id}
-              href={`https://wa.me/${branch.number}`}
+              href={`https://wa.me/${branch.number}?text=${encodeURIComponent(branch.greeting)}`}
               target="_blank"
               rel="noopener noreferrer"
               role="menuitem"
@@ -62,11 +75,18 @@ export function WhatsAppButton() {
         aria-expanded={open}
         aria-label={t("whatsapp.label")}
         title={t("whatsapp.label")}
-        /* Вторичный канал: приглушённая кнопка, чтобы не спорить по весу
-           с основным CTA «Купить сертификат» / «Подарить». */
-        className="border-gold/40 bg-forest-deep/90 text-gold/85 hover:border-gold hover:text-gold flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur transition-colors"
+        /* Правка владельца 2026-08-26: официальный зелёный WhatsApp
+           (#25D366) вместо приглушённого фирменного тёмно-зелёного —
+           кнопка теперь узнаваемый WhatsApp-виджет, а не приглушённый
+           вторичный канал, поэтому и белая иконка вместо золотой (на
+           сплошном ярком зелёном золото было бы нечитаемо). Размер
+           увеличен с 44px до 56px (+27%, в рамках заданных 20-30%),
+           иконка пропорционально с 20px до 24px (+20%). backdrop-blur
+           убран — был нужен только для полупрозрачного фона, сейчас фон
+           сплошной. */
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition-[filter] hover:brightness-110"
       >
-        <WhatsAppIcon className="h-5 w-5" />
+        <WhatsAppIcon className="h-6 w-6" />
       </button>
     </div>
   );
