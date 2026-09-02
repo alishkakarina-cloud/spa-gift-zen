@@ -417,9 +417,15 @@ function CertificateFlow() {
    * поэтому в auto-режиме на любой сбой (кроме успеха) молчим: не показываем
    * тост-ошибку, не запускаем запасное скачивание без жеста (то же самое
    * ненадёжное поведение, от которого и уходим) — кнопка "Скачать
-   * сертификат" ниже остаётся гарантированным путём вручную. Тост "не
-   * получилось" — только при настоящем клике (auto=false), когда есть
-   * жест и сбой уже не про блокировку без жеста, а про реальную проблему.
+   * сертификат" ниже остаётся гарантированным путём вручную.
+   *
+   * При ручном клике (auto=false) реальный сбой самого navigator.share()
+   * (не AbortError — пользователь ничего не отменял, шаринг просто не
+   * получился) НЕ должен оставлять пользователя ни с чем: пробуем
+   * `<a download>` тем же файлом как резерв, прежде чем показать
+   * какое-либо сообщение. Тост "manual" в этом случае означает не "нажмите
+   * кнопку ещё раз" (это была бы та же самая кнопка), а "файл скачан,
+   * сохраните его в галерею вручную".
    */
   const saveCertificateToGallery = async (auto: boolean) => {
     setPreparingImage("download");
@@ -430,25 +436,32 @@ function CertificateFlow() {
       const file = new File([blob], certificateFileName, { type: "image/png" });
 
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
-        setGalleryToastKind("saved");
-        setGalleryToastVisible(true);
+        try {
+          await navigator.share({ files: [file] });
+          setGalleryToastKind("saved");
+          setGalleryToastVisible(true);
+          return;
+        } catch (shareErr) {
+          // AbortError — пользователь сам закрыл системный лист, ничего не скачиваем взамен.
+          if (shareErr instanceof Error && shareErr.name === "AbortError") return;
+          if (auto) return;
+          // Настоящий сбой шаринга при живом клике — не сдаёмся, пробуем download ниже.
+        }
+      } else if (auto) {
         return;
       }
-
-      if (auto) return;
 
       const a = document.createElement("a");
       a.href = dataUrl;
       a.download = certificateFileName;
       a.click();
+      if (!auto) {
+        setGalleryToastKind("manual");
+        setGalleryToastVisible(true);
+      }
     } catch (err) {
-      // AbortError — пользователь сам закрыл системный лист "Поделиться", не ошибка.
-      if (err instanceof Error && err.name === "AbortError") return;
       if (auto) return;
       console.error("Failed to save certificate image:", err);
-      setGalleryToastKind("manual");
-      setGalleryToastVisible(true);
       setErrors([t("cert.errImageFailed")]);
     } finally {
       setPreparingImage(null);
