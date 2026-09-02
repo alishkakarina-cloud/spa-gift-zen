@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
@@ -189,7 +189,7 @@ function CertificateFlow() {
 
   // ── Оплата (ApiPay.kz, Kaspi Pay) — шаг 4 ─────────────────────────────
   type PayChannel = "qr" | "phone";
-  type InvoicePhase = "choose" | "creating" | "awaiting" | "error" | "timeout";
+  type InvoicePhase = "choose" | "creating" | "awaiting" | "paid" | "error" | "timeout";
   const PAY_PHONE_RE = /^8\d{10}$/;
   const [payChannel, setPayChannel] = useState<PayChannel>("qr");
   // Предзаполняем из buyerPhone (шаг 2), только если он уже похож на нужный
@@ -409,25 +409,25 @@ function CertificateFlow() {
    * `<a download>` остаётся только как запасной путь для десктопа, где
    * файлового Web Share нет вообще.
    *
-   * auto=true — автопопытка сразу при показе шага 5 (см. useEffect ниже).
-   * У неё нет живого пользовательского жеста (шаг 5 открывается из
-   * setInterval-поллинга оплаты, не по клику) — `navigator.share()` по
-   * спеке браузеров требует жест и может отклонить вызов без открытия
-   * листа вообще. Это не программная ошибка, а ограничение платформы —
-   * поэтому в auto-режиме на любой сбой (кроме успеха) молчим: не показываем
-   * тост-ошибку, не запускаем запасное скачивание без жеста (то же самое
-   * ненадёжное поведение, от которого и уходим) — кнопка "Скачать
-   * сертификат" ниже остаётся гарантированным путём вручную.
+   * Запускается после реального клика по кнопке «Получить сертификат» (см.
+   * invoicePhase: "paid" — она появляется только когда бэкенд подтвердил
+   * оплату, см. useEffect поллинга выше) — этот клик и есть тот самый живой
+   * пользовательский жест, без которого navigator.share() по спеке
+   * браузеров может отклонить вызов без открытия системного листа вообще.
+   * Раньше сохранение запускалось само по себе сразу при показе шага 5 (шаг
+   * 5 открывался из setInterval-поллинга — без единого клика), из-за чего
+   * жеста не было и Web Share мог тихо не сработать; теперь он гарантирован
+   * архитектурой шага «Получить сертификат», отдельный auto-режим без
+   * жеста больше не нужен.
    *
-   * При ручном клике (auto=false) реальный сбой самого navigator.share()
-   * (не AbortError — пользователь ничего не отменял, шаринг просто не
-   * получился) НЕ должен оставлять пользователя ни с чем: пробуем
-   * `<a download>` тем же файлом как резерв, прежде чем показать
-   * какое-либо сообщение. Тост "manual" в этом случае означает не "нажмите
-   * кнопку ещё раз" (это была бы та же самая кнопка), а "файл скачан,
-   * сохраните его в галерею вручную".
+   * Реальный сбой самого navigator.share() (не AbortError — пользователь
+   * ничего не отменял, шаринг просто не получился) не должен оставлять
+   * пользователя ни с чем: пробуем `<a download>` тем же файлом как резерв,
+   * прежде чем показать какое-либо сообщение. Тост "manual" в этом случае
+   * означает не "нажмите кнопку ещё раз", а "файл скачан, сохраните его в
+   * галерею вручную".
    */
-  const saveCertificateToGallery = async (auto: boolean) => {
+  const saveCertificateToGallery = async () => {
     setPreparingImage("download");
     try {
       const dataUrl = await renderCertificatePng();
@@ -444,23 +444,17 @@ function CertificateFlow() {
         } catch (shareErr) {
           // AbortError — пользователь сам закрыл системный лист, ничего не скачиваем взамен.
           if (shareErr instanceof Error && shareErr.name === "AbortError") return;
-          if (auto) return;
-          // Настоящий сбой шаринга при живом клике — не сдаёмся, пробуем download ниже.
+          // Настоящий сбой шаринга — не сдаёмся, пробуем download ниже.
         }
-      } else if (auto) {
-        return;
       }
 
       const a = document.createElement("a");
       a.href = dataUrl;
       a.download = certificateFileName;
       a.click();
-      if (!auto) {
-        setGalleryToastKind("manual");
-        setGalleryToastVisible(true);
-      }
+      setGalleryToastKind("manual");
+      setGalleryToastVisible(true);
     } catch (err) {
-      if (auto) return;
       console.error("Failed to save certificate image:", err);
       setErrors([t("cert.errImageFailed")]);
     } finally {
@@ -468,14 +462,15 @@ function CertificateFlow() {
     }
   };
 
-  // Автопопытка один раз при переходе на шаг 5 (см. комментарий выше про
-  // отсутствие жеста) — гвард через ref, чтобы не сработать повторно на
-  // случайный ре-рендер, пока step остаётся равным 5.
+  // Один раз при переходе на шаг 5 — гвард через ref, чтобы не сработать
+  // повторно на случайный ре-рендер, пока step остаётся равным 5. Шаг 5
+  // открывается только по клику «Получить сертификат» (см. выше), так что
+  // этот эффект — прямое, гарантированно-по-жесту продолжение того клика.
   const autoSaveAttempted = useRef(false);
   useEffect(() => {
     if (step !== 5 || autoSaveAttempted.current) return;
     autoSaveAttempted.current = true;
-    void saveCertificateToGallery(true);
+    void saveCertificateToGallery();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
@@ -676,6 +671,15 @@ function CertificateFlow() {
   // Поллинг статуса, пока ждём вебхук от ApiPay — каждые 3с, максимум ~100
   // попыток (~5 мин), затем предлагаем проверить вручную вместо бесконечных
   // запросов. Останавливается при уходе с "awaiting" или размонтировании.
+  //
+  // paymentStatus: "paid" здесь — это уже реальное подтверждение от бэкенда
+  // (вебхук ApiPay проверил подпись и записал payment_status в Supabase, см.
+  // src/routes/api/webhooks/apipay.ts) — на шаг 5 (сама генерация картинки +
+  // сохранение в галерею) отсюда НЕ переходим напрямую. Вместо этого —
+  // invoicePhase: "paid", который показывает кнопку «Получить сертификат»
+  // (СТРОГАЯ ЗАДАЧА 2026-09-02: генерация только по явному клику ПОСЛЕ
+  // подтверждённой оплаты, не автоматически по факту поллинга) — сам
+  // setStep(5) происходит только по клику на неё, см. JSX ниже.
   useEffect(() => {
     if (invoicePhase !== "awaiting" || !invoiceData) return;
     let attempts = 0;
@@ -688,7 +692,7 @@ function CertificateFlow() {
           const data = (await res.json()) as { paymentStatus: string; errorCategory?: string };
           if (data.paymentStatus === "paid") {
             clearInterval(interval);
-            setStep(5);
+            setInvoicePhase("paid");
             return;
           }
           if (data.paymentStatus === "failed") {
@@ -1445,6 +1449,28 @@ function CertificateFlow() {
                   </button>
                 </div>
               )}
+
+              {/* Оплата подтверждена бэкендом (см. useEffect поллинга выше —
+                  сюда попадаем только когда /api/certificates/status/$id
+                  реально вернул payment_status: "paid" из Supabase, не по
+                  клику "я оплатил" вслепую). Генерация картинки и
+                  сохранение в галерею начинаются только по клику на кнопку
+                  ниже — это и есть тот живой пользовательский жест, без
+                  которого Web Share API ненадёжен (см. saveCertificateToGallery). */}
+              {invoicePhase === "paid" && (
+                <div className="surface mt-8 flex flex-col items-center gap-4 p-8 text-center">
+                  <span className="border-gold/45 text-gold flex h-12 w-12 shrink-0 items-center justify-center rounded-full border">
+                    <Check className="h-6 w-6" aria-hidden="true" />
+                  </span>
+                  <p className="font-display text-lg">{t("cert.paymentConfirmedTitle")}</p>
+                  <p className="text-cream/70 text-sm leading-relaxed">
+                    {t("cert.paymentConfirmedText")}
+                  </p>
+                  <button type="button" onClick={() => setStep(5)} className="btn-gold w-full">
+                    {t("cert.getCertificateButton")}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -1480,7 +1506,7 @@ function CertificateFlow() {
               <div className="mt-8 flex flex-wrap gap-3 print:hidden">
                 <button
                   type="button"
-                  onClick={() => void saveCertificateToGallery(false)}
+                  onClick={() => void saveCertificateToGallery()}
                   disabled={preparingImage !== null}
                   className="btn-gold inline-flex items-center gap-2 disabled:opacity-60"
                 >
