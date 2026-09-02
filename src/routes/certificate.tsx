@@ -1466,7 +1466,11 @@ function CertificateFlow() {
                   <p className="text-cream/70 text-sm leading-relaxed">
                     {t("cert.paymentConfirmedText")}
                   </p>
-                  <button type="button" onClick={() => setStep(5)} className="btn-gold w-full">
+                  <button
+                    type="button"
+                    onClick={() => setStep(5)}
+                    className="btn-gold w-full py-5 text-sm"
+                  >
                     {t("cert.getCertificateButton")}
                   </button>
                 </div>
