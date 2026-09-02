@@ -380,22 +380,91 @@ function CertificateFlow() {
     });
   };
 
-  const downloadCertificateImage = async () => {
+  // Тост "Сохранено в галерее" — kind хранит текст, visible двигает
+  // opacity/translate отдельно, чтобы был плавный exit-transition, а не
+  // мгновенное исчезновение вместе с размонтированием (см. JSX на шаге 5).
+  const [galleryToastKind, setGalleryToastKind] = useState<"saved" | "manual" | null>(null);
+  const [galleryToastVisible, setGalleryToastVisible] = useState(false);
+  useEffect(() => {
+    if (!galleryToastVisible) return;
+    const id = setTimeout(() => setGalleryToastVisible(false), 2500);
+    return () => clearTimeout(id);
+  }, [galleryToastVisible]);
+  useEffect(() => {
+    if (galleryToastVisible || !galleryToastKind) return;
+    const id = setTimeout(() => setGalleryToastKind(null), 300);
+    return () => clearTimeout(id);
+  }, [galleryToastVisible, galleryToastKind]);
+
+  /**
+   * Сохранение в галерею (СТРОГАЯ ЗАДАЧА про "выброс из приложения после
+   * оплаты", 2026-08-30): раньше это был чистый `<a download>` на
+   * data:-URL — на iOS Safari download-атрибут для data: ненадёжен, чаще
+   * всего Safari просто открывает картинку вместо сохранения (без единой
+   * JS-ошибки — клик формально "срабатывает"), на Android файл уходит в
+   * Загрузки, а не в Галерею. Основной путь теперь — Web Share API с
+   * файлом: и iOS, и Android показывают системный лист "Поделиться", в
+   * котором у изображений есть "Сохранить в Фото/Галерею" — это
+   * единственный способ реально положить файл в галерею с веб-страницы.
+   * `<a download>` остаётся только как запасной путь для десктопа, где
+   * файлового Web Share нет вообще.
+   *
+   * auto=true — автопопытка сразу при показе шага 5 (см. useEffect ниже).
+   * У неё нет живого пользовательского жеста (шаг 5 открывается из
+   * setInterval-поллинга оплаты, не по клику) — `navigator.share()` по
+   * спеке браузеров требует жест и может отклонить вызов без открытия
+   * листа вообще. Это не программная ошибка, а ограничение платформы —
+   * поэтому в auto-режиме на любой сбой (кроме успеха) молчим: не показываем
+   * тост-ошибку, не запускаем запасное скачивание без жеста (то же самое
+   * ненадёжное поведение, от которого и уходим) — кнопка "Скачать
+   * сертификат" ниже остаётся гарантированным путём вручную. Тост "не
+   * получилось" — только при настоящем клике (auto=false), когда есть
+   * жест и сбой уже не про блокировку без жеста, а про реальную проблему.
+   */
+  const saveCertificateToGallery = async (auto: boolean) => {
     setPreparingImage("download");
     try {
       const dataUrl = await renderCertificatePng();
       if (!dataUrl) return;
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], certificateFileName, { type: "image/png" });
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        setGalleryToastKind("saved");
+        setGalleryToastVisible(true);
+        return;
+      }
+
+      if (auto) return;
+
       const a = document.createElement("a");
       a.href = dataUrl;
       a.download = certificateFileName;
       a.click();
     } catch (err) {
-      console.error("Failed to render certificate image:", err);
+      // AbortError — пользователь сам закрыл системный лист "Поделиться", не ошибка.
+      if (err instanceof Error && err.name === "AbortError") return;
+      if (auto) return;
+      console.error("Failed to save certificate image:", err);
+      setGalleryToastKind("manual");
+      setGalleryToastVisible(true);
       setErrors([t("cert.errImageFailed")]);
     } finally {
       setPreparingImage(null);
     }
   };
+
+  // Автопопытка один раз при переходе на шаг 5 (см. комментарий выше про
+  // отсутствие жеста) — гвард через ref, чтобы не сработать повторно на
+  // случайный ре-рендер, пока step остаётся равным 5.
+  const autoSaveAttempted = useRef(false);
+  useEffect(() => {
+    if (step !== 5 || autoSaveAttempted.current) return;
+    autoSaveAttempted.current = true;
+    void saveCertificateToGallery(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   /**
    * Веб-версии WhatsApp (в отличие от мобильного приложения) нельзя передать
@@ -1398,7 +1467,7 @@ function CertificateFlow() {
               <div className="mt-8 flex flex-wrap gap-3 print:hidden">
                 <button
                   type="button"
-                  onClick={downloadCertificateImage}
+                  onClick={() => void saveCertificateToGallery(false)}
                   disabled={preparingImage !== null}
                   className="btn-gold inline-flex items-center gap-2 disabled:opacity-60"
                 >
@@ -1424,6 +1493,26 @@ function CertificateFlow() {
                   {t("cert.backHomeLink")}
                 </Link>
               </div>
+
+              {/* Тост "Сохранено в галерее" — фикс. позиция внизу экрана,
+                  плавный fade+slide через translate/opacity (не mount/unmount
+                  напрямую — иначе исчезновение было бы мгновенным), сам
+                  уходит через ~2.5с (см. useEffect у galleryToastVisible). */}
+              {galleryToastKind && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className={`border-gold/40 bg-forest-deep text-cream fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full border px-5 py-3 text-sm shadow-lg transition-all duration-300 print:hidden ${
+                    galleryToastVisible
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-2 opacity-0"
+                  }`}
+                >
+                  {galleryToastKind === "saved"
+                    ? t("cert.savedToGalleryToast")
+                    : t("cert.saveManuallyToast")}
+                </div>
+              )}
             </div>
           )}
 
