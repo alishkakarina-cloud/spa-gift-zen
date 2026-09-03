@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
-import { QRCodeSVG } from "qrcode.react";
 import { CertificateCard } from "@/components/CertificateCard";
 import { Motif } from "@/components/Motif";
 import { Divider } from "@/components/Divider";
@@ -188,10 +187,11 @@ function CertificateFlow() {
   const [saving, setSaving] = useState(false);
 
   // ── Оплата (ApiPay.kz, Kaspi Pay) — шаг 4 ─────────────────────────────
-  type PayChannel = "qr" | "phone";
+  // Способ оплаты по QR убран (СТРОГАЯ ЗАДАЧА 2026-09-03) — остался только
+  // push-запрос по номеру телефона, поэтому канал больше не выбирается
+  // пользователем и не хранится в состоянии.
   type InvoicePhase = "choose" | "creating" | "awaiting" | "paid" | "error" | "timeout";
   const PAY_PHONE_RE = /^8\d{10}$/;
-  const [payChannel, setPayChannel] = useState<PayChannel>("qr");
   // Предзаполняем из buyerPhone (шаг 2), только если он уже похож на нужный
   // формат — иначе пусто, поле обязательно проверяется отдельно (Блок 2.2).
   const [payPhone, setPayPhone] = useState("");
@@ -556,7 +556,7 @@ function CertificateFlow() {
     // создаём ни при каких обстоятельствах.
     if (!total || total <= 0) e.push(t("cert.errMinAmount", { amount: formatPrice(MIN_AMOUNT) }));
     if (!consentAccepted) e.push(t("cert.errConsentRequired"));
-    if (payChannel === "phone" && !PAY_PHONE_RE.test(payPhone)) e.push(t("cert.errPayPhoneInvalid"));
+    if (!PAY_PHONE_RE.test(payPhone)) e.push(t("cert.errPayPhoneInvalid"));
     return e;
   };
 
@@ -597,8 +597,8 @@ function CertificateFlow() {
           recipientContact: null,
           branch: branchInfo ? branchLabel : null,
           paymentMethod: "kaspi",
-          paymentChannel: payChannel,
-          payPhone: payChannel === "phone" ? payPhone : null,
+          paymentChannel: "phone",
+          payPhone,
           designId,
           message: message.trim() || null,
           // Номер уже зарезервирован на шаге «Дизайн» (см.
@@ -1298,53 +1298,31 @@ function CertificateFlow() {
                 invoicePhase === "creating" ||
                 invoicePhase === "error") && (
                 <>
-                  <p className="text-cream/60 mt-8 text-[0.65rem] tracking-[0.2em] uppercase">
-                    {t("cert.payMethodTitle")}
-                  </p>
-                  <div className="mt-3 grid grid-cols-2 gap-3">
-                    {(["qr", "phone"] as const).map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setPayChannel(c)}
-                        aria-pressed={payChannel === c}
-                        className={`rounded-md border px-4 py-3 text-sm transition-colors ${
-                          payChannel === c
-                            ? "border-gold bg-gold text-primary-foreground"
-                            : "border-border bg-card text-cream/80 hover:border-gold/60"
-                        }`}
-                      >
-                        {t(c === "qr" ? "cert.payMethodQr" : "cert.payMethodPhone")}
-                      </button>
-                    ))}
-                  </div>
-
-                  {payChannel === "phone" &&
-                    (() => {
-                      // Подсказка прямо у поля (Блок 2.1) — красная, как
-                      // только видно, что формат не сойдётся (не просто
-                      // "недописано"), не только в общем списке ошибок внизу.
-                      const phoneInvalid = payPhone.length === 11 && !PAY_PHONE_RE.test(payPhone);
-                      return (
-                        <label className="mt-4 block">
-                          <span className="text-cream/70 text-xs">{t("cert.payPhoneLabel")}</span>
-                          <input
-                            type="tel"
-                            inputMode="numeric"
-                            value={payPhone}
-                            onChange={(e) => setPayPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
-                            placeholder={t("cert.payPhonePlaceholder")}
-                            aria-invalid={phoneInvalid}
-                            className={`input mt-1.5 ${phoneInvalid ? "border-destructive" : ""}`}
-                          />
-                          <span
-                            className={`mt-1 block text-xs ${phoneInvalid ? "text-destructive" : "text-cream/45"}`}
-                          >
-                            {phoneInvalid ? t("cert.errPayPhoneInvalid") : t("cert.payPhoneHint")}
-                          </span>
-                        </label>
-                      );
-                    })()}
+                  {(() => {
+                    // Подсказка прямо у поля (Блок 2.1) — красная, как
+                    // только видно, что формат не сойдётся (не просто
+                    // "недописано"), не только в общем списке ошибок внизу.
+                    const phoneInvalid = payPhone.length === 11 && !PAY_PHONE_RE.test(payPhone);
+                    return (
+                      <label className="mt-8 block">
+                        <span className="text-cream/70 text-xs">{t("cert.payPhoneLabel")}</span>
+                        <input
+                          type="tel"
+                          inputMode="numeric"
+                          value={payPhone}
+                          onChange={(e) => setPayPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                          placeholder={t("cert.payPhonePlaceholder")}
+                          aria-invalid={phoneInvalid}
+                          className={`input mt-1.5 ${phoneInvalid ? "border-destructive" : ""}`}
+                        />
+                        <span
+                          className={`mt-1 block text-xs ${phoneInvalid ? "text-destructive" : "text-cream/45"}`}
+                        >
+                          {phoneInvalid ? t("cert.errPayPhoneInvalid") : t("cert.payPhoneHint")}
+                        </span>
+                      </label>
+                    );
+                  })()}
 
                   <label className="text-cream/70 hover:text-cream mt-6 flex cursor-pointer items-start gap-2.5 text-sm transition-colors">
                     <input
@@ -1376,7 +1354,7 @@ function CertificateFlow() {
                     )}
                     {invoicePhase === "creating"
                       ? t("cert.savingButton")
-                      : t(payChannel === "qr" ? "cert.showQrButton" : "cert.sendPhoneRequestButton")}
+                      : t("cert.sendPhoneRequestButton")}
                   </button>
 
                   {invoicePhase === "error" && invoiceError && (
@@ -1387,36 +1365,17 @@ function CertificateFlow() {
 
               {(invoicePhase === "awaiting" || invoicePhase === "timeout") && invoiceData && (
                 <div className="surface mt-8 flex flex-col items-center gap-4 p-8 text-center">
-                  {payChannel === "qr" &&
-                    (invoiceData.qrCode ? (
-                      <div className="bg-cream p-3">
-                        <QRCodeSVG
-                          value={invoiceData.qrCode}
-                          size={160}
-                          bgColor="#f4efe6"
-                          fgColor="#12241b"
-                          level="M"
-                        />
-                      </div>
-                    ) : invoiceData.payUrl ? (
-                      <a href={invoiceData.payUrl} target="_blank" rel="noopener noreferrer" className="btn-gold">
-                        {t("cert.showQrButton")}
-                      </a>
-                    ) : null)}
-
                   <p className="text-cream/70 text-sm leading-relaxed">
-                    {payChannel === "qr"
-                      ? t("cert.payAwaitingQr")
-                      : (() => {
-                          const [before, after] = t("cert.payAwaitingPhone").split("{phone}");
-                          return (
-                            <>
-                              {before}
-                              <span className="text-gold">{payPhone}</span>
-                              {after}
-                            </>
-                          );
-                        })()}
+                    {(() => {
+                      const [before, after] = t("cert.payAwaitingPhone").split("{phone}");
+                      return (
+                        <>
+                          {before}
+                          <span className="text-gold">{payPhone}</span>
+                          {after}
+                        </>
+                      );
+                    })()}
                   </p>
 
                   {invoicePhase === "awaiting" ? (
