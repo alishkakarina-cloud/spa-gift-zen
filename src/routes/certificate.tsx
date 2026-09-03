@@ -94,6 +94,78 @@ type Kind = "service" | "amount";
 type Step = 1 | 2 | 3 | 4 | 5;
 /** Арка на бланке маленькая — длинный текст туда физически не влезает. */
 const MESSAGE_MAX_LENGTH = 140;
+type InvoicePhase = "choose" | "creating" | "awaiting" | "paid" | "error" | "timeout";
+
+// ── Персистентность черновика заказа (СТРОГАЯ ЗАДАЧА 2026-09-03) ─────────
+// Случайное обновление страницы посреди оформления раньше сбрасывало всё —
+// сохраняем состояние мастера в localStorage на каждое изменение и
+// восстанавливаем при заходе. Только данные самого заказа (услуги/сумма,
+// получатель, текст, дизайн, id уже созданного счёта для дальнейшей
+// проверки статуса) — никаких платёжных токенов/секретов тут никогда не
+// было и не появится, только то, что и так вводит сам пользователь в форме.
+const DRAFT_STORAGE_KEY = "raithai-certificate-draft-v1";
+/** Разумный срок жизни черновика — несколько часов, дальше не восстанавливаем. */
+const DRAFT_MAX_AGE_MS = 4 * 60 * 60 * 1000;
+
+type CertificateDraft = {
+  savedAt: number;
+  step: Step;
+  kind: Kind;
+  groupId: CatalogGroup;
+  serviceIds: string[];
+  extraServiceIds: string[];
+  amount: number;
+  customAmount: string;
+  amountPicked: boolean;
+  lastChoice: "city" | "amount" | null;
+  branch: Branch | null;
+  designId: string;
+  buyerFirstName: string;
+  buyerLastName: string;
+  buyerPhone: string;
+  buyerEmail: string;
+  forSelf: boolean;
+  recipientFirstName: string;
+  recipientLastName: string;
+  message: string;
+  consentAccepted: boolean;
+  payPhone: string;
+  reservedCertificateNumber: string | null;
+  previewIssuedAt: string | null;
+  certificateNumber: string | null;
+  certificateIssuedAt: string | null;
+  invoicePhase: InvoicePhase;
+  invoiceId: string | null;
+};
+
+/** Черновик уже неактуален — либо истёк срок, либо заказ был доведён до
+ *  конца (шаг 5 очищает хранилище сам, это просто защита на случай, если
+ *  очистка почему-то не сработала). */
+function loadCertificateDraft(): CertificateDraft | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<CertificateDraft>;
+    if (!parsed.savedAt || Date.now() - parsed.savedAt > DRAFT_MAX_AGE_MS || parsed.step === 5) {
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+      return null;
+    }
+    return parsed as CertificateDraft;
+  } catch {
+    return null;
+  }
+}
+
+function clearCertificateDraft() {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch {
+    // localStorage недоступен (приватный режим и т.п.) — не критично.
+  }
+}
+
 function CertificateFlow() {
   const { t, lang } = useLanguage();
   const {
@@ -189,8 +261,8 @@ function CertificateFlow() {
   // ── Оплата (ApiPay.kz, Kaspi Pay) — шаг 4 ─────────────────────────────
   // Способ оплаты по QR убран (СТРОГАЯ ЗАДАЧА 2026-09-03) — остался только
   // push-запрос по номеру телефона, поэтому канал больше не выбирается
-  // пользователем и не хранится в состоянии.
-  type InvoicePhase = "choose" | "creating" | "awaiting" | "paid" | "error" | "timeout";
+  // пользователем и не хранится в состоянии. (InvoicePhase — теперь на
+  // уровне модуля, см. выше, нужен и хранилищу черновика.)
   const PAY_PHONE_RE = /^8\d{10}$/;
   // Предзаполняем из buyerPhone (шаг 2), только если он уже похож на нужный
   // формат — иначе пусто, поле обязательно проверяется отдельно (Блок 2.2).
@@ -256,6 +328,14 @@ function CertificateFlow() {
           ]
         : undefined;
   const valueLabel = formatPrice(total || 0);
+  // Полные данные заказа (получатель, сумма/услуги, поздравление, номер,
+  // дата) на самой картинке сертификата — только на шаге 5, после
+  // подтверждённой оплаты и клика "Я оплатил" (СТРОГАЯ ЗАДАЧА 2026-09-03:
+  // до этого момента превью — только картинка дизайна, её не должно быть
+  // возможно скриншотнуть с реальными персональными данными). До шага 5
+  // (aside на шагах 3-4, карточки выбора дизайна на шаге 3) показываем
+  // design-картинку без текстового наложения вообще.
+  const revealCertificateData = step === 5;
   const buyerFullName = `${buyerFirstName} ${buyerLastName}`.trim();
   // «Покупаю для себя» — получатель и отправитель берутся из данных покупателя.
   const recipientFullName = (
@@ -336,6 +416,159 @@ function CertificateFlow() {
     const month = String(d.getMonth() + 1).padStart(2, "0");
     return `${day}.${month}.${d.getFullYear()}`;
   };
+
+  // Восстановление черновика заказа из localStorage (СТРОГАЯ ЗАДАЧА
+  // 2026-09-03, "обновил страницу посреди оформления — всё пропало") —
+  // выполняется один раз при заходе, ДО остальных эффектов ниже (порядок
+  // объявления — React выполняет эффекты одного рендера по порядку). Через
+  // setState, а не через ленивые инициализаторы useState выше — та же
+  // причина, что и у admin-панели/других SSR-страниц проекта: серверный
+  // рендер не видит localStorage вообще, и если завязать на него сам
+  // начальный state, клиентская гидратация разойдётся с серверной разметкой.
+  //
+  // Оплата — отдельная забота: сохранённый invoicePhase НЕ считается
+  // истиной сам по себе (мало ли — вкладку закрыли ровно в момент, когда
+  // оплата уже подтвердилась, а localStorage ещё не в курсе, или наоборот).
+  // Если в черновике есть id уже созданного счёта — перепроверяем реальный
+  // payment_status у бэкенда прямо тут, и уже по СВЕЖЕМУ ответу решаем,
+  // "paid"/"error" сразу показать или отдать штатному поллингу ниже
+  // (invoicePhase: "awaiting" + та же invoiceData — он подхватит сам).
+  const draftRestoredRef = useRef(false);
+  useEffect(() => {
+    if (draftRestoredRef.current) return;
+    draftRestoredRef.current = true;
+    const draft = loadCertificateDraft();
+    if (!draft) return;
+
+    setStep(draft.step);
+    setKind(draft.kind);
+    setGroupId(draft.groupId);
+    setServiceIds(draft.serviceIds);
+    setExtraServiceIds(draft.extraServiceIds);
+    setAmount(draft.amount);
+    setCustomAmount(draft.customAmount);
+    setAmountPicked(draft.amountPicked);
+    setLastChoice(draft.lastChoice);
+    setBranch(draft.branch);
+    setDesignId(draft.designId);
+    setBuyerFirstName(draft.buyerFirstName);
+    setBuyerLastName(draft.buyerLastName);
+    setBuyerPhone(draft.buyerPhone);
+    setBuyerEmail(draft.buyerEmail);
+    setForSelf(draft.forSelf);
+    setRecipientFirstName(draft.recipientFirstName);
+    setRecipientLastName(draft.recipientLastName);
+    setMessage(draft.message);
+    setConsentAccepted(draft.consentAccepted);
+    setPayPhone(draft.payPhone);
+    setReservedCertificateNumber(draft.reservedCertificateNumber);
+    setPreviewIssuedAt(draft.previewIssuedAt);
+    setCertificateNumber(draft.certificateNumber);
+    setCertificateIssuedAt(draft.certificateIssuedAt);
+
+    if (draft.invoiceId) {
+      setInvoiceData({ id: draft.invoiceId, qrCode: null, payUrl: null });
+      void (async () => {
+        try {
+          const res = await fetch(`/api/certificates/status/${draft.invoiceId}`);
+          if (res.ok) {
+            const data = (await res.json()) as { paymentStatus: string; errorCategory?: string };
+            if (data.paymentStatus === "paid") {
+              setInvoicePhase("paid");
+              return;
+            }
+            if (data.paymentStatus === "failed") {
+              setInvoiceError(payErrorMessage(t, data.errorCategory));
+              setInvoicePhase("error");
+              return;
+            }
+          }
+          // pending/processing или сбой самого запроса статуса — не беда,
+          // штатный поллинг ниже подхватит с той же invoiceData на первом
+          // же тике (он сразу проверяет один раз при входе в "awaiting",
+          // см. эффект поллинга).
+          setInvoicePhase("awaiting");
+        } catch {
+          setInvoicePhase("awaiting");
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Сохранение черновика — на каждое изменение любого из полей заказа.
+  // Шаг 5 (сертификат получен) — черновик больше не нужен, чистим сразу,
+  // а не оставляем висеть до истечения срока.
+  useEffect(() => {
+    if (step === 5) {
+      clearCertificateDraft();
+      return;
+    }
+    if (typeof window === "undefined") return;
+    const draft: CertificateDraft = {
+      savedAt: Date.now(),
+      step,
+      kind,
+      groupId,
+      serviceIds,
+      extraServiceIds,
+      amount,
+      customAmount,
+      amountPicked,
+      lastChoice,
+      branch,
+      designId,
+      buyerFirstName,
+      buyerLastName,
+      buyerPhone,
+      buyerEmail,
+      forSelf,
+      recipientFirstName,
+      recipientLastName,
+      message,
+      consentAccepted,
+      payPhone,
+      reservedCertificateNumber,
+      previewIssuedAt,
+      certificateNumber,
+      certificateIssuedAt,
+      invoicePhase,
+      invoiceId: invoiceData?.id ?? null,
+    };
+    try {
+      window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    } catch {
+      // Приватный режим браузера и т.п. — не критично, просто не сохранится.
+    }
+  }, [
+    step,
+    kind,
+    groupId,
+    serviceIds,
+    extraServiceIds,
+    amount,
+    customAmount,
+    amountPicked,
+    lastChoice,
+    branch,
+    designId,
+    buyerFirstName,
+    buyerLastName,
+    buyerPhone,
+    buyerEmail,
+    forSelf,
+    recipientFirstName,
+    recipientLastName,
+    message,
+    consentAccepted,
+    payPhone,
+    reservedCertificateNumber,
+    previewIssuedAt,
+    certificateNumber,
+    certificateIssuedAt,
+    invoicePhase,
+    invoiceData,
+  ]);
 
   // Багфикс (2026-08-26, жалоба владельца — "дата выдачи и номер не
   // рендерятся при оплате"): резервирование раньше висело на явном клике по
@@ -683,19 +916,31 @@ function CertificateFlow() {
   useEffect(() => {
     if (invoicePhase !== "awaiting" || !invoiceData) return;
     let attempts = 0;
+    let cancelled = false;
     const id = invoiceData.id;
-    const interval = setInterval(async () => {
-      attempts += 1;
+
+    // Один и тот же чек и для немедленного первого запроса (не ждать целых
+    // 3с первого тика — раньше именно это выглядело как "не подхватывает
+    // сразу"), и для каждого следующего тика интервала. Единичный сетевой
+    // сбой ЛЮБОГО отдельного запроса — не останавливает проверку вообще,
+    // ни explicit-ошибка (!res.ok), ни брошенный fetch (catch) не считаются
+    // поводом сдаться — попытки продолжаются до явного paid/failed или до
+    // исчерпания лимита попыток (см. timeout ниже).
+    const checkOnce = async () => {
       try {
         const res = await fetch(`/api/certificates/status/${id}`);
+        if (cancelled) return;
         if (res.ok) {
           const data = (await res.json()) as { paymentStatus: string; errorCategory?: string };
+          if (cancelled) return;
           if (data.paymentStatus === "paid") {
+            cancelled = true;
             clearInterval(interval);
             setInvoicePhase("paid");
             return;
           }
           if (data.paymentStatus === "failed") {
+            cancelled = true;
             clearInterval(interval);
             setInvoiceError(payErrorMessage(t, data.errorCategory));
             setInvoicePhase("error");
@@ -705,12 +950,20 @@ function CertificateFlow() {
       } catch {
         // Сетевой сбой одного опроса — не страшно, попробуем на следующем тике.
       }
-      if (attempts >= 100) {
+      attempts += 1;
+      if (attempts >= 100 && !cancelled) {
+        cancelled = true;
         clearInterval(interval);
         setInvoicePhase("timeout");
       }
-    }, 3000);
-    return () => clearInterval(interval);
+    };
+
+    void checkOnce();
+    const interval = setInterval(checkOnce, 3000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, [invoicePhase, invoiceData, t]);
 
   const back = () => {
@@ -1074,13 +1327,12 @@ function CertificateFlow() {
                     }}
                     className={`w-full overflow-hidden rounded-2xl border text-left transition-colors ${designId === d.id ? "border-gold bg-gold" : "border-border/40 hover:border-gold/60"}`}
                   >
-                    <CertificateCard
-                      design={d}
-                      valueLabel={valueLabel}
-                      items={cardItems}
-                      showValue={kind !== "service"}
-                      compact
-                    />
+                    {/* Только картинка дизайна — без суммы/услуг (СТРОГАЯ
+                        ЗАДАЧА 2026-09-03: на шаге выбора дизайна это чисто
+                        "какая картинка нравится", не превью реального
+                        заказа с данными — их показываем только после
+                        оплаты, см. revealCertificateData ниже). */}
+                    <CertificateCard design={d} valueLabel="" showValue={false} compact />
                     {/* Новые фото дизайна (2026-08-21) — без золотой плашки
                         с названием внизу, поэтому название снова выводится
                         текстом на сайте, а не как часть картинки. Полная
@@ -1532,13 +1784,21 @@ function CertificateFlow() {
           <aside className="lg:sticky lg:top-10">
             <CertificateCard
               design={design}
-              valueLabel={valueLabel}
-              items={cardItems}
-              showValue={kind !== "service"}
-              recipient={recipientFullName || undefined}
-              message={message || undefined}
-              number={certificateNumber ?? reservedCertificateNumber ?? undefined}
-              issuedAt={certificateIssuedAt ?? previewIssuedAt ?? undefined}
+              valueLabel={revealCertificateData ? valueLabel : ""}
+              items={revealCertificateData ? cardItems : undefined}
+              showValue={revealCertificateData && kind !== "service"}
+              recipient={revealCertificateData ? recipientFullName || undefined : undefined}
+              message={revealCertificateData ? message || undefined : undefined}
+              number={
+                revealCertificateData
+                  ? (certificateNumber ?? reservedCertificateNumber ?? undefined)
+                  : undefined
+              }
+              issuedAt={
+                revealCertificateData
+                  ? (certificateIssuedAt ?? previewIssuedAt ?? undefined)
+                  : undefined
+              }
               // Раньше превью не имело ограничения ширины и на мобильном
               // занимало весь экран по высоте (380px-колонка десктопа
               // растягивалась на всю ширину экрана), поэтому было ограничено
