@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toPng } from "html-to-image";
 import { AdminGuard } from "@/components/admin/AdminShell";
+import { CertificateCard } from "@/components/CertificateCard";
+import { designs, formatPrice } from "@/data/catalog";
 
 export const Route = createFileRoute("/admin/orders/$id")({
   head: () => ({ meta: [{ title: "Заказ — админка RAI THAI SPA" }] }),
@@ -85,6 +88,64 @@ function OrderDetailPage() {
     }
   };
 
+  // Ручное подтверждение оплаты (СРОЧНАЯ ЗАДАЧА 2026-09-04) — только для
+  // случая, когда реальная оплата подтверждена в личном кабинете ApiPay, а
+  // вебхук по какой-то причине (например несовпадение подписи) не проставил
+  // payment_status сам. confirm() — намеренно отдельный, «тяжёлый» шаг, не
+  // рядом со STATUS_OPTIONS выше: это не рутинная правка, а обход обычного
+  // потока, ошибиться тут дороже.
+  const [markingPaid, setMarkingPaid] = useState(false);
+  const markPaidManually = async () => {
+    if (
+      !window.confirm(
+        "Подтвердите: вы ЛИЧНО проверили в кабинете ApiPay, что этот платёж реально прошёл (по сумме и времени). Пометить заказ оплаченным вручную?",
+      )
+    ) {
+      return;
+    }
+    setMarkingPaid(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/certificates/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markPaidManually: true }),
+      });
+      if (!res.ok) {
+        setError("Не удалось подтвердить оплату.");
+        return;
+      }
+      await load();
+    } finally {
+      setMarkingPaid(false);
+    }
+  };
+
+  // Генерация файла сертификата тем же способом, что и на самом сайте
+  // (html-to-image поверх CertificateCard) — доступно только когда
+  // payment_status реально "paid", это и есть готовый файл для отправки
+  // клиенту вручную (Блок 1 задачи).
+  const certRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
+  const design = cert ? (designs.find((d) => d.id === cert.design_id) ?? designs[0]!) : null;
+  const downloadCertificate = async () => {
+    if (!certRef.current || !cert) return;
+    setDownloading(true);
+    try {
+      const dataUrl = await toPng(certRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: "#f4efe6",
+      });
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `raithai-sertifikat-${cert.certificate_number}.png`;
+      a.click();
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div>
       <Link to="/admin" className="text-sm text-zinc-400 hover:text-zinc-200">
@@ -118,6 +179,54 @@ function OrderDetailPage() {
               <Row k="Статус оплаты" v={cert.payment_status} />
             </dl>
           </div>
+
+          {cert.payment_status !== "paid" && (
+            <div className="mt-4 rounded border border-amber-800 bg-amber-950/40 p-4">
+              <p className="text-sm text-amber-200">
+                Оплата не подтверждена автоматически. Перед ручным подтверждением
+                проверьте реальный платёж в личном кабинете ApiPay — только после
+                этого используйте кнопку ниже.
+              </p>
+              <button
+                type="button"
+                disabled={markingPaid}
+                onClick={markPaidManually}
+                className="mt-3 rounded border border-amber-600 px-3 py-1.5 text-sm text-amber-100 transition-colors hover:border-amber-400 disabled:cursor-default disabled:opacity-60"
+              >
+                {markingPaid ? "Подтверждаем…" : "Подтвердить оплату вручную"}
+              </button>
+            </div>
+          )}
+
+          {cert.payment_status === "paid" && design && (
+            <div className="mt-5">
+              <button
+                type="button"
+                disabled={downloading}
+                onClick={downloadCertificate}
+                className="rounded border border-zinc-700 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-zinc-500 disabled:cursor-default disabled:opacity-60"
+              >
+                {downloading ? "Готовим файл…" : "Скачать сертификат"}
+              </button>
+              {/* Вне экрана, но не display:none — html-to-image не может
+                  отрендерить элемент, который вообще не занимает места. */}
+              <div className="pointer-events-none fixed top-0 left-[-9999px]" aria-hidden="true">
+                <div ref={certRef} className="w-[461px]">
+                  <CertificateCard
+                    design={design}
+                    valueLabel={formatPrice(cert.amount)}
+                    items={cert.services?.map((s) => s.name)}
+                    showValue={cert.certificate_type !== "service"}
+                    recipient={cert.recipient_name ?? undefined}
+                    message={cert.message ?? undefined}
+                    number={cert.certificate_number}
+                    issuedAt={new Date(cert.created_at).toLocaleDateString("ru-RU")}
+                    branch={cert.branch ?? undefined}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {cert.services && cert.services.length > 0 && (
             <div className="mt-5">
