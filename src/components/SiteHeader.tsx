@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { Ticket } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import logoLight from "@/assets/logo-on-dark.webp";
@@ -41,8 +42,12 @@ function useHideOnScrollDown() {
  * Общая шапка для всех страниц (лого по центру, переключатель языка справа)
  * — раньше слева стоял WhatsApp-контакт, его убрали как дубль плавающей
  * WhatsApp-кнопки в углу. Три колонки грида вместо flex justify-between:
- * пустая левая колонка той же ширины, что и правая с LanguageSwitcher, —
- * иначе после удаления левого блока лого съехало бы влево.
+ * левая колонка той же ширины, что и правая с LanguageSwitcher, — иначе
+ * лого съехало бы от центра. Слева теперь ссылка «Мои сертификаты»
+ * (СТРОГАЯ ЗАДАЧА 2026-09-05) — та же пилюля, что и у переключателя языка
+ * справа (border-gold/40 bg-forest-deep/70 ...), для симметрии колонок;
+ * на мобильном текст скрыт (hidden sm:inline), остаётся только иконка —
+ * не спорит по ширине с центрированным лого и языковым переключателем.
  */
 export function SiteHeader() {
   const { t } = useLanguage();
@@ -55,7 +60,15 @@ export function SiteHeader() {
       }`}
     >
       <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-5 py-3 sm:px-6">
-        <div aria-hidden="true" />
+        <div className="justify-self-start">
+          <Link
+            to="/my-certificates"
+            className="border-gold/40 bg-forest-deep/70 text-cream flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.65rem] tracking-[0.2em] uppercase backdrop-blur-sm transition-colors hover:border-gold"
+          >
+            <Ticket className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span className="hidden sm:inline">{t("home.myCertificatesLink")}</span>
+          </Link>
+        </div>
 
         <Link to="/" aria-label={t("cert.backHomeLink")} className="shrink-0 justify-self-center">
           <img
