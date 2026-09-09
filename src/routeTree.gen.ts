@@ -14,6 +14,7 @@ import { Route as CatalogRouteImport } from './routes/catalog'
 import { Route as CertificateRouteImport } from './routes/certificate'
 import { Route as CertificateRulesRouteImport } from './routes/certificate-rules'
 import { Route as CookiePolicyRouteImport } from './routes/cookie-policy'
+import { Route as MyCertificatesRouteImport } from './routes/my-certificates'
 import { Route as OfferRouteImport } from './routes/offer'
 import { Route as OffersRouteImport } from './routes/offers'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
@@ -31,6 +32,7 @@ import { Route as ApiAdminMeRouteImport } from './routes/api/admin/me'
 import { Route as ApiAdminMenuRouteImport } from './routes/api/admin/menu'
 import { Route as ApiAdminServicesRouteImport } from './routes/api/admin/services'
 import { Route as ApiCertificatesCreateRouteImport } from './routes/api/certificates/create'
+import { Route as ApiCertificatesLookupRouteImport } from './routes/api/certificates/lookup'
 import { Route as ApiCertificatesReserveNumberRouteImport } from './routes/api/certificates/reserve-number'
 import { Route as ApiWebhooksApipayRouteImport } from './routes/api/webhooks/apipay'
 import { Route as ApiAdminCertificatesIdRouteImport } from './routes/api/admin/certificates.$id'
@@ -61,6 +63,11 @@ const CertificateRulesRoute = CertificateRulesRouteImport.update({
 const CookiePolicyRoute = CookiePolicyRouteImport.update({
   id: '/cookie-policy',
   path: '/cookie-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyCertificatesRoute = MyCertificatesRouteImport.update({
+  id: '/my-certificates',
+  path: '/my-certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OfferRoute = OfferRouteImport.update({
@@ -148,6 +155,11 @@ const ApiCertificatesCreateRoute = ApiCertificatesCreateRouteImport.update({
   path: '/api/certificates/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCertificatesLookupRoute = ApiCertificatesLookupRouteImport.update({
+  id: '/api/certificates/lookup',
+  path: '/api/certificates/lookup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCertificatesReserveNumberRoute =
   ApiCertificatesReserveNumberRouteImport.update({
     id: '/api/certificates/reserve-number',
@@ -187,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/certificate': typeof CertificateRoute
   '/certificate-rules': typeof CertificateRulesRoute
   '/cookie-policy': typeof CookiePolicyRoute
+  '/my-certificates': typeof MyCertificatesRoute
   '/offer': typeof OfferRoute
   '/offers': typeof OffersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -204,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/menu': typeof ApiAdminMenuRoute
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/certificates/lookup': typeof ApiCertificatesLookupRoute
   '/api/certificates/reserve-number': typeof ApiCertificatesReserveNumberRoute
   '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
@@ -217,6 +231,7 @@ export interface FileRoutesByTo {
   '/certificate': typeof CertificateRoute
   '/certificate-rules': typeof CertificateRulesRoute
   '/cookie-policy': typeof CookiePolicyRoute
+  '/my-certificates': typeof MyCertificatesRoute
   '/offer': typeof OfferRoute
   '/offers': typeof OffersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -234,6 +249,7 @@ export interface FileRoutesByTo {
   '/api/admin/menu': typeof ApiAdminMenuRoute
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/certificates/lookup': typeof ApiCertificatesLookupRoute
   '/api/certificates/reserve-number': typeof ApiCertificatesReserveNumberRoute
   '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
@@ -248,6 +264,7 @@ export interface FileRoutesById {
   '/certificate': typeof CertificateRoute
   '/certificate-rules': typeof CertificateRulesRoute
   '/cookie-policy': typeof CookiePolicyRoute
+  '/my-certificates': typeof MyCertificatesRoute
   '/offer': typeof OfferRoute
   '/offers': typeof OffersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -265,6 +282,7 @@ export interface FileRoutesById {
   '/api/admin/menu': typeof ApiAdminMenuRoute
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
   '/api/certificates/create': typeof ApiCertificatesCreateRoute
+  '/api/certificates/lookup': typeof ApiCertificatesLookupRoute
   '/api/certificates/reserve-number': typeof ApiCertificatesReserveNumberRoute
   '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
@@ -280,6 +298,7 @@ export interface FileRouteTypes {
     | '/certificate'
     | '/certificate-rules'
     | '/cookie-policy'
+    | '/my-certificates'
     | '/offer'
     | '/offers'
     | '/privacy-policy'
@@ -297,6 +316,7 @@ export interface FileRouteTypes {
     | '/api/admin/menu'
     | '/api/admin/services'
     | '/api/certificates/create'
+    | '/api/certificates/lookup'
     | '/api/certificates/reserve-number'
     | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
@@ -310,6 +330,7 @@ export interface FileRouteTypes {
     | '/certificate'
     | '/certificate-rules'
     | '/cookie-policy'
+    | '/my-certificates'
     | '/offer'
     | '/offers'
     | '/privacy-policy'
@@ -327,6 +348,7 @@ export interface FileRouteTypes {
     | '/api/admin/menu'
     | '/api/admin/services'
     | '/api/certificates/create'
+    | '/api/certificates/lookup'
     | '/api/certificates/reserve-number'
     | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
@@ -340,6 +362,7 @@ export interface FileRouteTypes {
     | '/certificate'
     | '/certificate-rules'
     | '/cookie-policy'
+    | '/my-certificates'
     | '/offer'
     | '/offers'
     | '/privacy-policy'
@@ -357,6 +380,7 @@ export interface FileRouteTypes {
     | '/api/admin/menu'
     | '/api/admin/services'
     | '/api/certificates/create'
+    | '/api/certificates/lookup'
     | '/api/certificates/reserve-number'
     | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
@@ -371,6 +395,7 @@ export interface RootRouteChildren {
   CertificateRoute: typeof CertificateRoute
   CertificateRulesRoute: typeof CertificateRulesRoute
   CookiePolicyRoute: typeof CookiePolicyRoute
+  MyCertificatesRoute: typeof MyCertificatesRoute
   OfferRoute: typeof OfferRoute
   OffersRoute: typeof OffersRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
@@ -388,6 +413,7 @@ export interface RootRouteChildren {
   ApiAdminMenuRoute: typeof ApiAdminMenuRoute
   ApiAdminServicesRoute: typeof ApiAdminServicesRouteWithChildren
   ApiCertificatesCreateRoute: typeof ApiCertificatesCreateRoute
+  ApiCertificatesLookupRoute: typeof ApiCertificatesLookupRoute
   ApiCertificatesReserveNumberRoute: typeof ApiCertificatesReserveNumberRoute
   ApiWebhooksApipayRoute: typeof ApiWebhooksApipayRoute
   ApiCertificatesStatusIdRoute: typeof ApiCertificatesStatusIdRoute
@@ -428,6 +454,13 @@ declare module '@tanstack/react-router' {
       path: '/cookie-policy'
       fullPath: '/cookie-policy'
       preLoaderRoute: typeof CookiePolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-certificates': {
+      id: '/my-certificates'
+      path: '/my-certificates'
+      fullPath: '/my-certificates'
+      preLoaderRoute: typeof MyCertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/offer': {
@@ -549,6 +582,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCertificatesCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/certificates/lookup': {
+      id: '/api/certificates/lookup'
+      path: '/api/certificates/lookup'
+      fullPath: '/api/certificates/lookup'
+      preLoaderRoute: typeof ApiCertificatesLookupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/certificates/reserve-number': {
       id: '/api/certificates/reserve-number'
       path: '/api/certificates/reserve-number'
@@ -624,6 +664,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertificateRoute: CertificateRoute,
   CertificateRulesRoute: CertificateRulesRoute,
   CookiePolicyRoute: CookiePolicyRoute,
+  MyCertificatesRoute: MyCertificatesRoute,
   OfferRoute: OfferRoute,
   OffersRoute: OffersRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
@@ -641,6 +682,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminMenuRoute: ApiAdminMenuRoute,
   ApiAdminServicesRoute: ApiAdminServicesRouteWithChildren,
   ApiCertificatesCreateRoute: ApiCertificatesCreateRoute,
+  ApiCertificatesLookupRoute: ApiCertificatesLookupRoute,
   ApiCertificatesReserveNumberRoute: ApiCertificatesReserveNumberRoute,
   ApiWebhooksApipayRoute: ApiWebhooksApipayRoute,
   ApiCertificatesStatusIdRoute: ApiCertificatesStatusIdRoute,

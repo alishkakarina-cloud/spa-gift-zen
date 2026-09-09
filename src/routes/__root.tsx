@@ -131,6 +131,17 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="ru" translate="no">
       <head>
+        {/* Google tag (gtag.js) — единственное место на весь сайт (RootShell
+            общий для всех страниц/шагов флоу), сразу после открывающего
+            <head>, как и было явно запрошено в задаче. */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-8JYRY5XXM7" />
+        <script>
+          {`window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-8JYRY5XXM7');`}
+        </script>
         <HeadContent />
       </head>
       <body>
