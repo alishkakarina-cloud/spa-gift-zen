@@ -30,7 +30,7 @@ export const services: Service[] = [
     id: "oil-absolute-calm",
     name: "Oil-массаж «Абсолютный покой»",
     duration: "60 мин",
-    price: 18000,
+    price: 18500,
     description:
       "Плавная обволакивающая техника с тёплыми натуральными маслами. Снимает хронический стресс и тревожность.",
     group: "massage",
@@ -40,7 +40,7 @@ export const services: Service[] = [
     id: "traditional-thai",
     name: "Традиционный тайский массаж",
     duration: "60 мин",
-    price: 18000,
+    price: 18500,
     description:
       "Без масла, в хлопковой пижаме. Элементы пассивной йоги, глубокие нажатия и скрутки — глубокое восстановление тела.",
     group: "massage",
@@ -49,7 +49,7 @@ export const services: Service[] = [
     id: "lomi-lomi",
     name: "Гавайский массаж «Ломи-Ломи»",
     duration: "60 мин",
-    price: 18000,
+    price: 18500,
     description:
       "Плавные глубокие движения предплечьями и локтями. Эффективно снимает мышечное напряжение.",
     group: "massage",
@@ -166,7 +166,7 @@ export const services: Service[] = [
     id: "balinese-60",
     name: "Балийский массаж «Гармония энергии», 60 минут",
     duration: "60 мин",
-    price: 18000,
+    price: 18500,
     description: "Баланс между глубокой проработкой мышц и расслабляющим воздействием масел.",
     group: "massage",
   },
@@ -407,7 +407,7 @@ export const services: Service[] = [
     id: "kids-thai-60",
     name: "Детский тайский массаж «Тайская сказка», 60 минут",
     duration: "60 мин",
-    price: 18000,
+    price: 18500,
     description:
       "Для детей от 5 лет. Мягкая пассивная гимнастика в хлопковой пижаме: снимает гипертонус и формирует осанку.",
     group: "kids",
@@ -434,7 +434,7 @@ export const services: Service[] = [
     id: "kids-oil-60",
     name: "Детский oil-массаж, 60 минут",
     duration: "60 мин",
-    price: 18000,
+    price: 18500,
     description:
       "Для детей от 5 лет. Плавные движения с тёплым маслом снимают тревожность и переутомление, дарят здоровый сон.",
     group: "kids",
