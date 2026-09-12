@@ -25,6 +25,15 @@ export const SERVICE_GROUPS: ReadonlyArray<{
   /** Примечание под заголовком категории (например, предупреждения врача). */
   noteKey?: string;
 }> = [
+  // Первой в списке — как в официальном прайсе RaiThai, где раздел
+  // «Локальные зоны» идёт сразу после обложки, перед «Массаж» (СТРОГАЯ
+  // ЗАДАЧА 2026-09-13).
+  {
+    id: "local",
+    motif: "waterLines",
+    labelKey: "cert.groupLocal",
+    imageFrom: "local-feet-60",
+  },
   {
     id: "massage",
     motif: "paisleyDrop",

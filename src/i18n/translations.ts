@@ -161,6 +161,7 @@ const ru = {
     choiceAmountTitle: "Указать сумму",
     choiceAmountFrom: "От {amount}",
     groupPromotions: "Акции и специальные предложения",
+    groupLocal: "Локальные зоны",
     groupMassage: "Массаж",
     groupComplex: "Комплексные массажи",
     groupSpa: "SPA-программы",
@@ -292,6 +293,36 @@ const ru = {
     cardIssuedAt: "Дата выдачи: {date}",
   },
   services: {
+    "local-feet-60": {
+      name: "Тайский массаж ног",
+      duration: "60 мин",
+      description: "Точечная проработка стоп и голеней по тайской технике — снимает усталость и улучшает кровообращение.",
+    },
+    "local-feet-90": {
+      name: "Тайский массаж ног, 90 минут",
+      duration: "90 мин",
+      description: "Точечная проработка стоп и голеней по тайской технике — снимает усталость и улучшает кровообращение.",
+    },
+    "local-face-60": {
+      name: "Массаж лица и головы «Светлые мысли»",
+      duration: "60 мин",
+      description: "Мягкая работа с лицом, скальпом и зонами напряжения головы — снимает усталость глаз и тяжесть в висках.",
+    },
+    "local-face-90": {
+      name: "Массаж лица и головы «Светлые мысли», 90 минут",
+      duration: "90 мин",
+      description: "Мягкая работа с лицом, скальпом и зонами напряжения головы — снимает усталость глаз и тяжесть в висках.",
+    },
+    "local-back-60": {
+      name: "Массаж спины и шейно-воротниковой зоны",
+      duration: "60 мин",
+      description: "Проработка спины, шеи и плеч — снимает зажимы от сидячей работы и напряжение в верхней части тела.",
+    },
+    "local-back-90": {
+      name: "Массаж спины и шейно-воротниковой зоны, 90 минут",
+      duration: "90 мин",
+      description: "Проработка спины, шеи и плеч — снимает зажимы от сидячей работы и напряжение в верхней части тела.",
+    },
     "oil-absolute-calm": {
       name: "Oil-массаж «Абсолютный покой»",
       duration: "60 мин",
@@ -732,6 +763,7 @@ const kz = {
     choiceServiceDesc: "Таңдау бойынша массаж немесе SPA-бағдарлама",
     choiceAmountTitle: "Соманы көрсету",
     choiceAmountFrom: "{amount}-ден",
+    groupLocal: "Жергілікті аймақтар",
     groupMassage: "Массаж",
     groupComplex: "Кешенді массаждар",
     groupSpa: "SPA-бағдарламалар",
@@ -847,6 +879,36 @@ const kz = {
     cardIssuedAt: "Берілген күні: {date}",
   },
   services: {
+    "local-feet-60": {
+      name: "Тай аяқ массажы",
+      duration: "60 мин",
+      description: "Тай техникасы бойынша табан мен балтырды нүктелеп массаждау — шаршауды басады және қан айналымын жақсартады.",
+    },
+    "local-feet-90": {
+      name: "Тай аяқ массажы, 90 минут",
+      duration: "90 мин",
+      description: "Тай техникасы бойынша табан мен балтырды нүктелеп массаждау — шаршауды басады және қан айналымын жақсартады.",
+    },
+    "local-face-60": {
+      name: "Бет және бас массажы «Жарық ойлар»",
+      duration: "60 мин",
+      description: "Бетпен, бас терісімен және бастың кернеу аймақтарымен жұмсақ жұмыс — көз шаршауын және самай ауырсынуын басады.",
+    },
+    "local-face-90": {
+      name: "Бет және бас массажы «Жарық ойлар», 90 минут",
+      duration: "90 мин",
+      description: "Бетпен, бас терісімен және бастың кернеу аймақтарымен жұмсақ жұмыс — көз шаршауын және самай ауырсынуын басады.",
+    },
+    "local-back-60": {
+      name: "Арқа және мойын-жаға аймағының массажы",
+      duration: "60 мин",
+      description: "Арқа, мойын және иықты массаждау — отырықшы жұмыстан пайда болған қысымды және дене жоғарғы бөлігінің кернеуін басады.",
+    },
+    "local-back-90": {
+      name: "Арқа және мойын-жаға аймағының массажы, 90 минут",
+      duration: "90 мин",
+      description: "Арқа, мойын және иықты массаждау — отырықшы жұмыстан пайда болған қысымды және дене жоғарғы бөлігінің кернеуін басады.",
+    },
     "oil-absolute-calm": {
       name: "Oil-массаж «Абсолютті тыныштық»",
       duration: "60 мин",
@@ -1255,6 +1317,7 @@ const en = {
     choiceServiceDesc: "Choose a massage or a SPA program",
     choiceAmountTitle: "Enter an amount",
     choiceAmountFrom: "From {amount}",
+    groupLocal: "Local zones",
     groupMassage: "Massage",
     groupComplex: "Combined massages",
     groupSpa: "SPA programs",
@@ -1369,6 +1432,36 @@ const en = {
     cardIssuedAt: "Issue date: {date}",
   },
   services: {
+    "local-feet-60": {
+      name: "Thai foot massage",
+      duration: "60 min",
+      description: "Pressure-point work on the feet and calves using Thai technique — relieves fatigue and improves circulation.",
+    },
+    "local-feet-90": {
+      name: "Thai foot massage, 90 minutes",
+      duration: "90 min",
+      description: "Pressure-point work on the feet and calves using Thai technique — relieves fatigue and improves circulation.",
+    },
+    "local-face-60": {
+      name: "Face and head massage «Bright Mind»",
+      duration: "60 min",
+      description: "Gentle work with the face, scalp and head tension zones — relieves eye fatigue and heaviness in the temples.",
+    },
+    "local-face-90": {
+      name: "Face and head massage «Bright Mind», 90 minutes",
+      duration: "90 min",
+      description: "Gentle work with the face, scalp and head tension zones — relieves eye fatigue and heaviness in the temples.",
+    },
+    "local-back-60": {
+      name: "Back and neck-collar massage",
+      duration: "60 min",
+      description: "Working the back, neck and shoulders — relieves tension from sedentary work and the upper body.",
+    },
+    "local-back-90": {
+      name: "Back and neck-collar massage, 90 minutes",
+      duration: "90 min",
+      description: "Working the back, neck and shoulders — relieves tension from sedentary work and the upper body.",
+    },
     "oil-absolute-calm": {
       name: "Oil massage «Absolute Calm»",
       duration: "60 min",
