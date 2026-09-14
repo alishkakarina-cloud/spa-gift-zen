@@ -21,6 +21,8 @@ type CertificateDetail = {
   certificate_type: string | null;
   buyer_name: string;
   buyer_contact: string | null;
+  buyer_phone: string | null;
+  buyer_email: string | null;
   recipient_name: string | null;
   recipient_contact: string | null;
   branch: string | null;
@@ -30,6 +32,7 @@ type CertificateDetail = {
   payment_method: string;
   payment_status: string;
   status: "active" | "used" | "cancelled";
+  redeemed_at: string | null;
   created_at: string;
 };
 
@@ -167,6 +170,8 @@ function OrderDetailPage() {
               <Row k="Сумма" v={`${cert.amount.toLocaleString("ru-RU")} ₸`} />
               <Row k="Покупатель" v={cert.buyer_name} />
               <Row k="Контакт покупателя" v={cert.buyer_contact ?? "—"} />
+              <Row k="Телефон покупателя" v={cert.buyer_phone ?? "—"} />
+              <Row k="E-mail покупателя" v={cert.buyer_email ?? "—"} />
               <Row k="Получатель" v={cert.recipient_name ?? "—"} />
               <Row k="Контакт получателя" v={cert.recipient_contact ?? "—"} />
               <Row k="Филиал" v={cert.branch ?? "—"} />
@@ -177,6 +182,9 @@ function OrderDetailPage() {
                 v={cert.payment_method === "kaspi" ? "Kaspi QR" : "Freedom Pay"}
               />
               <Row k="Статус оплаты" v={cert.payment_status} />
+              {cert.redeemed_at && (
+                <Row k="Использован" v={new Date(cert.redeemed_at).toLocaleString("ru-RU")} />
+              )}
             </dl>
           </div>
 
