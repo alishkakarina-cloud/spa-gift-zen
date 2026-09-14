@@ -17,6 +17,10 @@ type CreateCertificateBody = {
   certificateType: CertificateType;
   buyerName: string;
   buyerContact?: string | null;
+  /** Телефон/e-mail покупателя раздельно — buyerContact остаётся их склейкой
+   *  через " · " для обратной совместимости (см. certificate.tsx). */
+  buyerPhone?: string | null;
+  buyerEmail?: string | null;
   recipientName?: string | null;
   recipientContact?: string | null;
   branch?: string | null;
@@ -135,6 +139,8 @@ export const Route = createFileRoute("/api/certificates/create")({
               certificate_type: body.certificateType,
               buyer_name: body.buyerName.trim(),
               buyer_contact: body.buyerContact?.trim() || null,
+              buyer_phone: body.buyerPhone?.trim() || null,
+              buyer_email: body.buyerEmail?.trim() || null,
               recipient_name: body.recipientName?.trim() || null,
               recipient_contact: body.recipientContact?.trim() || null,
               branch: body.branch?.trim() || null,
