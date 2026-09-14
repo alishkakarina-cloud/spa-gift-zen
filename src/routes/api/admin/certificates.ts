@@ -26,17 +26,20 @@ export const Route = createFileRoute("/api/admin/certificates")({
         let query = supabase
           .from("certificates")
           .select(
-            "id, certificate_number, amount, certificate_type, buyer_name, buyer_contact, recipient_name, branch, payment_method, payment_status, status, created_at, services",
+            "id, certificate_number, amount, certificate_type, buyer_name, buyer_contact, buyer_phone, buyer_email, recipient_name, branch, payment_method, payment_status, status, redeemed_at, created_at, services",
           )
           .order("created_at", { ascending: false })
           .limit(200);
 
         if (status) query = query.eq("status", status);
         if (q) {
-          // certificate_number.ilike + buyer_contact.ilike покрывают оба
-          // заявленных способа поиска (номер сертификата, телефон покупателя)
-          // одним запросом через OR.
-          query = query.or(`certificate_number.ilike.%${q}%,buyer_contact.ilike.%${q}%`);
+          // certificate_number + buyer_contact (склейка "телефон · email")
+          // покрывают старые записи; buyer_phone/buyer_email — то же самое
+          // раздельно для записей после 2026-09-14 (см. миграцию
+          // 20260914000000_add_buyer_split_and_tracking_fields).
+          query = query.or(
+            `certificate_number.ilike.%${q}%,buyer_contact.ilike.%${q}%,buyer_phone.ilike.%${q}%,buyer_email.ilike.%${q}%`,
+          );
         }
 
         const { data, error } = await query;
