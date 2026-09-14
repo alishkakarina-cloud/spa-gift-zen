@@ -826,6 +826,8 @@ function CertificateFlow() {
           certificateType: kind,
           buyerName: buyerFullName,
           buyerContact: [buyerPhone, buyerEmail].filter(Boolean).join(" · ") || null,
+          buyerPhone: buyerPhone || null,
+          buyerEmail: buyerEmail || null,
           recipientName: recipientFullName || null,
           recipientContact: null,
           branch: branchInfo ? branchLabel : null,
