@@ -95,11 +95,20 @@ export const Route = createFileRoute("/api/admin/certificates/$id")({
           return Response.json({ error: "invalid_status" }, { status: 400 });
         }
 
+        // "used" — фиксируем дату использования отдельно от статуса
+        // (redeemed_at), is_redeemed оставлен в true для обратной
+        // совместимости с местами, которые ещё читают этот boolean.
+        // Обратный переход из "used" в другой статус redeemed_at не чистит —
+        // это история факта использования, а не текущий признак.
         const { data, error } = await supabase
           .from("certificates")
-          .update({ status })
+          .update(
+            status === "used"
+              ? { status, is_redeemed: true, redeemed_at: new Date().toISOString() }
+              : { status },
+          )
           .eq("id", params.id)
-          .select("id, status")
+          .select("id, status, redeemed_at")
           .maybeSingle();
 
         if (error) {
