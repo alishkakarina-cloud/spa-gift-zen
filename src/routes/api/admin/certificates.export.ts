@@ -9,11 +9,14 @@ const COLUMNS = [
   "amount",
   "buyer_name",
   "buyer_contact",
+  "buyer_phone",
+  "buyer_email",
   "recipient_name",
   "branch",
   "payment_method",
   "payment_status",
   "status",
+  "redeemed_at",
 ] as const;
 
 /** Экранирование по RFC 4180 — оборачивает в кавычки только когда нужно, удваивает внутренние кавычки. */
