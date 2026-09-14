@@ -109,7 +109,7 @@ export const services: Service[] = [
     id: "hot-stones",
     name: "Магическая сила камней",
     duration: "60 мин",
-    price: 20000,
+    price: 21500,
     description:
       "Массаж горячими вулканическими камнями — глубокое прогревание и полное расслабление.",
     group: "massage",
