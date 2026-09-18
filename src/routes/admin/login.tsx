@@ -28,7 +28,9 @@ function AdminLoginPage() {
         setError(
           body?.error === "admin_not_configured"
             ? "Админ-доступ ещё не настроен на сервере (нет ADMIN_USERNAME/ADMIN_PASSWORD)."
-            : "Неверный логин или пароль.",
+            : body?.error === "too_many_attempts"
+              ? "Слишком много попыток входа. Подождите 15 минут и попробуйте снова."
+              : "Неверный логин или пароль.",
         );
         return;
       }

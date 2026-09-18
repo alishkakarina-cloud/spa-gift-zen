@@ -18,10 +18,52 @@ function timingSafeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
+/**
+ * Защита от перебора пароля — 5 попыток за 15 минут на IP. Best-effort: живёт
+ * в памяти одного edge-изолята (деплой на Cloudflare Workers через nitro
+ * cloudflare-module preset, см. src/server.ts) — не общий счётчик на все
+ * инстансы/регионы, изолят может пересоздаться и сбросить счётчик раньше
+ * срока. Для единственной пары логин/пароль внутреннего инструмента этого
+ * достаточно, чтобы сбить массовый автоматический перебор; не защита от
+ * целенаправленной распределённой атаки (для неё нужно внешнее хранилище
+ * состояния, которого в проекте пока нет).
+ */
+const LOGIN_ATTEMPT_LIMIT = 5;
+const LOGIN_ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+
+function clientIp(request: Request): string {
+  return (
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown"
+  );
+}
+
+function isRateLimited(ip: string): boolean {
+  const entry = loginAttempts.get(ip);
+  return entry !== undefined && Date.now() < entry.resetAt && entry.count >= LOGIN_ATTEMPT_LIMIT;
+}
+
+function recordFailedAttempt(ip: string): void {
+  const now = Date.now();
+  const entry = loginAttempts.get(ip);
+  if (!entry || now >= entry.resetAt) {
+    loginAttempts.set(ip, { count: 1, resetAt: now + LOGIN_ATTEMPT_WINDOW_MS });
+    return;
+  }
+  entry.count += 1;
+}
+
 export const Route = createFileRoute("/api/admin/login")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const ip = clientIp(request);
+        if (isRateLimited(ip)) {
+          return Response.json({ error: "too_many_attempts" }, { status: 429 });
+        }
+
         let body: LoginBody;
         try {
           body = await request.json();
@@ -42,8 +84,10 @@ export const Route = createFileRoute("/api/admin/login")({
         const ok =
           timingSafeEqual(username, expectedUsername) && timingSafeEqual(password, expectedPassword);
         if (!ok) {
+          recordFailedAttempt(ip);
           return Response.json({ error: "invalid_credentials" }, { status: 401 });
         }
+        loginAttempts.delete(ip);
 
         let session: Awaited<ReturnType<typeof getAdminSession>>;
         try {
