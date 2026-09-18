@@ -72,6 +72,7 @@ function isValidBody(body: unknown): body is CreateCertificateBody {
   const b = body as Record<string, unknown>;
   if (
     typeof b["amount"] !== "number" ||
+    !Number.isInteger(b["amount"]) ||
     (b["amount"] as number) < 0 ||
     (b["certificateType"] !== "service" && b["certificateType"] !== "amount") ||
     typeof b["buyerName"] !== "string" ||

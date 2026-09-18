@@ -795,6 +795,10 @@ function CertificateFlow() {
     if (!total || total <= 0) return [t("cert.errMinAmount", { amount: formatPrice(MIN_AMOUNT) })];
     if (kind === "amount" && total < MIN_AMOUNT)
       return [t("cert.errMinAmount", { amount: formatPrice(MIN_AMOUNT) })];
+    // ApiPay принимает только целые тенге (amount_must_be_whole_tenge) — тот
+    // же рубеж, что и в handleStep1Next для поля «Своя сумма» (см. его
+    // комментарий), продублирован здесь на случай другого пути к шагу 1.
+    if (!Number.isInteger(total)) return [t("cert.errAmountNotWhole")];
     return [];
   };
 
@@ -823,6 +827,10 @@ function CertificateFlow() {
     // баге "0 ₸") — если сумма всё же оказалась 0/отрицательной, оплату не
     // создаём ни при каких обстоятельствах.
     if (!total || total <= 0) e.push(t("cert.errMinAmount", { amount: formatPrice(MIN_AMOUNT) }));
+    // ApiPay отклоняет дробные тенге (amount_must_be_whole_tenge) — последний
+    // рубеж перед реальным созданием счёта, та же причина, что и у проверки
+    // выше на 0 ₸.
+    if (!Number.isInteger(total)) e.push(t("cert.errAmountNotWhole"));
     if (!consentAccepted) e.push(t("cert.errConsentRequired"));
     if (!PAY_PHONE_RE.test(payPhone)) e.push(t("cert.errPayPhoneInvalid"));
     return e;
@@ -1213,9 +1221,16 @@ function CertificateFlow() {
                               // Пустое поле — вернулись к ранее нажатому
                               // пресету (amountPicked трогать не нужно);
                               // невалидное значение явно снимает выбор.
+                              // Number.isInteger — ApiPay принимает только
+                              // целые тенге (amount_must_be_whole_tenge), без
+                              // этой проверки дробная сумма (например
+                              // введённая через нативный <input type="number">,
+                              // который не блокирует ввод дробей несмотря на
+                              // step={1000}) доходила бы до самого экрана
+                              // оплаты и только там получала бы отказ.
                               if (next) {
                                 const v = Number(next);
-                                const valid = Number.isFinite(v) && v >= MIN_AMOUNT;
+                                const valid = Number.isInteger(v) && v >= MIN_AMOUNT;
                                 setAmountPicked(valid);
                                 if (valid) setLastChoice("amount");
                               }
