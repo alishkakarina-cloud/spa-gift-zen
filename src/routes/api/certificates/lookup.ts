@@ -51,6 +51,11 @@ export const Route = createFileRoute("/api/certificates/lookup")({
             "id, certificate_number, amount, certificate_type, buyer_contact, recipient_name, message, services, design_id, branch, created_at",
           )
           .eq("payment_status", "paid")
+          // Отменённый (возврат/аннулирование) сертификат не должен светиться
+          // клиенту как рабочий — админ мог отменить уже оплаченный (см.
+          // аудит 2026-09-25, живой пример RT0049: оплачен, но status
+          // "cancelled" всё равно показывался и скачивался через эту страницу).
+          .neq("status", "cancelled")
           .order("created_at", { ascending: false })
           .limit(500);
 
