@@ -71,6 +71,9 @@ function AdminLayout({ children }: { children: ReactNode }) {
             <Link to="/admin/menu" className={linkClass}>
               SPA-меню
             </Link>
+            <Link to="/admin/test-certificate" className={linkClass}>
+              Тестовый сертификат
+            </Link>
           </div>
           <button
             type="button"

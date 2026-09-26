@@ -25,6 +25,7 @@ type CertificateRow = {
   status: "active" | "used" | "cancelled";
   created_at: string;
   services: Array<{ id: string; name: string; price: number }> | null;
+  is_test: boolean;
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -69,12 +70,16 @@ function OrdersPage() {
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
+  // Тестовые сертификаты (см. /admin/test-certificate) скрыты по умолчанию —
+  // не в реальной статистике продаж, показываем только по явному запросу.
+  const [includeTest, setIncludeTest] = useState(false);
 
-  const load = async (query: string, statusFilter: string) => {
+  const load = async (query: string, statusFilter: string, includeTestFilter: boolean) => {
     setError(null);
     const params = new URLSearchParams();
     if (query.trim()) params.set("q", query.trim());
     if (statusFilter) params.set("status", statusFilter);
+    if (includeTestFilter) params.set("includeTest", "1");
     const res = await fetch(`/api/admin/certificates?${params.toString()}`);
     if (!res.ok) {
       setError("Не удалось загрузить список заказов.");
@@ -85,13 +90,19 @@ function OrdersPage() {
   };
 
   useEffect(() => {
-    void load("", "");
+    void load("", "", false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    void load(q, status);
+    void load(q, status, includeTest);
+  };
+
+  const toggleIncludeTest = () => {
+    const next = !includeTest;
+    setIncludeTest(next);
+    void load(q, status, next);
   };
 
   return (
@@ -128,6 +139,17 @@ function OrdersPage() {
           className="rounded bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-900 transition-opacity hover:opacity-90"
         >
           Найти
+        </button>
+        <button
+          type="button"
+          onClick={toggleIncludeTest}
+          className={`rounded border px-3 py-2 text-sm transition-colors ${
+            includeTest
+              ? "border-amber-600 bg-amber-950/40 text-amber-200"
+              : "border-zinc-700 text-zinc-300 hover:border-zinc-500"
+          }`}
+        >
+          {includeTest ? "Тестовые: показаны" : "Показать тестовые"}
         </button>
       </form>
 
@@ -169,6 +191,11 @@ function OrdersPage() {
                   <Link to="/admin/orders/$id" params={{ id: r.id }} className="text-zinc-100 underline-offset-2 hover:underline">
                     {r.certificate_number}
                   </Link>
+                  {r.is_test && (
+                    <span className="ml-2 rounded-full bg-amber-950 px-2 py-0.5 text-xs text-amber-400">
+                      ТЕСТ
+                    </span>
+                  )}
                 </td>
                 <td className="px-3 py-2 text-zinc-400">{formatDate(r.created_at)}</td>
                 <td className="px-3 py-2">
@@ -179,7 +206,11 @@ function OrdersPage() {
                 <td className="px-3 py-2 text-zinc-300">{programLabel(r)}</td>
                 <td className="px-3 py-2 text-zinc-400">{r.branch ? (BRANCH_LABEL[r.branch] ?? r.branch) : "—"}</td>
                 <td className="px-3 py-2">{r.amount.toLocaleString("ru-RU")} ₸</td>
-                <td className="px-3 py-2 text-zinc-400">{PAYMENT_STATUS_LABEL[r.payment_status] ?? r.payment_status}</td>
+                <td className="px-3 py-2 text-zinc-400">
+                  {r.is_test && r.payment_status === "paid"
+                    ? PAYMENT_STATUS_LABEL["sandbox_paid"]
+                    : (PAYMENT_STATUS_LABEL[r.payment_status] ?? r.payment_status)}
+                </td>
                 <td className="px-3 py-2">
                   <span
                     className={`rounded-full px-2.5 py-1 text-xs ${

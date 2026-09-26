@@ -14,6 +14,11 @@ export const Route = createFileRoute("/api/admin/certificates")({
         // ввода на UI.
         const q = url.searchParams.get("q")?.trim() ?? "";
         const status = url.searchParams.get("status")?.trim() ?? "";
+        // Тестовые сертификаты (см. /api/admin/certificates/test-create) не
+        // должны попадать в обычный список заказов/статистику продаж по
+        // умолчанию — только когда МОП явно включил фильтр "Показать
+        // тестовые" (?includeTest=1) на странице заказов.
+        const includeTest = url.searchParams.get("includeTest") === "1";
 
         let supabase: ReturnType<typeof getSupabaseServerClient>;
         try {
@@ -26,11 +31,12 @@ export const Route = createFileRoute("/api/admin/certificates")({
         let query = supabase
           .from("certificates")
           .select(
-            "id, certificate_number, amount, certificate_type, buyer_name, buyer_contact, buyer_phone, buyer_email, recipient_name, branch, payment_method, payment_status, status, redeemed_at, created_at, services",
+            "id, certificate_number, amount, certificate_type, buyer_name, buyer_contact, buyer_phone, buyer_email, recipient_name, branch, payment_method, payment_status, status, redeemed_at, created_at, services, is_test",
           )
           .order("created_at", { ascending: false })
           .limit(200);
 
+        if (!includeTest) query = query.eq("is_test", false);
         if (status) query = query.eq("status", status);
         if (q) {
           // certificate_number + buyer_contact (склейка "телефон · email")

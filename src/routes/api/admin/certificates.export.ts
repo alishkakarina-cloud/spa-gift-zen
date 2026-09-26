@@ -42,6 +42,11 @@ export const Route = createFileRoute("/api/admin/certificates/export")({
         const { data, error } = await supabase
           .from("certificates")
           .select(COLUMNS.join(","))
+          // Тестовые сертификаты (см. /api/admin/certificates/test-create)
+          // никогда не должны попадать в выгрузку для бухгалтерии/статистики
+          // продаж — без исключений и без переключателя, в отличие от
+          // обычного списка заказов в админке.
+          .eq("is_test", false)
           .order("created_at", { ascending: false });
 
         if (error) {

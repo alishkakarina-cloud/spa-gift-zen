@@ -34,6 +34,7 @@ type CertificateDetail = {
   status: "active" | "used" | "cancelled";
   redeemed_at: string | null;
   created_at: string;
+  is_test: boolean;
 };
 
 const STATUS_OPTIONS: Array<{ value: CertificateDetail["status"]; label: string }> = [
@@ -161,7 +162,14 @@ function OrderDetailPage() {
         <p className="mt-6 text-zinc-500">Загрузка…</p>
       ) : (
         <div className="mt-4 max-w-2xl">
-          <h1 className="text-xl font-semibold">{cert.certificate_number}</h1>
+          <h1 className="text-xl font-semibold">
+            {cert.certificate_number}
+            {cert.is_test && (
+              <span className="ml-2 rounded-full bg-amber-950 px-2.5 py-1 align-middle text-xs text-amber-400">
+                ТЕСТ — без реальной оплаты
+              </span>
+            )}
+          </h1>
 
           <div className="mt-5 rounded border border-zinc-800">
             <dl className="divide-y divide-zinc-800 px-4">

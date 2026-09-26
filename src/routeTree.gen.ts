@@ -23,6 +23,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminMenuRouteImport } from './routes/admin/menu'
 import { Route as AdminServicesRouteImport } from './routes/admin/services'
+import { Route as AdminTestCertificateRouteImport } from './routes/admin/test-certificate'
 import { Route as ApiMenuPdfRouteImport } from './routes/api/menu-pdf'
 import { Route as AdminOrdersIdRouteImport } from './routes/admin/orders/$id'
 import { Route as ApiAdminCertificatesRouteImport } from './routes/api/admin/certificates'
@@ -37,6 +38,7 @@ import { Route as ApiCertificatesReserveNumberRouteImport } from './routes/api/c
 import { Route as ApiWebhooksApipayRouteImport } from './routes/api/webhooks/apipay'
 import { Route as ApiAdminCertificatesIdRouteImport } from './routes/api/admin/certificates.$id'
 import { Route as ApiAdminCertificatesExportRouteImport } from './routes/api/admin/certificates.export'
+import { Route as ApiAdminCertificatesTestCreateRouteImport } from './routes/api/admin/certificates.test-create'
 import { Route as ApiAdminServicesIdRouteImport } from './routes/api/admin/services.$id'
 import { Route as ApiCertificatesStatusIdRouteImport } from './routes/api/certificates/status.$id'
 
@@ -108,6 +110,11 @@ const AdminMenuRoute = AdminMenuRouteImport.update({
 const AdminServicesRoute = AdminServicesRouteImport.update({
   id: '/admin/services',
   path: '/admin/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTestCertificateRoute = AdminTestCertificateRouteImport.update({
+  id: '/admin/test-certificate',
+  path: '/admin/test-certificate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMenuPdfRoute = ApiMenuPdfRouteImport.update({
@@ -182,6 +189,12 @@ const ApiAdminCertificatesExportRoute =
     path: '/export',
     getParentRoute: () => ApiAdminCertificatesRoute,
   } as any)
+const ApiAdminCertificatesTestCreateRoute =
+  ApiAdminCertificatesTestCreateRouteImport.update({
+    id: '/test-create',
+    path: '/test-create',
+    getParentRoute: () => ApiAdminCertificatesRoute,
+  } as any)
 const ApiAdminServicesIdRoute = ApiAdminServicesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -207,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/menu': typeof AdminMenuRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/test-certificate': typeof AdminTestCertificateRoute
   '/api/menu-pdf': typeof ApiMenuPdfRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/orders/$id': typeof AdminOrdersIdRoute
@@ -222,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
   '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
+  '/api/admin/certificates/test-create': typeof ApiAdminCertificatesTestCreateRoute
   '/api/admin/services/$id': typeof ApiAdminServicesIdRoute
   '/api/certificates/status/$id': typeof ApiCertificatesStatusIdRoute
 }
@@ -239,6 +254,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/admin/menu': typeof AdminMenuRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/test-certificate': typeof AdminTestCertificateRoute
   '/api/menu-pdf': typeof ApiMenuPdfRoute
   '/admin': typeof AdminIndexRoute
   '/admin/orders/$id': typeof AdminOrdersIdRoute
@@ -254,6 +270,7 @@ export interface FileRoutesByTo {
   '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
   '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
+  '/api/admin/certificates/test-create': typeof ApiAdminCertificatesTestCreateRoute
   '/api/admin/services/$id': typeof ApiAdminServicesIdRoute
   '/api/certificates/status/$id': typeof ApiCertificatesStatusIdRoute
 }
@@ -272,6 +289,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/admin/menu': typeof AdminMenuRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/test-certificate': typeof AdminTestCertificateRoute
   '/api/menu-pdf': typeof ApiMenuPdfRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/orders/$id': typeof AdminOrdersIdRoute
@@ -287,6 +305,7 @@ export interface FileRoutesById {
   '/api/webhooks/apipay': typeof ApiWebhooksApipayRoute
   '/api/admin/certificates/$id': typeof ApiAdminCertificatesIdRoute
   '/api/admin/certificates/export': typeof ApiAdminCertificatesExportRoute
+  '/api/admin/certificates/test-create': typeof ApiAdminCertificatesTestCreateRoute
   '/api/admin/services/$id': typeof ApiAdminServicesIdRoute
   '/api/certificates/status/$id': typeof ApiCertificatesStatusIdRoute
 }
@@ -306,6 +325,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/menu'
     | '/admin/services'
+    | '/admin/test-certificate'
     | '/api/menu-pdf'
     | '/admin/'
     | '/admin/orders/$id'
@@ -321,6 +341,7 @@ export interface FileRouteTypes {
     | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
     | '/api/admin/certificates/export'
+    | '/api/admin/certificates/test-create'
     | '/api/admin/services/$id'
     | '/api/certificates/status/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -338,6 +359,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/menu'
     | '/admin/services'
+    | '/admin/test-certificate'
     | '/api/menu-pdf'
     | '/admin'
     | '/admin/orders/$id'
@@ -353,6 +375,7 @@ export interface FileRouteTypes {
     | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
     | '/api/admin/certificates/export'
+    | '/api/admin/certificates/test-create'
     | '/api/admin/services/$id'
     | '/api/certificates/status/$id'
   id:
@@ -370,6 +393,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/menu'
     | '/admin/services'
+    | '/admin/test-certificate'
     | '/api/menu-pdf'
     | '/admin/'
     | '/admin/orders/$id'
@@ -385,6 +409,7 @@ export interface FileRouteTypes {
     | '/api/webhooks/apipay'
     | '/api/admin/certificates/$id'
     | '/api/admin/certificates/export'
+    | '/api/admin/certificates/test-create'
     | '/api/admin/services/$id'
     | '/api/certificates/status/$id'
   fileRoutesById: FileRoutesById
@@ -403,6 +428,7 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMenuRoute: typeof AdminMenuRoute
   AdminServicesRoute: typeof AdminServicesRoute
+  AdminTestCertificateRoute: typeof AdminTestCertificateRoute
   ApiMenuPdfRoute: typeof ApiMenuPdfRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminOrdersIdRoute: typeof AdminOrdersIdRoute
@@ -519,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/test-certificate': {
+      id: '/admin/test-certificate'
+      path: '/admin/test-certificate'
+      fullPath: '/admin/test-certificate'
+      preLoaderRoute: typeof AdminTestCertificateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/menu-pdf': {
       id: '/api/menu-pdf'
       path: '/api/menu-pdf'
@@ -617,6 +650,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminCertificatesExportRouteImport
       parentRoute: typeof ApiAdminCertificatesRoute
     }
+    '/api/admin/certificates/test-create': {
+      id: '/api/admin/certificates/test-create'
+      path: '/test-create'
+      fullPath: '/api/admin/certificates/test-create'
+      preLoaderRoute: typeof ApiAdminCertificatesTestCreateRouteImport
+      parentRoute: typeof ApiAdminCertificatesRoute
+    }
     '/api/admin/services/$id': {
       id: '/api/admin/services/$id'
       path: '/$id'
@@ -637,11 +677,13 @@ declare module '@tanstack/react-router' {
 interface ApiAdminCertificatesRouteChildren {
   ApiAdminCertificatesIdRoute: typeof ApiAdminCertificatesIdRoute
   ApiAdminCertificatesExportRoute: typeof ApiAdminCertificatesExportRoute
+  ApiAdminCertificatesTestCreateRoute: typeof ApiAdminCertificatesTestCreateRoute
 }
 
 const ApiAdminCertificatesRouteChildren: ApiAdminCertificatesRouteChildren = {
   ApiAdminCertificatesIdRoute: ApiAdminCertificatesIdRoute,
   ApiAdminCertificatesExportRoute: ApiAdminCertificatesExportRoute,
+  ApiAdminCertificatesTestCreateRoute: ApiAdminCertificatesTestCreateRoute,
 }
 
 const ApiAdminCertificatesRouteWithChildren =
@@ -672,6 +714,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminMenuRoute: AdminMenuRoute,
   AdminServicesRoute: AdminServicesRoute,
+  AdminTestCertificateRoute: AdminTestCertificateRoute,
   ApiMenuPdfRoute: ApiMenuPdfRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminOrdersIdRoute: AdminOrdersIdRoute,
