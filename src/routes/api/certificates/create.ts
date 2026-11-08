@@ -82,6 +82,10 @@ function isValidBody(body: unknown): body is CreateCertificateBody {
   ) {
     return false;
   }
+  // Город обязателен для любого сертификата — без него не создаём ни строку в
+  // базе, ни счёт в ApiPay (клиент тоже это проверяет, тут последний рубеж
+  // на случай обхода интерфейса).
+  if (typeof b["branch"] !== "string" || b["branch"].trim().length === 0) return false;
   if (b["paymentChannel"] === "phone" && !PHONE_RE.test(String(b["payPhone"] ?? ""))) return false;
   if (b["certificateNumber"] != null && !CERTIFICATE_NUMBER_RE.test(String(b["certificateNumber"])))
     return false;

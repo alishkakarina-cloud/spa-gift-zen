@@ -440,7 +440,14 @@ function CertificateFlow() {
     const draft = loadCertificateDraft();
     if (!draft) return;
 
-    setStep(draft.step);
+    // Черновик, сохранённый до того, как город стал обязательным, мог дойти
+    // до дизайна/оплаты без филиала — возвращаем на шаг «Оформление», где
+    // город выбирается. Уже созданный счёт (invoiceId) не трогаем.
+    setStep(
+      draft.branch === null && !draft.invoiceId && (draft.step === 3 || draft.step === 4)
+        ? 2
+        : draft.step,
+    );
     setKind(draft.kind);
     setGroupId(draft.groupId);
     setServiceIds(draft.serviceIds);
@@ -812,6 +819,7 @@ function CertificateFlow() {
     // заполнено; пустое поле проходит без ошибки.
     if (buyerEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(buyerEmail))
       e.push(t("cert.errBuyerEmailRequired"));
+    if (!branch) e.push(t("cert.errBranchRequired"));
     if (!forSelf) {
       if (!recipientFirstName.trim()) e.push(t("cert.errRecipientRequired"));
       // Фамилия получателя снова обязательна (правка владельца 2026-08-25,
@@ -831,6 +839,7 @@ function CertificateFlow() {
     // рубеж перед реальным созданием счёта, та же причина, что и у проверки
     // выше на 0 ₸.
     if (!Number.isInteger(total)) e.push(t("cert.errAmountNotWhole"));
+    if (!branch) e.push(t("cert.errBranchRequired"));
     if (!consentAccepted) e.push(t("cert.errConsentRequired"));
     if (!PAY_PHONE_RE.test(payPhone)) e.push(t("cert.errPayPhoneInvalid"));
     return e;
@@ -1545,8 +1554,43 @@ function CertificateFlow() {
                 </div>
               )}
 
-              {/* Филиал здесь не выбирается: город указывается один раз в
-                  начале сценария, на главной. Ниже он только показан в сводке. */}
+              {/* Город обязателен для любого сертификата (на услугу и на
+                  сумму): без выбранного филиала validateStep3 не пускает
+                  дальше, а сервер отклоняет заказ без branch. На шаге 1
+                  «Указать сумму» сбрасывает город, поэтому выбор дублируется
+                  здесь — это единственное место, через которое проходят все
+                  сценарии (в том числе прямые ссылки без ?branch=). */}
+              <p className="eyebrow mt-8">{t("cert.rowBranch")} *</p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {BRANCHES.map((b) => {
+                  const selected = branch === b.id;
+                  return (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => {
+                        setBranch(b.id);
+                        setErrors([]);
+                      }}
+                      aria-pressed={selected}
+                      className={`surface px-6 py-4 text-left transition-colors ${
+                        selected ? "border-gold!" : "hover:border-gold/60"
+                      }`}
+                    >
+                      <span
+                        className={`font-display block text-lg text-cream ${selected ? "text-glow-gold" : ""}`}
+                      >
+                        {t(b.labelKey)}
+                      </span>
+                      <span
+                        className={`mt-1 block text-sm text-cream/65 ${selected ? "text-glow-gold" : ""}`}
+                      >
+                        {b.address}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
 
               {/* Сводка перед оплатой */}
               <p className="eyebrow mt-8">{t("cert.summarySection")}</p>
