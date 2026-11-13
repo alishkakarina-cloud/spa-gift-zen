@@ -74,6 +74,7 @@ const ru = {
     term4: "Электронный сертификат с уникальным номером приходит сразу после оплаты",
     term5: "Перед визитом нужна предварительная запись и предъявление сертификата",
     term6: "Сертификат можно передать другому человеку",
+    term7: "При покупке на сайте бумажная версия не выдаётся — электронный сертификат полностью действителен",
 
     /* Блок «Как это работает» — 3 шага из ТЗ, дословно. */
     howEyebrow: "Как это работает",
@@ -689,6 +690,7 @@ const kz = {
     term4: "Бірегей нөмірі бар электронды сертификат төлемнен кейін бірден келеді",
     term5: "Келер алдында алдын ала жазылу және сертификатты көрсету қажет",
     term6: "Сертификатты басқа адамға беруге болады",
+    term7: "Сайттан сатып алғанда қағаз нұсқасы берілмейді — электронды сертификат толық жарамды",
 
     howEyebrow: "Бұл қалай жұмыс істейді",
     howTitle: "Сыйлыққа дейін үш қадам",
@@ -1242,6 +1244,7 @@ const en = {
     term4: "An electronic certificate with a unique number arrives right after payment",
     term5: "Booking ahead and showing the certificate at your visit is required",
     term6: "The certificate can be transferred to someone else",
+    term7: "Online purchases don't come with a paper copy — the electronic certificate is fully valid on its own",
 
     howEyebrow: "How it works",
     howTitle: "Three steps to a gift",
