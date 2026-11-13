@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { isAdminAuthenticated, unauthorizedResponse } from "@/lib/admin-session";
+import { canonicalBranchLabel } from "@/lib/branch";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
 /**
@@ -120,7 +121,7 @@ export const Route = createFileRoute("/api/admin/certificates/test-create")({
               buyer_contact: recipientPhone,
               buyer_phone: recipientPhone,
               recipient_name: recipientName,
-              branch: body.branch ?? null,
+              branch: canonicalBranchLabel(body.branch),
               payment_method: "kaspi",
               design_id: body.designId?.trim() || "standard",
               message: body.message?.trim() || null,

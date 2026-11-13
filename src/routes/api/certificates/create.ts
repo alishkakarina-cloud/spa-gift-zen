@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ApipayError, categorizeApipayErrorCode, createApipayInvoice } from "@/lib/apipay";
+import { canonicalBranchLabel } from "@/lib/branch";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
 // Freedom Pay was removed as a payment option on the client (2026-08-18) —
@@ -85,7 +86,7 @@ function isValidBody(body: unknown): body is CreateCertificateBody {
   // Город обязателен для любого сертификата — без него не создаём ни строку в
   // базе, ни счёт в ApiPay (клиент тоже это проверяет, тут последний рубеж
   // на случай обхода интерфейса).
-  if (typeof b["branch"] !== "string" || b["branch"].trim().length === 0) return false;
+  if (canonicalBranchLabel(b["branch"]) === null) return false;
   if (b["paymentChannel"] === "phone" && !PHONE_RE.test(String(b["payPhone"] ?? ""))) return false;
   if (b["certificateNumber"] != null && !CERTIFICATE_NUMBER_RE.test(String(b["certificateNumber"])))
     return false;
@@ -148,7 +149,7 @@ export const Route = createFileRoute("/api/certificates/create")({
               buyer_email: body.buyerEmail?.trim() || null,
               recipient_name: body.recipientName?.trim() || null,
               recipient_contact: body.recipientContact?.trim() || null,
-              branch: body.branch?.trim() || null,
+              branch: canonicalBranchLabel(body.branch),
               payment_method: body.paymentMethod,
               design_id: body.designId?.trim() || null,
               message: body.message?.trim() || null,
