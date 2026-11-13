@@ -47,12 +47,8 @@ function isValidBody(body: unknown): body is TestCreateBody {
     if (!b["services"].every(isValidServiceLine)) return false;
   }
 
-  if (
-    b["branch"] != null &&
-    b["branch"] !== "petropavlovsk" &&
-    b["branch"] !== "kokshetau"
-  )
-    return false;
+  // Город обязателен (как и для клиентов на сайте, правка владельца 2026-11-13).
+  if (b["branch"] !== "petropavlovsk" && b["branch"] !== "kokshetau") return false;
   return true;
 }
 

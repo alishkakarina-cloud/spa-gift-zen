@@ -356,10 +356,14 @@ function CertificateFlow() {
   // город выбран → докрутка к каталогу; сумма выбрана и была последней →
   // переход в оформление; и то, и другое — побеждает то, что выбрано
   // последним (lastChoice), а не «город всегда/сумма всегда».
+  // Город обязателен для любого сертификата, в том числе «на сумму»: без него
+  // «Далее» не включается (правка владельца 2026-11-13). Выбранная сумма
+  // больше не сбрасывает город и наоборот — сумма просто выбирает, куда
+  // ведёт «Далее» (оформление или каталог услуг).
   const canGoCity1 = branch !== null;
-  const canGoAmount1 = amountPicked;
-  const canProceedStep1 = canGoCity1 || canGoAmount1;
-  const targetIsAmountStep1 = canGoAmount1 && (!canGoCity1 || lastChoice === "amount");
+  const canGoAmount1 = amountPicked && canGoCity1;
+  const canProceedStep1 = canGoCity1;
+  const targetIsAmountStep1 = canGoAmount1;
   const handleStep1Next = () => {
     if (!canProceedStep1) return;
     if (targetIsAmountStep1) {
@@ -1100,7 +1104,7 @@ function CertificateFlow() {
                 {t("cert.step1Title")}
               </h1>
 
-              <div className="mt-8 grid gap-2 sm:grid-cols-3">
+              <div id="city-block" className="mt-8 grid gap-2 sm:grid-cols-3">
                 {BRANCHES.map((b) => {
                   const selected = branch === b.id;
                   return (
@@ -1110,14 +1114,7 @@ function CertificateFlow() {
                       onClick={() => {
                         setBranch(b.id);
                         setLastChoice("city");
-                        // Взаимоисключающий выбор (правка владельца
-                        // 2026-08-23): город и сумма — разные сценарии,
-                        // выбор одного сбрасывает другой полностью, а не
-                        // просто теряет приоритет через lastChoice.
-                        setAmountOpen(false);
-                        setAmountPicked(false);
-                        setCustomAmount("");
-                        setAmount(fixedAmounts[0]!);
+                        setErrors([]);
                       }}
                       aria-pressed={selected}
                       className={`surface px-6 py-4 text-left transition-colors ${
@@ -1149,17 +1146,11 @@ function CertificateFlow() {
                   <button
                     type="button"
                     onClick={() => {
-                      // Взаимоисключающий выбор — открытие панели суммы
-                      // сбрасывает выбранный город (правка владельца
-                      // 2026-08-23). Сбрасываем только при открытии, а не
-                      // при сворачивании назад — сворачивание без выбора
-                      // суммы ничего не должно менять.
+                      // Город остаётся выбранным — он обязателен и для
+                      // сертификата на сумму (см. canProceedStep1).
                       const opening = !amountOpen;
                       setAmountOpen(opening);
-                      if (opening) {
-                        setBranch(null);
-                        setLastChoice("amount");
-                      }
+                      if (opening) setLastChoice("amount");
                     }}
                     aria-expanded={amountOpen}
                     className="w-full px-6 py-4 text-left"
@@ -1267,6 +1258,9 @@ function CertificateFlow() {
                   {t("cert.nextButton")}
                 </button>
               </div>
+              {!canProceedStep1 && (
+                <p className="text-gold/80 mt-3 text-center text-sm">{t("cert.errBranchRequired")}</p>
+              )}
 
               {/* Каталог услуг — сразу под рядом город/город/сумма, без
                   перехода между ними (правка 2026-08-22, возврат на
@@ -1346,6 +1340,15 @@ function CertificateFlow() {
                             // не на serviceIds, а на текущий (amount) total.
                             if (chosen.length === 0 || selectionTotal(serviceIds) <= 0) {
                               setErrors([t("cert.errServiceRequired")]);
+                              return;
+                            }
+                            // Город обязателен и здесь: без него возвращаем к
+                            // выбору города вверху страницы.
+                            if (!branch) {
+                              setErrors([t("cert.errBranchRequired")]);
+                              document
+                                .getElementById("city-block")
+                                ?.scrollIntoView({ behavior: "smooth", block: "center" });
                               return;
                             }
                             setErrors([]);

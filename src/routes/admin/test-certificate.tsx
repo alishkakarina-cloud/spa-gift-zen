@@ -43,6 +43,10 @@ function TestCertificatePage() {
       setError("Укажите имя получателя.");
       return;
     }
+    if (!branch) {
+      setError("Выберите город.");
+      return;
+    }
     const amountNum = Number(amount);
     if (kind === "amount" && (!Number.isInteger(amountNum) || amountNum <= 0)) {
       setError("Сумма должна быть целым числом больше нуля.");
@@ -62,7 +66,7 @@ function TestCertificatePage() {
             : { services: [{ id: service.id, name: service.name, price: service.price }] }),
           recipientName: recipientName.trim(),
           recipientPhone: recipientPhone.trim() || null,
-          branch: branch || null,
+          branch,
           designId,
           message: message.trim() || null,
         }),
@@ -168,13 +172,13 @@ function TestCertificatePage() {
         </div>
 
         <div>
-          <label className={labelClass}>Филиал (необязательно)</label>
+          <label className={labelClass}>Город (филиал)</label>
           <select
             value={branch}
             onChange={(e) => setBranch(e.target.value as typeof branch)}
             className={inputClass}
           >
-            <option value="">Не выбран</option>
+            <option value="">Выберите город</option>
             <option value="petropavlovsk">Петропавловск</option>
             <option value="kokshetau">Кокшетау</option>
           </select>

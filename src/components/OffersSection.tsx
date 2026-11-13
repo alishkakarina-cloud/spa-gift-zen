@@ -82,13 +82,18 @@ export function OffersSection() {
   const navigate = useNavigate();
   const [lastChoice, setLastChoice] = useState<"city" | "amount" | null>(null);
   const canGoCity = activeCity !== null;
-  const canGoAmount = amountPicked;
-  const canProceed = canGoCity || canGoAmount;
-  const targetIsAmount = canGoAmount && (!canGoCity || lastChoice === "amount");
+  // Город обязателен для любого сертификата, в том числе «на сумму» (правка
+  // владельца 2026-11-13): без выбранного города «Далее» не включается.
+  const canGoAmount = amountPicked && canGoCity;
+  const canProceed = canGoCity;
+  const targetIsAmount = canGoAmount;
   const handleNext = () => {
     if (!canProceed) return;
     if (targetIsAmount) {
-      navigate({ to: "/certificate", search: { kind: "amount", amount: effectiveAmount } });
+      navigate({
+        to: "/certificate",
+        search: { kind: "amount", amount: effectiveAmount, branch: activeCity! },
+      });
       return;
     }
     // Цель скролла — "categories-block" внутри ServiceCatalogBrowser
@@ -316,6 +321,9 @@ export function OffersSection() {
               {t("cert.nextButton")}
             </button>
           </div>
+          {!canProceed && (
+            <p className="text-gold/80 mt-3 text-center text-sm">{t("cert.errBranchRequired")}</p>
+          )}
 
           {/* ── Каталог услуг — по структуре layan.kz (проверено вживую
               2026-08-22): открыт сразу под рядом город/город/сумма, без
@@ -349,7 +357,10 @@ export function OffersSection() {
                 action={
                   <Link
                     to="/certificate"
-                    search={{ services: serializeServiceIds(selectedServiceIds) }}
+                    search={{
+                      services: serializeServiceIds(selectedServiceIds),
+                      ...(activeCity ? { branch: activeCity } : {}),
+                    }}
                     className="btn-gold"
                   >
                     {t("cert.giftButton")}
