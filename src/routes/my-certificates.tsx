@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { Loader2, Search } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -47,16 +47,50 @@ function CertificateResult({ cert }: { cert: LookupResult }) {
   const design = designs.find((d) => d.id === cert.designId) ?? designs[0]!;
   const fileName = `raithai-sertifikat-${cert.certificateNumber}.png`;
 
+  /**
+   * Баг "на iPhone просто открывается картинка, не сохраняется" (жалоба
+   * клиентов, 2026-11-14): toPng() тут не просто рисует canvas — html-to-image
+   * пытается встроить шрифты (Google Fonts — наш @import, крест-доменный,
+   * cssRules читать нельзя) и на этот случай реально ходит в сеть за CSS и
+   * каждым файлом шрифта оттуда. Это может занять заметное время — а
+   * navigator.share() с файлами на iOS Safari требует вызова внутри «живого»
+   * пользовательского жеста: если между тапом по кнопке и самим share()
+   * проходит слишком много асинхронной работы, активация жеста протухает,
+   * share() перестаёт открывать системный лист, и код проваливается в
+   * запасной `<a download>` — а на iOS Safari он для data:-URL не скачивает
+   * файл, а просто открывает картинку (без ошибки, выглядит как "ничего не
+   * произошло"). Чиним тем, что рендерим PNG заранее, в фоне, сразу как
+   * карточка появилась на экране (см. useEffect ниже) — к моменту клика
+   * картинка уже готова, и share() вызывается почти сразу после тапа, пока
+   * активация жеста ещё жива.
+   */
+  const renderedPngRef = useRef<Promise<string> | null>(null);
+  const renderPng = () => {
+    if (renderedPngRef.current) return renderedPngRef.current;
+    if (!ref.current) return Promise.reject(new Error("card not mounted"));
+    const p = toPng(ref.current, {
+      pixelRatio: 2,
+      cacheBust: true,
+      backgroundColor: "#f4efe6",
+    }).catch((err) => {
+      // Сбой — не запоминаем провалившийся промис навсегда, следующая
+      // попытка (авто или по клику) должна суметь попробовать заново.
+      renderedPngRef.current = null;
+      throw err;
+    });
+    renderedPngRef.current = p;
+    return p;
+  };
+  useEffect(() => {
+    void renderPng();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const save = async () => {
-    if (!ref.current) return;
     setBusy(true);
     setToast(null);
     try {
-      const dataUrl = await toPng(ref.current, {
-        pixelRatio: 2,
-        cacheBust: true,
-        backgroundColor: "#f4efe6",
-      });
+      const dataUrl = await renderPng();
       const blob = await (await fetch(dataUrl)).blob();
       const file = new File([blob], fileName, { type: "image/png" });
 

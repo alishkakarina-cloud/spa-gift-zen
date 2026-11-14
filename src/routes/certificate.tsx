@@ -615,14 +615,34 @@ function CertificateFlow() {
    * картинка получалась бы слишком мелкой для печати/шаринга. cacheBust
    * нужен, т.к. фон дизайна — imported-ассет с хэшем в имени, без него
    * html-to-image иногда кэширует старый кадр между разными дизайнами.
+   *
+   * Результат кэшируется в промисе (БАГ "на iPhone просто открывается
+   * картинка, не сохраняется", жалоба клиентов 2026-11-14): html-to-image
+   * пытается встроить шрифты и на кросс-доменный Google Fonts реально ходит
+   * в сеть за CSS и каждым файлом шрифта — это может занять заметное время.
+   * navigator.share() с файлами на iOS Safari работает только внутри «живого»
+   * пользовательского жеста: если между тапом по кнопке и самим share()
+   * проходит слишком много асинхронной работы, активация жеста протухает, и
+   * код проваливается в запасной `<a download>`, который на iOS Safari для
+   * data:-URL не скачивает файл, а просто открывает картинку. Рендерим PNG
+   * один раз и переиспользуем — первый вызов уходит из attemptAutoDownload
+   * сразу по входу на шаг 5 (см. ниже), ещё до клика, так что к моменту
+   * реального тапа по кнопке картинка почти наверняка уже готова.
    */
-  const renderCertificatePng = async () => {
-    if (!certificateCardRef.current) return null;
-    return toPng(certificateCardRef.current, {
+  const renderedPngRef = useRef<Promise<string> | null>(null);
+  const renderCertificatePng = () => {
+    if (renderedPngRef.current) return renderedPngRef.current;
+    if (!certificateCardRef.current) return Promise.resolve(null);
+    const p = toPng(certificateCardRef.current, {
       pixelRatio: 2,
       cacheBust: true,
       backgroundColor: "#f4efe6",
+    }).catch((err) => {
+      renderedPngRef.current = null;
+      throw err;
     });
+    renderedPngRef.current = p;
+    return p;
   };
 
   /**
